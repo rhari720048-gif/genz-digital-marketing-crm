@@ -226,7 +226,7 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
                           }`}
                           title={isExpanded ? "Collapse sub-menu" : "Expand sub-menu"}
                         >
-                          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : 'rotate-0'}`} />
+                          <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-90' : 'rotate-0'}`} />
                         </div>
                       )}
                     </div>
