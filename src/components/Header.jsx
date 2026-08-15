@@ -20,14 +20,15 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
           </button>
 
           {/* Logo Image & Subtext Branding Underneath */}
-          <div className="flex flex-col items-start cursor-pointer group">
+          <div className="flex flex-col items-start justify-center cursor-pointer group shrink-0">
             <img 
               src="/genz-logo.png" 
-              alt="GEN-Z Digital Marketing CRM" 
-              className="h-6.5 sm:h-7.5 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
+              alt="GEN-Z Marketing CRM" 
+              className="h-6 sm:h-7 max-h-7 w-auto object-contain shrink-0 group-hover:opacity-95 transition-opacity"
+              style={{ height: '24px', maxHeight: '28px' }}
             />
-            <div className="-mt-1 sm:-mt-1.5 leading-none font-heading font-extrabold tracking-tight">
-              <span className="text-xs sm:text-sm text-royal-600">
+            <div className="-mt-1 leading-none font-heading font-extrabold tracking-tight">
+              <span className="text-xs sm:text-sm font-extrabold text-royal-600">
                 Marketing CRM
               </span>
             </div>
