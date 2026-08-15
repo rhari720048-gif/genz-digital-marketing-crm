@@ -16,6 +16,8 @@ export default function ComingSoonView({
   stats, 
   refetchStats, 
   attendanceLogs, 
+  userAttendanceRecords,
+  onUpdateUserAttendance,
   onToggleCheckIn,
   registeredUsers,
   onAddUser,
@@ -35,6 +37,8 @@ export default function ComingSoonView({
       <AttendanceView
         user={user}
         attendanceLogs={attendanceLogs}
+        userAttendanceLogs={(userAttendanceRecords && user?.email) ? (userAttendanceRecords[user.email.toLowerCase()] || []) : []}
+        onUpdateUserAttendance={(logs, statusUpdate) => onUpdateUserAttendance && onUpdateUserAttendance(user?.email, logs, statusUpdate)}
         onToggleCheckIn={onToggleCheckIn}
       />
     );
@@ -125,6 +129,7 @@ export default function ComingSoonView({
       <AdminAttendanceOversightView
         users={registeredUsers || []}
         attendanceLogs={attendanceLogs || []}
+        userAttendanceRecords={userAttendanceRecords || {}}
       />
     );
   }

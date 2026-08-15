@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 
 export default function LoginView({ onLogin, registeredUsers = [] }) {
-  const [email, setEmail] = useState('alex.m@genzneuralx.io');
-  const [password, setPassword] = useState('alex123');
+  const [email, setEmail] = useState('admin@genzneuralx.io');
+  const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);

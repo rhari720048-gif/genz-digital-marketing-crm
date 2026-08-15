@@ -24,75 +24,23 @@ import {
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
 
 export default function QuotationsView({ stats, refetchStats }) {
-  const [quotations, setQuotations] = useState([
-    {
-      id: 'QT-2026-001',
-      clientName: 'Apex Solutions',
-      contactPerson: 'Rohan Sharma',
-      email: 'rohan@apex.com',
-      title: 'Enterprise CRM & Marketing Suite',
-      value: 12500,
-      tax: 2250,
-      total: 14750,
-      status: 'Approved',
-      date: '2026-08-10',
-      expiryDate: '2026-08-25',
-      items: [
-        { desc: 'Neural Marketing Automation Engine', qty: 1, price: 8500 },
-        { desc: 'Custom Lead Pipeline Setup', qty: 1, price: 4000 }
-      ]
-    },
-    {
-      id: 'QT-2026-002',
-      clientName: 'Vogue Media',
-      contactPerson: 'Priya Patel',
-      email: 'priya@vogue.co',
-      title: 'Social Media & Brand Campaign',
-      value: 8500,
-      tax: 1530,
-      total: 10030,
-      status: 'Sent',
-      date: '2026-08-12',
-      expiryDate: '2026-08-27',
-      items: [
-        { desc: 'Monthly Social Media Strategy', qty: 1, price: 5000 },
-        { desc: 'PPC & Ad Campaign Management', qty: 1, price: 3500 }
-      ]
-    },
-    {
-      id: 'QT-2026-003',
-      clientName: 'Nova Tech Ltd',
-      contactPerson: 'Michael Chang',
-      email: 'michael@novatech.io',
-      title: 'Full-Scale Performance Marketing',
-      value: 24000,
-      tax: 4320,
-      total: 28320,
-      status: 'Approved',
-      date: '2026-08-08',
-      expiryDate: '2026-08-23',
-      items: [
-        { desc: 'SEO & Content Growth Optimization', qty: 1, price: 14000 },
-        { desc: 'Lead Nurturing & Email Sequences', qty: 1, price: 10000 }
-      ]
-    },
-    {
-      id: 'QT-2026-004',
-      clientName: 'Alpha Group',
-      contactPerson: 'Vikram Malhotra',
-      email: 'vikram@alpha.in',
-      title: 'B2B Lead Generation Package',
-      value: 4500,
-      tax: 810,
-      total: 5310,
-      status: 'Draft',
-      date: '2026-08-14',
-      expiryDate: '2026-08-29',
-      items: [
-        { desc: 'Outbound Prospecting Campaign', qty: 1, price: 4500 }
-      ]
-    }
-  ]);
+  const [quotations, setQuotations] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crm_quotations_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const hasDummy = parsed.some(q => q.id === 'QT-2026-001' || q.id === 'QT-2026-002');
+        if (!hasDummy) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('crm_quotations_v2', JSON.stringify(quotations));
+    } catch (e) {}
+  }, [quotations]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

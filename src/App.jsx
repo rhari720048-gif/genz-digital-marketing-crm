@@ -44,55 +44,23 @@ const getStoredAttendance = () => {
 
 const DEFAULT_USERS = [
   {
-    id: 1,
-    name: 'Alex Morgan',
-    email: 'alex.m@genzneuralx.io',
-    password: 'alex123',
-    mobile: '+91 98765 43210',
-    empId: 'GNX-2026-0842',
-    role: 'Head of Growth Marketing',
-    department: 'Marketing Strategy & Leads',
-    manager: 'Vikram Sharma (VP of Growth)',
-    joiningDate: '15 March 2024',
-    location: 'Chennai Tech Park / Hybrid',
-    address: 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
-    emergencyContact: '+91 98765 12345 (Family)',
+    id: 'admin-001',
+    name: 'System Administrator',
+    email: 'admin@genzneuralx.io',
+    password: 'admin123',
+    mobile: '+91 98765 00000',
+    empId: 'GNX-ADMIN-01',
+    role: 'Super Admin',
+    department: 'Executive Administration',
+    joiningDate: '01 Jan 2024',
+    manager: 'Board of Directors',
+    location: 'Headquarters, OMR Chennai',
+    address: 'Executive Suite 01, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
+    emergencyContact: '+91 98765 00001 (HQ Desk)',
     bloodGroup: 'O+ Positive',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
-  },
-  {
-    id: 2,
-    name: 'Sarah Connor',
-    email: 'sarah.c@genzneuralx.io',
-    password: 'sarah123',
-    mobile: '+91 98765 43211',
-    empId: 'GNX-2026-0843',
-    role: 'Senior Performance Marketer',
-    department: 'Performance Marketing',
-    manager: 'Alex Morgan',
-    joiningDate: '01 June 2024',
-    location: 'Chennai Tech Park',
-    address: 'T-Nagar Tech Hub, OMR Road, Chennai, TN - 600017',
-    emergencyContact: '+91 98765 22222 (Father)',
-    bloodGroup: 'A+ Positive',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=250'
-  },
-  {
-    id: 3,
-    name: 'David Miller',
-    email: 'david.m@genzneuralx.io',
-    password: 'david123',
-    mobile: '+91 98765 43212',
-    empId: 'GNX-2026-0844',
-    role: 'Sales & Lead Conversion Specialist',
-    department: 'Sales & Conversions',
-    manager: 'Alex Morgan',
-    joiningDate: '10 January 2025',
-    location: 'Hybrid',
-    address: 'Velachery Cyber City, OMR, Chennai, TN - 600042',
-    emergencyContact: '+91 98765 33333 (Spouse)',
-    bloodGroup: 'B+ Positive',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250'
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=250',
+    status: 'Active',
+    isAdmin: true
   }
 ];
 
@@ -110,10 +78,24 @@ export default function App() {
   const [registeredUsers, setRegisteredUsers] = useState(() => {
     try {
       const saved = localStorage.getItem(USERS_LIST_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_USERS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Clean out legacy dummy accounts if present
+        const cleaned = parsed.filter(u => u.email !== 'alex.m@genzneuralx.io' && u.email !== 'sarah.c@genzneuralx.io' && u.email !== 'david.m@genzneuralx.io');
+        if (cleaned.length > 0) return cleaned;
+      }
+      return DEFAULT_USERS;
     } catch (e) {
       return DEFAULT_USERS;
     }
+  });
+
+  const [userAttendanceRecords, setUserAttendanceRecords] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crm_user_attendance_records_v4');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
   });
 
   const storedUser = getStoredUser();
@@ -156,6 +138,34 @@ export default function App() {
       localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
     } catch (e) {}
   }, [user]);
+
+  const handleUpdateUserAttendance = (userEmail, logs, userStatusUpdate) => {
+    const emailKey = (userEmail || user?.email || '').toLowerCase();
+    if (!emailKey) return;
+
+    setUserAttendanceRecords(prev => {
+      const updated = { ...prev, [emailKey]: logs };
+      try {
+        localStorage.setItem('crm_user_attendance_records_v4', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    if (userStatusUpdate) {
+      setRegisteredUsers(prev => prev.map(u => {
+        if (u.email.toLowerCase() === emailKey) {
+          return { ...u, ...userStatusUpdate };
+        }
+        return u;
+      }));
+
+      if (user && user.email.toLowerCase() === emailKey) {
+        const updatedUser = { ...user, ...userStatusUpdate };
+        setUser(updatedUser);
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
+      }
+    }
+  };
 
   const handleAddUser = (newUser) => {
     const userWithStatus = { ...newUser, status: 'Active' };
@@ -382,6 +392,8 @@ export default function App() {
             stats={stats}
             refetchStats={refetchStats}
             attendanceLogs={attendanceLogs}
+            userAttendanceRecords={userAttendanceRecords}
+            onUpdateUserAttendance={handleUpdateUserAttendance}
             onToggleCheckIn={handleToggleCheckIn}
             registeredUsers={registeredUsers}
             onAddUser={handleAddUser}

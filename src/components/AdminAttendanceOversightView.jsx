@@ -17,71 +17,46 @@ import {
   MapPin
 } from 'lucide-react';
 
-export default function AdminAttendanceOversightView({ users = [], attendanceLogs = [] }) {
+export default function AdminAttendanceOversightView({ users = [], attendanceLogs = [], userAttendanceRecords = {} }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [deptFilter, setDeptFilter] = useState('all');
 
-  // Generate realistic date-wise logs with MULTIPLE Client Field Visits / Office Out-In logs per day
+  // Extract live date-wise logs from userAttendanceRecords
   const getUserAttendanceHistory = (user) => {
-    const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    const yesterdayStr = new Date(Date.now() - 86400000).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    const day3Str = new Date(Date.now() - 172800000).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    const day4Str = new Date(Date.now() - 259200000).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    if (!user || !user.email) return [];
+    const emailKey = user.email.toLowerCase();
+    const rawUserLogs = userAttendanceRecords[emailKey];
+    
+    if (!rawUserLogs || !Array.isArray(rawUserLogs) || rawUserLogs.length === 0) {
+      return [];
+    }
 
-    return [
-      {
-        id: 101,
-        date: `Today (${todayStr})`,
-        checkIn: user.checkInTime || '09:00 AM',
-        clientVisits: [
-          { out: '11:15 AM', in: '01:00 PM', purpose: 'Client Meeting: Cognizant OMR Hub' },
-          { out: '03:30 PM', in: '05:15 PM', purpose: 'Field Visit: TCS Siruseri Campus' }
-        ],
-        checkOut: user.checkOutTime || (user.isCheckedIn ? 'In Progress' : '06:30 PM'),
-        totalHours: user.isCheckedIn ? 'Counting...' : '8h 45m',
-        status: user.isCheckedIn ? 'On Shift (Active)' : 'Shift Completed',
-        isToday: true
-      },
-      {
-        id: 102,
-        date: `Yesterday (${yesterdayStr})`,
-        checkIn: '08:55 AM',
-        clientVisits: [
-          { out: '10:30 AM', in: '12:45 PM', purpose: 'Client Consultation: Infosys Sholinganallur' },
-          { out: '02:45 PM', in: '04:30 PM', purpose: 'Strategy Pitch: HCL Guindy Office' }
-        ],
-        checkOut: '06:30 PM',
-        totalHours: '8h 50m',
-        status: 'Completed - On Time',
-        isToday: false
-      },
-      {
-        id: 103,
-        date: day3Str,
-        checkIn: '09:10 AM',
-        clientVisits: [
-          { out: '11:00 AM', in: '01:30 PM', purpose: 'On-Field Audit: Wipro Tech Park' }
-        ],
-        checkOut: '06:45 PM',
-        totalHours: '8h 35m',
-        status: 'Completed - Grace Late',
-        isToday: false
-      },
-      {
-        id: 104,
-        date: day4Str,
-        checkIn: '09:00 AM',
-        clientVisits: [
-          { out: '10:00 AM', in: '11:45 AM', purpose: 'Client Review: ZoHo Estates' },
-          { out: '04:00 PM', in: '05:30 PM', purpose: 'Partner Connect: Freshworks Campus' }
-        ],
-        checkOut: '06:30 PM',
-        totalHours: '8h 40m',
-        status: 'Completed - On Time',
-        isToday: false
-      }
-    ];
+    return rawUserLogs.map((dateGroup, index) => {
+      const checkInLog = dateGroup.logs.find(l => l.action === 'Office Check In' || l.action === 'Check In');
+      const checkOutLog = dateGroup.logs.find(l => l.action === 'Shift Check Out' || l.action === 'Check Out' || l.status === 'Day Closed');
+      const outLogs = dateGroup.logs.filter(l => l.action === 'Office Out');
+
+      const clientVisits = outLogs.map(outLog => {
+        const backLog = dateGroup.logs.find(l => l.action === 'Back to Office' && l.id >= outLog.id);
+        return {
+          out: outLog.time,
+          in: backLog ? backLog.time : (outLog.status === 'Active Field' ? 'In Field' : 'Returned'),
+          purpose: `${outLog.location || 'Field Location'} - ${outLog.purpose || 'Field Visit'}`
+        };
+      });
+
+      return {
+        id: index + 1,
+        date: dateGroup.dateLabel || dateGroup.dateKey,
+        checkIn: checkInLog ? checkInLog.time : 'Not Checked In',
+        checkOut: checkOutLog ? checkOutLog.time : (user.isCheckedIn ? 'In Progress' : '-'),
+        clientVisits: clientVisits,
+        totalHours: user.isCheckedIn ? 'Calculating...' : (dateGroup.isClosed ? 'Shift Closed' : 'In Progress'),
+        status: dateGroup.isClosed ? 'Completed' : (user.isCheckedIn ? 'On Shift (Active)' : 'In Progress'),
+        isToday: index === 0
+      };
+    });
   };
 
   const filteredUsers = users.filter(u => {
@@ -186,7 +161,18 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-                {historyLogs.map((log) => (
+                {historyLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="px-5 py-12 text-center text-slate-400 font-bold text-xs">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Clock className="w-8 h-8 text-slate-300" />
+                        <p className="text-slate-600 font-extrabold text-sm">No Attendance Activity Recorded Yet</p>
+                        <p className="text-slate-400 text-xs">When {selectedUser.name} logs in and performs Check-In or Office Out field visits, real-time records will appear here.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  historyLogs.map((log) => (
                   <tr key={log.id} className={`hover:bg-slate-50/50 transition-colors ${log.isToday ? 'bg-royal-50/30' : ''}`}>
                     
                     {/* Date */}
@@ -256,7 +242,7 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
                     </td>
 
                   </tr>
-                ))}
+                )))}
               </tbody>
             </table>
           </div>

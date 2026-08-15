@@ -21,56 +21,23 @@ import {
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
 
 export default function InvoicesView({ stats }) {
-  const [invoices, setInvoices] = useState([
-    {
-      id: 'INV-2026-881',
-      clientName: 'Apex Solutions',
-      contactPerson: 'Rohan Sharma',
-      email: 'rohan@apex.com',
-      amount: 14750,
-      paidAmount: 14750,
-      status: 'Paid',
-      issueDate: '2026-08-01',
-      dueDate: '2026-08-15',
-      paymentMode: 'Bank Transfer'
-    },
-    {
-      id: 'INV-2026-882',
-      clientName: 'Nova Tech Ltd',
-      contactPerson: 'Michael Chang',
-      email: 'michael@novatech.io',
-      amount: 28320,
-      paidAmount: 14000,
-      status: 'Partial',
-      issueDate: '2026-08-05',
-      dueDate: '2026-08-20',
-      paymentMode: 'Stripe / Card'
-    },
-    {
-      id: 'INV-2026-883',
-      clientName: 'Vogue Media',
-      contactPerson: 'Priya Patel',
-      email: 'priya@vogue.co',
-      amount: 10030,
-      paidAmount: 0,
-      status: 'Pending',
-      issueDate: '2026-08-10',
-      dueDate: '2026-08-25',
-      paymentMode: 'Unpaid'
-    },
-    {
-      id: 'INV-2026-884',
-      clientName: 'Bloom Retail',
-      contactPerson: 'Sarah Jenkins',
-      email: 'sarah@bloom.com',
-      amount: 9200,
-      paidAmount: 0,
-      status: 'Overdue',
-      issueDate: '2026-07-20',
-      dueDate: '2026-08-04',
-      paymentMode: 'Unpaid'
-    }
-  ]);
+  const [invoices, setInvoices] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crm_invoices_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const hasDummy = parsed.some(i => i.id === 'INV-2026-881' || i.id === 'INV-2026-882');
+        if (!hasDummy) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('crm_invoices_v2', JSON.stringify(invoices));
+    } catch (e) {}
+  }, [invoices]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

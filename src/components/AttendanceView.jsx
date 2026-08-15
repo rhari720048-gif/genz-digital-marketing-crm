@@ -27,7 +27,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 
-export default function AttendanceView({ user, onToggleCheckIn }) {
+export default function AttendanceView({ user, userAttendanceLogs = [], onUpdateUserAttendance, onToggleCheckIn }) {
   // Current status: 'not_checked_in' | 'in_office' | 'outside' | 'day_completed'
   const [status, setStatus] = useState(() => {
     if (user?.hasCheckedOutToday) return 'day_completed';
@@ -55,20 +55,16 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
   const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
   const [checkOutNotesInput, setCheckOutNotesInput] = useState('');
 
-  // Date-wise Grouped Activity History Array
-  const [activityHistoryByDate, setActivityHistoryByDate] = useState([
-    {
-      dateKey: 'Yesterday, Aug 10, 2026',
-      dateLabel: 'Yesterday • Monday, Aug 10, 2026',
-      isClosed: true,
-      logs: [
-        { id: 101, time: '09:00 AM', action: 'Office Check In', location: 'GENZ Office', purpose: 'Morning Shift Start', duration: '-', status: 'Completed' },
-        { id: 102, time: '11:15 AM', action: 'Office Out', location: 'Vertex Tech Park, OMR', purpose: 'Client Contract Meeting', duration: '2h 15m', status: 'Completed' },
-        { id: 103, time: '01:30 PM', action: 'Back to Office', location: 'GENZ Office', purpose: 'Returned to Workstation', duration: '-', status: 'Completed' },
-        { id: 104, time: '06:30 PM', action: 'Check Out', location: 'GENZ Office', purpose: 'Day Work Completed', duration: '-', status: 'Day Closed' }
-      ]
+  // Date-wise Grouped Activity History Array (Initialized clean from user attendance logs)
+  const [activityHistoryByDate, setActivityHistoryByDate] = useState(() => {
+    return Array.isArray(userAttendanceLogs) ? userAttendanceLogs : [];
+  });
+
+  useEffect(() => {
+    if (Array.isArray(userAttendanceLogs)) {
+      setActivityHistoryByDate(userAttendanceLogs);
     }
-  ]);
+  }, [userAttendanceLogs]);
 
   // Live timer interval effect
   useEffect(() => {
@@ -92,6 +88,14 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
     }
   }, [user?.isCheckedIn, user?.hasCheckedOutToday, user?.checkInTime, user?.checkOutTime]);
 
+  // Sync back to central state
+  const syncToParent = (updatedHistory, userStatusUpdate = {}) => {
+    setActivityHistoryByDate(updatedHistory);
+    if (onUpdateUserAttendance) {
+      onUpdateUserAttendance(updatedHistory, userStatusUpdate);
+    }
+  };
+
   // Get current date label
   const getTodayDateLabel = () => {
     const now = new Date();
@@ -105,45 +109,42 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
   };
 
   // Helper to add log to today's active date group
-  const addLogToToday = (logEntry) => {
+  const addLogToToday = (logEntry, statusUpdate = {}) => {
     const todayKey = getTodayKey();
     const todayLabel = getTodayDateLabel();
 
-    setActivityHistoryByDate(prevGroups => {
-      const existingTodayIndex = prevGroups.findIndex(g => g.dateKey === todayKey && !g.isClosed);
+    let updatedGroups = [];
+    const existingTodayIndex = activityHistoryByDate.findIndex(g => g.dateKey === todayKey && !g.isClosed);
 
-      if (existingTodayIndex !== -1) {
-        // Append to existing open today group
-        const updatedGroups = [...prevGroups];
-        updatedGroups[existingTodayIndex] = {
-          ...updatedGroups[existingTodayIndex],
-          logs: [logEntry, ...updatedGroups[existingTodayIndex].logs]
-        };
-        return updatedGroups;
-      } else {
-        // Create a brand NEW date group for Today
-        const newTodayGroup = {
-          dateKey: todayKey,
-          dateLabel: todayLabel,
-          isClosed: false,
-          logs: [logEntry]
-        };
-        return [newTodayGroup, ...prevGroups];
-      }
-    });
+    if (existingTodayIndex !== -1) {
+      updatedGroups = [...activityHistoryByDate];
+      updatedGroups[existingTodayIndex] = {
+        ...updatedGroups[existingTodayIndex],
+        logs: [logEntry, ...updatedGroups[existingTodayIndex].logs]
+      };
+    } else {
+      const newTodayGroup = {
+        dateKey: todayKey,
+        dateLabel: todayLabel,
+        isClosed: false,
+        logs: [logEntry]
+      };
+      updatedGroups = [newTodayGroup, ...activityHistoryByDate];
+    }
+
+    syncToParent(updatedGroups, statusUpdate);
   };
 
   // Helper to close today's group upon Check Out
-  const closeTodayGroup = () => {
+  const closeTodayGroup = (statusUpdate = {}) => {
     const todayKey = getTodayKey();
-    setActivityHistoryByDate(prevGroups => {
-      return prevGroups.map(g => {
-        if (g.dateKey === todayKey) {
-          return { ...g, isClosed: true };
-        }
-        return g;
-      });
+    const updatedGroups = activityHistoryByDate.map(g => {
+      if (g.dateKey === todayKey) {
+        return { ...g, isClosed: true };
+      }
+      return g;
     });
+    syncToParent(updatedGroups, statusUpdate);
   };
 
   const handleCheckInEvent = (customTime) => {
@@ -152,6 +153,10 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
     setCheckInTime(nowStr);
     setCheckInEpoch(Date.now());
     setStatus('in_office');
+
+    if (!user?.isCheckedIn && onToggleCheckIn) {
+      onToggleCheckIn();
+    }
 
     const newLog = {
       id: Date.now(),
@@ -163,7 +168,12 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
       status: 'Completed'
     };
 
-    addLogToToday(newLog);
+    addLogToToday(newLog, {
+      isCheckedIn: true,
+      hasCheckedOutToday: false,
+      checkInTime: nowStr,
+      currentAttendanceStatus: 'In Office'
+    });
   };
 
   // Open Office Out Modal
@@ -196,13 +206,15 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
       id: Date.now(),
       time: timeToRecord,
       action: 'Office Out',
-      location: locationInput,
-      purpose: purposeInput,
+      location: locationInput || 'Field Location',
+      purpose: purposeInput || 'Client Visit',
       duration: 'In Progress',
       status: 'Active Field'
     };
 
-    addLogToToday(newLog);
+    addLogToToday(newLog, {
+      currentAttendanceStatus: `Office Out: ${locationInput || 'Field Visit'}`
+    });
   };
 
   // Back to Office
@@ -221,18 +233,15 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
     setOfficeOutEpoch(null);
     setStatus('in_office');
 
-    // Update active field visit log in today's group
     const todayKey = getTodayKey();
-    setActivityHistoryByDate(prevGroups => {
-      return prevGroups.map(g => {
-        if (g.dateKey === todayKey) {
-          return {
-            ...g,
-            logs: g.logs.map(l => l.status === 'Active Field' ? { ...l, duration: formattedVisitDuration, status: 'Completed' } : l)
-          };
-        }
-        return g;
-      });
+    const updatedHistory = activityHistoryByDate.map(g => {
+      if (g.dateKey === todayKey) {
+        return {
+          ...g,
+          logs: g.logs.map(l => l.status === 'Active Field' ? { ...l, duration: formattedVisitDuration, status: 'Completed' } : l)
+        };
+      }
+      return g;
     });
 
     const newLog = {
@@ -245,8 +254,22 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
       status: 'Completed'
     };
 
-    addLogToToday(newLog);
+    const existingTodayIndex = updatedHistory.findIndex(g => g.dateKey === todayKey && !g.isClosed);
+    let finalGroups = [];
+    if (existingTodayIndex !== -1) {
+      finalGroups = [...updatedHistory];
+      finalGroups[existingTodayIndex] = {
+        ...finalGroups[existingTodayIndex],
+        logs: [newLog, ...finalGroups[existingTodayIndex].logs]
+      };
+    } else {
+      finalGroups = [{ dateKey: todayKey, dateLabel: getTodayDateLabel(), isClosed: false, logs: [newLog] }, ...updatedHistory];
+    }
+
     setActiveOutVisit(null);
+    syncToParent(finalGroups, {
+      currentAttendanceStatus: 'In Office'
+    });
   };
 
   // Confirm Check Out
@@ -259,7 +282,7 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
     setStatus('day_completed');
     setIsCheckOutModalOpen(false);
 
-    if (user?.isCheckedIn) {
+    if (user?.isCheckedIn && onToggleCheckIn) {
       onToggleCheckIn();
     }
 
@@ -274,9 +297,28 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
       status: 'Day Closed'
     };
 
-    addLogToToday(newLog);
-    closeTodayGroup();
+    const todayKey = getTodayKey();
+    let updatedGroups = [];
+    const existingTodayIndex = activityHistoryByDate.findIndex(g => g.dateKey === todayKey && !g.isClosed);
+
+    if (existingTodayIndex !== -1) {
+      updatedGroups = [...activityHistoryByDate];
+      updatedGroups[existingTodayIndex] = {
+        ...updatedGroups[existingTodayIndex],
+        isClosed: true,
+        logs: [newLog, ...updatedGroups[existingTodayIndex].logs]
+      };
+    } else {
+      updatedGroups = [{ dateKey: todayKey, dateLabel: getTodayDateLabel(), isClosed: true, logs: [newLog] }, ...activityHistoryByDate];
+    }
+
     setCheckOutNotesInput('');
+    syncToParent(updatedGroups, {
+      isCheckedIn: false,
+      hasCheckedOutToday: true,
+      checkOutTime: nowStr,
+      currentAttendanceStatus: 'Shift Completed'
+    });
   };
 
   // CALCULATE DYNAMIC DURATIONS
