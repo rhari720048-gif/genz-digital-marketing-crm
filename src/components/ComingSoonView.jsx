@@ -91,9 +91,9 @@ export default function ComingSoonView({
   if (activeTab === 'analytics') {
     return (
       <div className="space-y-6 font-sans">
-        <div className="bg-gradient-to-r from-royal-600 to-indigo-700 p-6 rounded-3xl text-white shadow-xl">
-          <h1 className="text-2xl font-black font-heading">System Analytics & Operational Audit</h1>
-          <p className="text-xs text-royal-100 mt-1">Real-time system health, registered user metrics, and platform usage.</p>
+        <div className="bg-white p-6 rounded-3xl text-slate-900 border border-slate-200/80 shadow-xs">
+          <h1 className="text-2xl font-black font-heading text-slate-900">System Analytics & Operational Audit</h1>
+          <p className="text-xs text-slate-500 mt-1">Real-time system health, registered user metrics, and platform usage.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

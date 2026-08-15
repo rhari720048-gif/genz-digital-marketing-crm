@@ -53,6 +53,7 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
 
   const [activeOutVisit, setActiveOutVisit] = useState(null);
   const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
+  const [checkOutNotesInput, setCheckOutNotesInput] = useState('');
 
   // Date-wise Grouped Activity History Array
   const [activityHistoryByDate, setActivityHistoryByDate] = useState([
@@ -249,8 +250,10 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
   };
 
   // Confirm Check Out
-  const handleConfirmCheckOut = () => {
+  const handleConfirmCheckOut = (e) => {
+    if (e) e.preventDefault();
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const notesText = checkOutNotesInput.trim() || 'Workday Shift Completed';
 
     setCheckOutTime(nowStr);
     setStatus('day_completed');
@@ -265,13 +268,15 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
       time: nowStr,
       action: 'Check Out',
       location: 'GENZ Office',
-      purpose: 'Workday Shift Completed',
+      purpose: notesText,
+      notes: notesText,
       duration: '-',
       status: 'Day Closed'
     };
 
     addLogToToday(newLog);
     closeTodayGroup();
+    setCheckOutNotesInput('');
   };
 
   // CALCULATE DYNAMIC DURATIONS
@@ -604,9 +609,9 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <form onSubmit={handleConfirmCheckOut} className="p-5 space-y-4">
               <p className="text-xs text-slate-600">
-                Confirming check out for today. Here is your summary:
+                Type your EOD work notes/summary before checking out. Notes will be logged into your Attendance Record:
               </p>
 
               <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
@@ -628,6 +633,21 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
                 </div>
               </div>
 
+              {/* Mandatory Check Out Work Notes Input */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider block">
+                  Check Out Work Notes / EOD Summary *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={checkOutNotesInput}
+                  onChange={(e) => setCheckOutNotesInput(e.target.value)}
+                  placeholder="Enter work summary/notes for today before checking out (e.g. Completed lead follow-ups, converted 2 clients, prepared monthly pitch...)"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-royal-500 font-sans"
+                />
+              </div>
+
               <div className="flex justify-end space-x-2 pt-1">
                 <button
                   type="button"
@@ -637,15 +657,14 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
                   Cancel
                 </button>
                 <button
-                  type="button"
-                  onClick={handleConfirmCheckOut}
-                  className="px-4 py-1.5 rounded-xl bg-royal-600 hover:bg-royal-700 text-white text-xs font-bold flex items-center space-x-1.5 shadow-xs"
+                  type="submit"
+                  className="px-4 py-1.5 rounded-xl bg-royal-600 hover:bg-royal-700 text-white text-xs font-bold flex items-center space-x-1.5 shadow-xs cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Confirm Check Out</span>
+                  <span>Log Notes & Check Out</span>
                 </button>
               </div>
-            </div>
+            </form>
 
           </div>
         </div>

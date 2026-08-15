@@ -67,18 +67,26 @@ export default function AttendanceModal({ isOpen, onClose, user, attendanceLogs,
 
             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
               {attendanceLogs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white text-xs">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="w-3.5 h-3.5 text-royal-600" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">{log.date}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">In: {log.checkIn} | Out: {log.checkOut}</p>
+                <div key={log.id} className="p-2.5 rounded-lg border border-slate-200 bg-white text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-3.5 h-3.5 text-royal-600 shrink-0" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">{log.date}</p>
+                        <p className="text-[10px] text-slate-400 font-mono">In: {log.checkIn} | Out: {log.checkOut}</p>
+                      </div>
                     </div>
+
+                    <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                      {log.hours}
+                    </span>
                   </div>
 
-                  <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                    {log.hours}
-                  </span>
+                  {(log.notes || log.purpose) && (
+                    <p className="text-[10px] text-slate-600 font-medium pl-5 border-l-2 border-royal-400 italic">
+                      Notes: {log.notes || log.purpose}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

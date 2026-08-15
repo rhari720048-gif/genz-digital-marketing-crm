@@ -22,7 +22,11 @@ import {
   Power,
   PowerOff,
   UserX,
-  UserCheck2
+  UserCheck2,
+  Heart,
+  Globe,
+  Home,
+  User
 } from 'lucide-react';
 
 export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser, onToggleUserStatus, onLoginAsUser }) {
@@ -34,7 +38,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
   const [editingUser, setEditingUser] = useState(null);
   const [toastMsg, setToastMsg] = useState(null);
 
-  // Form State for Add User Modal
+  // Initial blank/default state for Add User Modal with ALL Profile Fields
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -144,22 +148,22 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
       )}
 
       {/* HEADER BANNER */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-royal-600 via-royal-700 to-indigo-800 p-5 sm:p-6 rounded-3xl border border-royal-500/30 shadow-xl text-white">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
             Team & Employee Management
           </h1>
-          <p className="text-xs sm:text-sm text-royal-100 mt-1 font-medium">
-            Manage users, view profile details, edit credentials, and enable/disable login access.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+            Manage users, view complete profile details, edit credentials, and enable/disable login access.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-4 py-2.5 rounded-2xl bg-white text-royal-700 hover:bg-royal-50 font-black text-xs flex items-center space-x-2 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="px-4 py-2.5 rounded-2xl bg-royal-600 hover:bg-royal-700 text-white font-black text-xs flex items-center space-x-2 transition-all shadow-md active:scale-95 cursor-pointer"
           >
-            <UserPlus className="w-4 h-4 text-royal-600" />
+            <UserPlus className="w-4 h-4 text-white" />
             <span>+ Add New Employee</span>
           </button>
         </div>
@@ -211,38 +215,40 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
         </div>
       </div>
 
-      {/* ALL USERS TABLE */}
+      {/* ALL USERS TABLE (Displays All User Profile Details) */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <h3 className="text-sm font-black font-heading text-slate-900">
             Registered CRM Employees ({filteredUsers.length})
           </h3>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Actions: View • Edit • Delete • Active/Inactive Switch
+            All Profile Fields Visible
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/75 border-b border-slate-200/80 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-5 py-3.5">User Details</th>
-                <th className="px-5 py-3.5">Emp ID & Role</th>
-                <th className="px-5 py-3.5">Department</th>
-                <th className="px-5 py-3.5">Login Credentials</th>
-                <th className="px-5 py-3.5 text-center">Account Status</th>
-                <th className="px-5 py-3.5 text-center">Actions</th>
+              <tr className="bg-slate-50/75 border-b border-slate-200/80 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-3.5">Employee & Contact</th>
+                <th className="px-4 py-3.5">Emp ID & Role</th>
+                <th className="px-4 py-3.5">Department & Manager</th>
+                <th className="px-4 py-3.5">Location & Joined</th>
+                <th className="px-4 py-3.5">Blood & Emergency</th>
+                <th className="px-4 py-3.5">Login Credentials</th>
+                <th className="px-4 py-3.5 text-center">Status</th>
+                <th className="px-4 py-3.5 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+            <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
               {filteredUsers.map((u) => {
                 const isUserActive = (u.status || 'Active') === 'Active';
 
                 return (
                   <tr key={u.id || u.empId} className="hover:bg-slate-50/50 transition-colors">
                     
-                    {/* User Details */}
-                    <td className="px-5 py-4">
+                    {/* 1. Employee & Contact */}
+                    <td className="px-4 py-3.5">
                       <div className="flex items-center space-x-3">
                         <img 
                           src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} 
@@ -252,35 +258,52 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                         <div>
                           <div className="flex items-center space-x-1.5">
                             <span className="font-extrabold text-slate-900">{u.name}</span>
-                            <BadgeCheck className="w-3.5 h-3.5 text-royal-600" />
+                            <BadgeCheck className="w-3.5 h-3.5 text-royal-600 shrink-0" />
                           </div>
-                          <span className="text-xs text-slate-400 font-mono">{u.mobile}</span>
+                          <span className="text-[11px] text-slate-500 font-mono block">{u.mobile || '+91 98765 43210'}</span>
+                          <span className="text-[10px] text-slate-400 truncate max-w-[140px] block" title={u.address}>{u.address || 'Suite 402, Neural Tower'}</span>
                         </div>
                       </div>
                     </td>
 
-                    {/* Emp ID & Role */}
-                    <td className="px-5 py-4">
+                    {/* 2. Emp ID & Role */}
+                    <td className="px-4 py-3.5">
                       <div className="flex flex-col">
-                        <span className="font-mono text-xs font-extrabold text-royal-700">{u.empId}</span>
+                        <span className="font-mono text-xs font-black text-royal-700">{u.empId}</span>
                         <span className="text-xs font-bold text-slate-800">{u.role}</span>
                       </div>
                     </td>
 
-                    {/* Dept */}
-                    <td className="px-5 py-4">
+                    {/* 3. Department & Manager */}
+                    <td className="px-4 py-3.5">
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-800">{u.department}</span>
-                        <span className="text-[11px] text-slate-500">{u.location}</span>
+                        <span className="text-xs font-bold text-slate-900">{u.department}</span>
+                        <span className="text-[11px] text-slate-500 font-medium">Mgr: {u.manager || 'Vikram Sharma'}</span>
                       </div>
                     </td>
 
-                    {/* Credentials */}
-                    <td className="px-5 py-4">
+                    {/* 4. Location & Joined */}
+                    <td className="px-4 py-3.5">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-slate-800">{u.location || 'Chennai Tech Park'}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">Joined: {u.joiningDate || '15 Mar 2024'}</span>
+                      </div>
+                    </td>
+
+                    {/* 5. Blood & Emergency Contact */}
+                    <td className="px-4 py-3.5">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-extrabold text-rose-700">{u.bloodGroup || 'O+ Positive'}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">SOS: {u.emergencyContact || '+91 98765 12345'}</span>
+                      </div>
+                    </td>
+
+                    {/* 6. Credentials */}
+                    <td className="px-4 py-3.5">
                       <div className="flex flex-col space-y-0.5">
                         <div className="flex items-center space-x-1 text-xs font-mono font-bold text-slate-800">
                           <Mail className="w-3 h-3 text-royal-600 shrink-0" />
-                          <span className="truncate max-w-[160px]">{u.email}</span>
+                          <span className="truncate max-w-[140px]">{u.email}</span>
                         </div>
                         <div className="flex items-center space-x-1 text-[11px] font-mono text-emerald-600 font-bold">
                           <KeyRound className="w-3 h-3 text-emerald-500 shrink-0" />
@@ -289,8 +312,8 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                       </div>
                     </td>
 
-                    {/* Account Status Badge */}
-                    <td className="px-5 py-4 text-center">
+                    {/* 7. Account Status Badge */}
+                    <td className="px-4 py-3.5 text-center">
                       {isUserActive ? (
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center space-x-1">
                           <UserCheck2 className="w-3 h-3 text-emerald-600" />
@@ -299,13 +322,13 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                       ) : (
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center space-x-1">
                           <UserX className="w-3 h-3 text-rose-600" />
-                          <span>Inactive (Blocked)</span>
+                          <span>Inactive</span>
                         </span>
                       )}
                     </td>
 
-                    {/* Actions Column (View, Edit, Delete, Active/Inactive Toggle) */}
-                    <td className="px-5 py-4 text-center">
+                    {/* 8. Actions Column */}
+                    <td className="px-4 py-3.5 text-center">
                       <div className="flex items-center justify-center space-x-1">
                         
                         {/* VIEW */}
@@ -330,22 +353,22 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                         {onToggleUserStatus && (
                           <button
                             onClick={() => onToggleUserStatus(u.id || u.empId)}
-                            className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold border transition-all flex items-center space-x-1 cursor-pointer active:scale-95 ${
+                            className={`px-3 py-1 rounded-xl text-[10px] font-black transition-all flex items-center space-x-1 cursor-pointer active:scale-95 shadow-2xs ${
                               isUserActive
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200'
-                                : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200'
+                                ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                             }`}
-                            title={isUserActive ? "Click to Deactivate Login" : "Click to Activate Login"}
+                            title={isUserActive ? "Click to set status to Inactive" : "Click to set status to Active"}
                           >
                             {isUserActive ? (
                               <>
-                                <Power className="w-3 h-3 text-emerald-600" />
-                                <span>Active</span>
+                                <PowerOff className="w-3.5 h-3.5 text-white" />
+                                <span>Inactive</span>
                               </>
                             ) : (
                               <>
-                                <PowerOff className="w-3 h-3 text-rose-600" />
-                                <span>Inactive</span>
+                                <Power className="w-3.5 h-3.5 text-white" />
+                                <span>Active</span>
                               </>
                             )}
                           </button>
@@ -374,7 +397,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan="8" className="px-6 py-12 text-center text-slate-400">
                     <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                     <p className="text-sm font-bold text-slate-600">No matching team users found.</p>
                   </td>
@@ -385,10 +408,10 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
         </div>
       </div>
 
-      {/* ADD USER MODAL */}
+      {/* ADD USER MODAL (Includes ALL 13 Profile Page Fields) */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-slate-100 animate-fadeIn space-y-4 max-h-[90vh] flex flex-col my-8">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-100 animate-fadeIn space-y-4 max-h-[90vh] flex flex-col my-8">
             
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
               <div className="flex items-center space-x-2">
@@ -397,7 +420,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                 </div>
                 <div>
                   <h3 className="text-base font-black font-heading text-slate-900">Add New CRM Employee</h3>
-                  <p className="text-[11px] text-slate-500">Create login credentials and digital profile for team member.</p>
+                  <p className="text-[11px] text-slate-500">Enter complete profile details for real-time Profile Page & CRM sync.</p>
                 </div>
               </div>
               <button
@@ -409,10 +432,12 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
             </div>
 
             <form onSubmit={handleCreateUserSubmit} className="space-y-3 overflow-y-auto pr-1 flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                
+                {/* 1. Full Legal Name */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Full Name *
+                    Full Legal Name *
                   </label>
                   <input
                     type="text"
@@ -421,10 +446,11 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     placeholder="e.g. Rahul Sharma"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
                   />
                 </div>
 
+                {/* 2. Work Email (Login ID) */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
                     Work Email (Login ID) *
@@ -436,10 +462,11 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     placeholder="rahul@genzneuralx.io"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
                   />
                 </div>
 
+                {/* 3. Password */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
                     Password *
@@ -451,13 +478,14 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     placeholder="Set Login Password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500 font-mono"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500 font-mono"
                   />
                 </div>
 
+                {/* 4. Mobile Phone */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Mobile Phone
+                    Mobile Phone Number
                   </label>
                   <input
                     type="text"
@@ -465,35 +493,150 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     placeholder="+91 98765 43210"
                     value={formData.mobile}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
                   />
                 </div>
 
+                {/* 5. Employee ID */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Job Role / Designation
+                    Employee ID Number
+                  </label>
+                  <input
+                    type="text"
+                    name="empId"
+                    value={formData.empId}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500 font-mono font-bold"
+                  />
+                </div>
+
+                {/* 6. Designation / Role */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Designation / Job Role
                   </label>
                   <input
                     type="text"
                     name="role"
+                    placeholder="e.g. Marketing Executive"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
                   />
                 </div>
 
+                {/* 7. Department (Typeable text input!) */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Department
+                    Department (Typeable)
                   </label>
                   <input
                     type="text"
                     name="department"
+                    placeholder="e.g. Marketing Strategy & Leads"
                     value={formData.department}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
                   />
                 </div>
+
+                {/* 8. Reporting Manager */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Reporting Manager
+                  </label>
+                  <input
+                    type="text"
+                    name="manager"
+                    placeholder="e.g. Vikram Sharma (VP of Growth)"
+                    value={formData.manager}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                  />
+                </div>
+
+                {/* 9. Date of Joining */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Date of Joining
+                  </label>
+                  <input
+                    type="date"
+                    name="joiningDate"
+                    value={formData.joiningDate}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                  />
+                </div>
+
+                {/* 10. Work Location */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Work Location
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    placeholder="e.g. Chennai Tech Park / Hybrid"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                  />
+                </div>
+
+                {/* 11. Blood Group (Select dropdown!) */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Blood Group (Select)
+                  </label>
+                  <select
+                    name="bloodGroup"
+                    value={formData.bloodGroup}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500 font-bold"
+                  >
+                    <option value="O+ Positive">O+ Positive</option>
+                    <option value="A+ Positive">A+ Positive</option>
+                    <option value="B+ Positive">B+ Positive</option>
+                    <option value="AB+ Positive">AB+ Positive</option>
+                    <option value="O- Negative">O- Negative</option>
+                    <option value="A- Negative">A- Negative</option>
+                    <option value="B- Negative">B- Negative</option>
+                    <option value="AB- Negative">AB- Negative</option>
+                  </select>
+                </div>
+
+                {/* 12. Emergency Contact */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Emergency Contact Number
+                  </label>
+                  <input
+                    type="text"
+                    name="emergencyContact"
+                    placeholder="+91 98765 12345 (Family)"
+                    value={formData.emergencyContact}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                  />
+                </div>
+
+                {/* 13. Residential Address */}
+                <div className="sm:col-span-2">
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Residential Address
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder="Suite 402, Neural Tower, OMR Tech Corridor, Chennai..."
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                  />
+                </div>
+
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 shrink-0">
@@ -518,10 +661,10 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
         </div>
       )}
 
-      {/* EDIT USER MODAL */}
+      {/* EDIT USER MODAL (Includes ALL 13 Profile Page Fields) */}
       {editingUser && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-slate-100 animate-fadeIn space-y-4 max-h-[90vh] flex flex-col my-8">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-100 animate-fadeIn space-y-4 max-h-[90vh] flex flex-col my-8">
             
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
               <div className="flex items-center space-x-2">
@@ -529,8 +672,8 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                   <Pencil className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black font-heading text-slate-900">Edit User: {editingUser.name}</h3>
-                  <p className="text-[11px] text-slate-500">Update employee details and login password.</p>
+                  <h3 className="text-base font-black font-heading text-slate-900">Edit User Profile: {editingUser.name}</h3>
+                  <p className="text-[11px] text-slate-500">Update complete employee credentials & identity details.</p>
                 </div>
               </div>
               <button
@@ -542,16 +685,16 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
             </div>
 
             <form onSubmit={handleEditUserSubmit} className="space-y-3 overflow-y-auto pr-1 flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Full Name
+                    Full Legal Name
                   </label>
                   <input
                     type="text"
-                    value={editingUser.name}
+                    value={editingUser.name || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -561,9 +704,9 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                   </label>
                   <input
                     type="email"
-                    value={editingUser.email}
+                    value={editingUser.email || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -575,7 +718,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     type="text"
                     value={editingUser.password || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
                   />
                 </div>
 
@@ -587,7 +730,19 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     type="text"
                     value={editingUser.mobile || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, mobile: e.target.value })}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Employee ID
+                  </label>
+                  <input
+                    type="text"
+                    value={editingUser.empId || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, empId: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono font-bold"
                   />
                 </div>
 
@@ -599,19 +754,87 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     type="text"
                     value={editingUser.role || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Department
+                    Department (Typeable)
                   </label>
                   <input
                     type="text"
                     value={editingUser.department || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })}
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Reporting Manager
+                  </label>
+                  <input
+                    type="text"
+                    value={editingUser.manager || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, manager: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Work Location
+                  </label>
+                  <input
+                    type="text"
+                    value={editingUser.location || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, location: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Blood Group (Select)
+                  </label>
+                  <select
+                    value={editingUser.bloodGroup || 'O+ Positive'}
+                    onChange={(e) => setEditingUser({ ...editingUser, bloodGroup: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold"
+                  >
+                    <option value="O+ Positive">O+ Positive</option>
+                    <option value="A+ Positive">A+ Positive</option>
+                    <option value="B+ Positive">B+ Positive</option>
+                    <option value="AB+ Positive">AB+ Positive</option>
+                    <option value="O- Negative">O- Negative</option>
+                    <option value="A- Negative">A- Negative</option>
+                    <option value="B- Negative">B- Negative</option>
+                    <option value="AB- Negative">AB- Negative</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Emergency Contact
+                  </label>
+                  <input
+                    type="text"
+                    value={editingUser.emergencyContact || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, emergencyContact: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Residential Address
+                  </label>
+                  <input
+                    type="text"
+                    value={editingUser.address || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -645,7 +868,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
             
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center space-x-3">
-                <img src={viewingUser.avatar} alt={viewingUser.name} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-royal-500/40" />
+                <img src={viewingUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} alt={viewingUser.name} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-royal-500/40" />
                 <div>
                   <h3 className="text-lg font-black font-heading text-slate-900">{viewingUser.name}</h3>
                   <p className="text-xs text-royal-600 font-bold">{viewingUser.role}</p>
@@ -653,7 +876,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
               </div>
               <button
                 onClick={() => setViewingUser(null)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -687,7 +910,22 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Reporting Manager</span>
-                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.manager}</p>
+                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.manager || 'Vikram Sharma'}</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Work Location</span>
+                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.location || 'Chennai Tech Park / Hybrid'}</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Blood Group</span>
+                <p className="font-bold text-rose-700 mt-0.5">{viewingUser.bloodGroup || 'O+ Positive'}</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Emergency Contact</span>
+                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.emergencyContact || '+91 98765 12345'}</p>
               </div>
 
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
@@ -695,6 +933,11 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                 <p className={`font-extrabold mt-0.5 ${(viewingUser.status || 'Active') === 'Active' ? 'text-emerald-600' : 'text-rose-600'}`}>
                   {viewingUser.status || 'Active'}
                 </p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 sm:col-span-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Residential Address</span>
+                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.address || 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai'}</p>
               </div>
             </div>
 
@@ -714,3 +957,4 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
     </div>
   );
 }
+

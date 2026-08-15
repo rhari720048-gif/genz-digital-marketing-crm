@@ -120,31 +120,31 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
         </div>
 
         {/* Employee Profile Header Card */}
-        <div className="bg-gradient-to-r from-royal-600 via-royal-700 to-indigo-800 p-5 sm:p-6 rounded-3xl border border-royal-500/30 shadow-xl text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-4">
             <img 
               src={selectedUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} 
               alt={selectedUser.name}
-              className="w-16 h-16 rounded-2xl object-cover ring-4 ring-white/20 shadow-md shrink-0" 
+              className="w-16 h-16 rounded-2xl object-cover ring-2 ring-royal-500/20 shadow-md shrink-0" 
             />
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">{selectedUser.name}</h1>
-                <BadgeCheck className="w-5 h-5 text-emerald-400" />
+                <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">{selectedUser.name}</h1>
+                <BadgeCheck className="w-5 h-5 text-royal-600" />
               </div>
-              <p className="text-xs text-royal-100 font-bold mt-0.5">{selectedUser.role} • {selectedUser.department}</p>
-              <div className="flex items-center space-x-3 text-[11px] text-royal-200 font-mono mt-1.5">
-                <span>Emp ID: <strong>{selectedUser.empId}</strong></span>
+              <p className="text-xs text-slate-500 font-bold mt-0.5">{selectedUser.role} • {selectedUser.department}</p>
+              <div className="flex items-center space-x-3 text-[11px] text-slate-600 font-mono mt-1.5">
+                <span>Emp ID: <strong className="text-royal-700">{selectedUser.empId}</strong></span>
                 <span>•</span>
-                <span>Work: <strong>{selectedUser.location || 'Chennai Tech Park'}</strong></span>
+                <span>Work: <strong className="text-slate-800">{selectedUser.location || 'Chennai Tech Park'}</strong></span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/20">
+          <div className="flex items-center space-x-2 bg-slate-50 px-4 py-3 rounded-2xl border border-slate-200">
             <div className="text-right">
-              <p className="text-[10px] font-extrabold uppercase text-royal-200">Current Status</p>
-              <p className="text-xs font-black text-emerald-300 font-mono">
+              <p className="text-[10px] font-extrabold uppercase text-slate-400">Current Status</p>
+              <p className="text-xs font-black text-emerald-600 font-mono">
                 {selectedUser.isCheckedIn ? '🟢 Active On Shift' : '⚪ Shift Completed / Off'}
               </p>
             </div>
@@ -224,11 +224,16 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
                       </div>
                     </td>
 
-                    {/* Check Out */}
+                    {/* Check Out & Work Notes */}
                     <td className="px-5 py-4 font-mono font-bold text-slate-800 align-top">
-                      <div className="flex items-center space-x-1.5">
-                        <LogOut className="w-3.5 h-3.5 text-rose-500" />
-                        <span>{log.checkOut}</span>
+                      <div className="flex flex-col space-y-1">
+                        <div className="flex items-center space-x-1.5 font-mono">
+                          <LogOut className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span>{log.checkOut}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-600 font-sans font-medium italic bg-slate-50 p-1.5 rounded-lg border border-slate-200/60 max-w-[180px]">
+                          <strong>Notes:</strong> {log.notes || log.checkOutNotes || 'Completed lead followups & EOD report'}
+                        </p>
                       </div>
                     </td>
 
@@ -324,9 +329,6 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
           <h3 className="text-sm font-black font-heading text-slate-900">
             Employee Directory (Click row to view Attendance History)
           </h3>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            ⚡ Direct Click Enabled
-          </span>
         </div>
 
         <div className="overflow-x-auto">
