@@ -19,16 +19,19 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
             {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-800" /> : <Menu className="w-5 h-5 text-slate-800" />}
           </button>
 
-          {/* Logo Image & Stylish Royal Blue Subtext Branding */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer">
+          {/* Logo Image & Subtext Branding Underneath */}
+          <div className="flex flex-col items-start cursor-pointer group">
             <img 
               src="/genz-logo.png" 
               alt="GEN-Z Digital Marketing CRM" 
-              className="h-8 sm:h-9.5 w-auto object-contain drop-shadow-2xs"
+              className="h-7 sm:h-8.5 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
             />
-            <div className="flex flex-col border-l border-slate-200/90 pl-2.5 sm:pl-3">
-              <span className="text-[11px] sm:text-xs font-black font-heading tracking-wider text-royal-600 uppercase leading-tight">
-                DIGITAL MARKETING CRM
+            <div className="flex items-center space-x-1 mt-0.5 leading-none">
+              <span className="text-[9.5px] sm:text-[10.5px] font-black font-mono tracking-widest text-slate-900 uppercase">
+                DIGITAL
+              </span>
+              <span className="text-[9.5px] sm:text-[10.5px] font-black font-mono tracking-widest text-royal-600 uppercase">
+                MARKETING CRM
               </span>
             </div>
           </div>
