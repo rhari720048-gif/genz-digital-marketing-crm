@@ -23,14 +23,8 @@ import {
 export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMobile, onCloseMobile }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [expandedMenus, setExpandedMenus] = useState({
-    leads: activeTab.startsWith('leads')
+    leads: false
   });
-
-  useEffect(() => {
-    if (activeTab.startsWith('leads')) {
-      setExpandedMenus(prev => ({ ...prev, leads: true }));
-    }
-  }, [activeTab]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -88,14 +82,15 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
 
   const handleSelect = (item) => {
     if (item.subItems) {
-      setExpandedMenus(prev => ({ ...prev, [item.id]: !prev[item.id] }));
-      if (!activeTab.startsWith(item.id)) {
-        setActiveTab(item.subItems[0].id);
-      }
+      setActiveTab(item.subItems[0].id);
     } else {
       setActiveTab(item.id);
-      if (onCloseMobile) onCloseMobile();
     }
+    if (onCloseMobile) onCloseMobile();
+  };
+
+  const toggleExpand = (itemId) => {
+    setExpandedMenus(prev => ({ ...prev, [itemId]: !prev[itemId] }));
   };
 
   return (
@@ -207,7 +202,7 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
                       </p>
                     </div>
 
-                    {/* Count badge & Chevron */}
+                    {/* Count badge & Chevron Arrow */}
                     <div className="flex items-center space-x-1.5 shrink-0">
                       {item.badge && (
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold font-mono ${
@@ -217,9 +212,18 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
                         </span>
                       )}
                       {item.subItems && (
-                        <ChevronIcon className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                          isMainActive ? 'text-white' : 'text-slate-400'
-                        }`} />
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExpand(item.id);
+                          }}
+                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                            isMainActive ? 'hover:bg-white/20 text-white' : 'hover:bg-slate-200 text-slate-500'
+                          }`}
+                          title="Toggle Sub-menu"
+                        >
+                          <ChevronIcon className="w-4 h-4 shrink-0" />
+                        </div>
                       )}
                     </div>
                   </button>
