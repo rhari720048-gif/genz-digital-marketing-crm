@@ -19,6 +19,8 @@ export default function ComingSoonView({
   onToggleCheckIn,
   registeredUsers,
   onAddUser,
+  onUpdateUser,
+  onToggleUserStatus,
   onDeleteUser,
   onLoginAsUser
 }) {
@@ -77,6 +79,8 @@ export default function ComingSoonView({
       <UsersView
         users={registeredUsers || []}
         onAddUser={onAddUser}
+        onUpdateUser={onUpdateUser}
+        onToggleUserStatus={onToggleUserStatus}
         onDeleteUser={onDeleteUser}
         onLoginAsUser={onLoginAsUser}
       />

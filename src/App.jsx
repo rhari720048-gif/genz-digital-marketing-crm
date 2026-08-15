@@ -158,7 +158,27 @@ export default function App() {
   }, [user]);
 
   const handleAddUser = (newUser) => {
-    setRegisteredUsers(prev => [newUser, ...prev]);
+    const userWithStatus = { ...newUser, status: 'Active' };
+    setRegisteredUsers(prev => [userWithStatus, ...prev]);
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setRegisteredUsers(prev => 
+      prev.map(u => (u.id === updatedUser.id || u.empId === updatedUser.empId) ? { ...u, ...updatedUser } : u)
+    );
+  };
+
+  const handleToggleUserStatus = (userId) => {
+    setRegisteredUsers(prev => 
+      prev.map(u => {
+        if (u.id === userId || u.empId === userId) {
+          const newStatus = u.status === 'Inactive' ? 'Active' : 'Inactive';
+          triggerToast(`User ${u.name} set to ${newStatus}`);
+          return { ...u, status: newStatus };
+        }
+        return u;
+      })
+    );
   };
 
   const handleDeleteUser = (userId) => {
@@ -365,6 +385,8 @@ export default function App() {
             onToggleCheckIn={handleToggleCheckIn}
             registeredUsers={registeredUsers}
             onAddUser={handleAddUser}
+            onUpdateUser={handleUpdateUser}
+            onToggleUserStatus={handleToggleUserStatus}
             onDeleteUser={handleDeleteUser}
             onLoginAsUser={handleLoginAsUser}
           />

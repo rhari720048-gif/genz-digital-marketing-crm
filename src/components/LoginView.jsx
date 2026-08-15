@@ -65,18 +65,27 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
 
       // 2. REGULAR USER LOGIN CHECK
       const matchedUser = registeredUsers.find(
-        u => u.email.toLowerCase() === cleanEmail && 
-            (u.password === cleanPass || cleanPass === 'alex123' || cleanPass === 'password123')
+        u => u.email.toLowerCase() === cleanEmail
       );
 
       if (matchedUser) {
-        onLogin({ ...matchedUser, isAdmin: false });
+        if (matchedUser.status === 'Inactive' || matchedUser.isInactive) {
+          setErrorMessage(`Account for "${matchedUser.name}" has been DEACTIVATED by Administrator. Login is disabled.`);
+          setIsSubmitting(false);
+          return;
+        }
+        if (matchedUser.password === cleanPass || cleanPass === 'alex123' || cleanPass === 'password123') {
+          onLogin({ ...matchedUser, isAdmin: false });
+        } else {
+          setErrorMessage('Invalid Password. Please check credentials or contact Admin.');
+        }
       } else if (cleanEmail && cleanPass) {
         onLogin({
           name: cleanEmail.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Team User',
           email: cleanEmail,
           role: 'CRM Executive',
           isAdmin: false,
+          status: 'Active',
           empId: `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`,
           mobile: '+91 98765 43210',
           address: 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
