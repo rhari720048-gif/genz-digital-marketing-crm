@@ -46,71 +46,86 @@ export default function LoginView({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between selection:bg-royal-600 selection:text-white font-sans">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between selection:bg-royal-600 selection:text-white font-sans">
       
-      {/* Main Container */}
-      <div className="flex-1 max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 p-6 lg:p-12 items-center">
+      {/* Main Unified Container */}
+      <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-10 flex items-center justify-center">
         
-        {/* LEFT COLUMN: Brand Title, Welcome Message & Bullet Points with Rich Tinted BG */}
-        <div className="lg:col-span-6 space-y-6 p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-royal-100/70 via-indigo-50/80 to-slate-100 rounded-3xl border border-royal-200/70 shadow-md">
+        {/* Single Seamless Unified Floating Card */}
+        <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
           
-          {/* Logo & Big Brand Header */}
-          <div className="space-y-4">
-            <img 
-              src="/genz-logo.png" 
-              alt="GEN-Z Digital Marketing CRM" 
-              className="h-12 sm:h-16 w-auto object-contain drop-shadow-xs"
-            />
-            <div className="space-y-2 pt-1">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
-                Welcome to Marketing CRM
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-lg">
-                Streamline your business operations, manage projects, and enhance client relationships with our advanced CRM platform.
-              </p>
-            </div>
-          </div>
-
-          {/* 3 Clean Checkmark Bullet Points */}
-          <div className="space-y-3.5 pt-2">
+          {/* LEFT PANEL: Integrated Dark Slate/Royal Brand Panel */}
+          <div className="lg:col-span-6 bg-gradient-to-br from-slate-900 via-royal-950 to-slate-900 text-white p-6 sm:p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
             
-            <div className="flex items-center space-x-3 text-slate-700 font-semibold text-sm">
-              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
+            {/* Ambient Soft Glow Accents */}
+            <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-royal-600/20 blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none"></div>
+
+            <div className="space-y-6 sm:space-y-8 relative z-10">
+              
+              {/* Logo Badge Box */}
+              <div className="inline-flex items-center space-x-3 bg-white/10 backdrop-blur-md border border-white/15 px-3.5 py-2 rounded-2xl">
+                <img 
+                  src="/genz-logo.png" 
+                  alt="GEN-Z Digital Marketing CRM" 
+                  className="h-7 w-auto object-contain brightness-110"
+                />
               </div>
-              <span>Real-time Team & Client Tracking</span>
+
+              {/* Title & Description */}
+              <div className="space-y-3">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-heading text-white tracking-tight leading-tight">
+                  Welcome to <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-royal-300 via-indigo-200 to-white">
+                    Marketing CRM
+                  </span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-md">
+                  Streamline your business operations, manage projects, and enhance client relationships with our advanced CRM platform.
+                </p>
+              </div>
+
+              {/* 3 Checkmark Bullet Points */}
+              <div className="space-y-3 pt-1">
+                
+                <div className="flex items-center space-x-3 text-slate-200 text-xs sm:text-sm font-semibold">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </div>
+                  <span>Real-time Team & Client Tracking</span>
+                </div>
+
+                <div className="flex items-center space-x-3 text-slate-200 text-xs sm:text-sm font-semibold">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </div>
+                  <span>Advanced Task & Project Management</span>
+                </div>
+
+                <div className="flex items-center space-x-3 text-slate-200 text-xs sm:text-sm font-semibold">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </div>
+                  <span>Integrated Accounting & Invoicing</span>
+                </div>
+
+              </div>
+
             </div>
 
-            <div className="flex items-center space-x-3 text-slate-700 font-semibold text-sm">
-              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
-              </div>
-              <span>Advanced Task & Project Management</span>
-            </div>
-
-            <div className="flex items-center space-x-3 text-slate-700 font-semibold text-sm">
-              <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
-              </div>
-              <span>Integrated Accounting & Invoicing</span>
+            {/* Operational Status Pill */}
+            <div className="pt-6 sm:pt-8 relative z-10 flex items-center space-x-2 text-xs font-semibold text-slate-400">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>All systems operational</span>
             </div>
 
           </div>
 
-          {/* Operational Status Pill */}
-          <div className="pt-4 flex items-center space-x-2 text-xs font-semibold text-slate-600">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>All systems operational</span>
-          </div>
-
-        </div>
-
-        {/* RIGHT COLUMN: Clean White Floating Sign In Box */}
-        <div className="lg:col-span-6 w-full max-w-md mx-auto lg:max-w-none">
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-6 sm:p-8 lg:p-10 space-y-6">
+          {/* RIGHT PANEL: Integrated Clean White Sign In Form */}
+          <div className="lg:col-span-6 bg-white p-6 sm:p-8 lg:p-12 flex flex-col justify-center space-y-6">
             
             {/* Header */}
-            <div className="text-center space-y-1">
+            <div className="space-y-1">
               <h3 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
                 Sign In
               </h3>
@@ -121,7 +136,7 @@ export default function LoginView({ onLogin }) {
 
             {/* Error Message */}
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold text-center">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
                 {errorMessage}
               </div>
             )}
@@ -129,7 +144,7 @@ export default function LoginView({ onLogin }) {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               
-              {/* Email Input */}
+              {/* Email Address */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 font-heading">
                   Email Address
@@ -146,7 +161,7 @@ export default function LoginView({ onLogin }) {
                 </div>
               </div>
 
-              {/* Password Input */}
+              {/* Password */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-slate-700 font-heading">
@@ -179,7 +194,7 @@ export default function LoginView({ onLogin }) {
                 </div>
               </div>
 
-              {/* Remember Me Checkbox */}
+              {/* Remember Me */}
               <div className="flex items-center pt-1">
                 <label className="flex items-center space-x-2 cursor-pointer select-none">
                   <input
@@ -192,7 +207,7 @@ export default function LoginView({ onLogin }) {
                 </label>
               </div>
 
-              {/* Sign In Button */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -218,11 +233,12 @@ export default function LoginView({ onLogin }) {
             </div>
 
           </div>
+
         </div>
 
       </div>
 
-      {/* Subtle Footer */}
+      {/* Footer */}
       <footer className="py-4 px-6 text-center text-xs font-medium text-slate-400">
         <p>© 2026 GENZ Neural-X Digital Marketing CRM</p>
       </footer>
