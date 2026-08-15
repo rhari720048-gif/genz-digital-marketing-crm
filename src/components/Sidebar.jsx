@@ -17,7 +17,9 @@ import {
   X,
   Sparkles,
   Zap,
-  LayoutDashboard
+  LayoutDashboard,
+  Plus,
+  Minus
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMobile, onCloseMobile }) {
@@ -202,7 +204,7 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
                       </p>
                     </div>
 
-                    {/* Count badge & Chevron Arrow */}
+                    {/* Count badge & Custom Handcrafted Toggle Pill (Shown ONLY when Leads is active) */}
                     <div className="flex items-center space-x-1.5 shrink-0">
                       {item.badge && (
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold font-mono ${
@@ -211,18 +213,17 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
                           {item.badge}
                         </span>
                       )}
-                      {item.subItems && (
+                      {item.subItems && isMainActive && (
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleExpand(item.id);
                           }}
-                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                            isMainActive ? 'hover:bg-white/20 text-white' : 'hover:bg-slate-200 text-slate-500'
-                          }`}
-                          title="Toggle Sub-menu"
+                          className="px-2 py-0.5 rounded-lg bg-white/20 hover:bg-white/30 text-white border border-white/30 text-[10px] font-bold font-mono transition-all flex items-center space-x-1 cursor-pointer active:scale-95 shadow-2xs"
+                          title={isExpanded ? "Collapse sub-menu" : "Expand sub-menu"}
                         >
-                          <ChevronIcon className="w-4 h-4 shrink-0" />
+                          <span>{isExpanded ? 'Less' : 'More'}</span>
+                          {isExpanded ? <Minus className="w-3 h-3 shrink-0" /> : <Plus className="w-3 h-3 shrink-0" />}
                         </div>
                       )}
                     </div>
