@@ -51,8 +51,8 @@ export default function LoginView({ onLogin }) {
       {/* Main Container */}
       <div className="flex-1 max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 p-6 lg:p-12 items-center">
         
-        {/* LEFT COLUMN: Brand Title, Welcome Message & Bullet Points with Translucent BG */}
-        <div className="lg:col-span-6 space-y-6 p-6 sm:p-8 lg:p-10 bg-slate-50/80 backdrop-blur-md rounded-3xl border border-slate-200/70 shadow-sm">
+        {/* LEFT COLUMN: Brand Title, Welcome Message & Bullet Points with Rich Tinted BG */}
+        <div className="lg:col-span-6 space-y-6 p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-royal-100/70 via-indigo-50/80 to-slate-100 rounded-3xl border border-royal-200/70 shadow-md">
           
           {/* Logo & Big Brand Header */}
           <div className="space-y-4">
