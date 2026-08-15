@@ -184,34 +184,34 @@ export default function QuotationsView({ stats, refetchStats }) {
       )}
 
       {/* PAGE HEADER & QUICK METRICS */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-royal-600 via-royal-700 to-royal-800 p-5 sm:p-6 rounded-3xl border border-royal-500/30 shadow-xl text-white">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
             Quotations & Proposals Management
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-royal-100 mt-1 font-medium">
             Create, track, and send PDF commercial quotations to prospects.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
-          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/50 flex items-center space-x-3 min-w-[130px]">
-            <div className="p-2 rounded-xl bg-royal-100 text-royal-700">
+          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 flex items-center space-x-3 min-w-[130px]">
+            <div className="p-2 rounded-xl bg-white/20 text-white">
               <FileText className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold text-slate-400 uppercase">Total Quotes</p>
-              <p className="text-sm font-black font-mono text-slate-900">{quotations.length}</p>
+              <p className="text-[9px] font-extrabold text-royal-200 uppercase">Total Quotes</p>
+              <p className="text-sm font-black font-mono text-white">{quotations.length}</p>
             </div>
           </div>
 
-          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/50 flex items-center space-x-3 min-w-[140px]">
-            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700">
+          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 flex items-center space-x-3 min-w-[140px]">
+            <div className="p-2 rounded-xl bg-emerald-400/20 text-emerald-300">
               <DollarSign className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold text-slate-400 uppercase">Approved Value</p>
-              <p className="text-sm font-black font-mono text-emerald-600">${approvedQuotesVal.toLocaleString()}</p>
+              <p className="text-[9px] font-extrabold text-royal-200 uppercase">Approved Value</p>
+              <p className="text-sm font-black font-mono text-emerald-300">${approvedQuotesVal.toLocaleString()}</p>
             </div>
           </div>
         </div>

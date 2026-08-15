@@ -126,21 +126,21 @@ export default function NotesView({ stats }) {
       )}
 
       {/* HEADER */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-royal-600 via-royal-700 to-royal-800 p-5 sm:p-6 rounded-3xl border border-royal-500/30 shadow-xl text-white">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
             User Notes & Strategic Workspace
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-royal-100 mt-1 font-medium">
             Save call reminders, client briefs, and marketing strategy notes.
           </p>
         </div>
 
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2.5 bg-royal-600 hover:bg-royal-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center space-x-1.5 active:scale-95 shrink-0"
+          className="px-4 py-2.5 bg-white hover:bg-royal-50 text-royal-700 rounded-xl text-xs font-black transition-all shadow-md flex items-center justify-center space-x-1.5 active:scale-95 shrink-0"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-4 h-4 text-royal-700" />
           <span>Create Note</span>
         </button>
       </div>

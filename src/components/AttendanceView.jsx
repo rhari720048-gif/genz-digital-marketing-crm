@@ -309,11 +309,14 @@ export default function AttendanceView({ user, onToggleCheckIn }) {
     <div className="animate-fadeIn w-full mx-auto space-y-5 font-sans pb-10">
       
       {/* PAGE HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-royal-600 via-royal-700 to-royal-800 p-5 rounded-3xl border border-royal-500/30 shadow-xl text-white">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
             My Attendance & Date-Wise Activity History
           </h1>
+          <p className="text-xs sm:text-sm text-royal-100 mt-1 font-medium">
+            Real-time shift clock-in, outdoor visit logging & daily activity tracking
+          </p>
         </div>
 
         {/* Dynamic Action Buttons */}
