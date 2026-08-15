@@ -30,14 +30,19 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
             {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-800" /> : <Menu className="w-5 h-5 text-slate-800" />}
           </button>
 
-          {/* Logo Image Direct (Transparent Full Brand Logo) */}
-          <div className="flex items-center cursor-pointer group shrink-0 py-0.5">
+          {/* Logo Image & Subtext Branding Underneath */}
+          <div className="flex flex-col items-start justify-center cursor-pointer group shrink-0">
             <img 
               src="/genz-logo.png" 
               alt="GEN-Z Marketing CRM" 
-              className="h-10 sm:h-12 max-h-12 w-auto object-contain shrink-0 group-hover:scale-105 transition-transform"
-              style={{ height: '44px', maxHeight: '48px' }}
+              className="h-7 sm:h-8 max-h-8 w-auto object-contain shrink-0 group-hover:opacity-95 transition-opacity"
+              style={{ height: '30px', maxHeight: '32px' }}
             />
+            <div className="-mt-0.5 leading-none font-heading font-extrabold tracking-tight">
+              <span className="text-sm sm:text-base font-extrabold text-royal-600">
+                Marketing CRM
+              </span>
+            </div>
           </div>
 
         </div>
