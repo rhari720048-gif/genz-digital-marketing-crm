@@ -59,12 +59,12 @@ export default function LoginView({ onLogin }) {
             
             <div className="space-y-6 sm:space-y-8">
               
-              {/* Logo Badge Container */}
-              <div className="inline-flex items-center space-x-3 bg-white border border-slate-200/80 px-3.5 py-2 rounded-2xl shadow-2xs">
+              {/* Logo Image Direct (No Box) */}
+              <div>
                 <img 
                   src="/genz-logo.png" 
                   alt="GEN-Z Digital Marketing CRM" 
-                  className="h-7 w-auto object-contain"
+                  className="h-12 sm:h-16 lg:h-18 w-auto object-contain drop-shadow-2xs"
                 />
               </div>
 

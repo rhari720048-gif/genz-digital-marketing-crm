@@ -24,7 +24,7 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
             <img 
               src="/genz-logo.png" 
               alt="GEN-Z Digital Marketing CRM" 
-              className="h-7 sm:h-8.5 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
+              className="h-8.5 sm:h-10 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
             />
             <div className="flex items-center space-x-1.5 mt-0.5 leading-none font-heading font-black tracking-[0.22em] uppercase">
               <span className="text-[9px] sm:text-[10px] text-slate-900">
