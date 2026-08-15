@@ -271,24 +271,24 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
     <div className="animate-fadeIn w-full mx-auto space-y-5 font-sans pb-8">
       
       {/* HEADER BANNER */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-emerald-600 via-teal-700 to-emerald-800 p-5 sm:p-6 rounded-3xl border border-emerald-500/30 shadow-xl text-white">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
             User Attendance & Client Field Visit Oversight
           </h1>
-          <p className="text-xs sm:text-sm text-emerald-100 mt-1 font-medium">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
             Click any employee row to inspect their date-wise Check In, Client Out/In visits, and Check Out logs.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
-          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 flex items-center space-x-3 min-w-[130px]">
-            <div className="p-2 rounded-xl bg-white/20 text-white">
+          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/50 flex items-center space-x-3 min-w-[130px]">
+            <div className="p-2 rounded-xl bg-royal-100 text-royal-700">
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold text-emerald-200 uppercase">Total Employees</p>
-              <p className="text-sm font-black font-mono text-white">{users.length}</p>
+              <p className="text-[9px] font-extrabold text-slate-400 uppercase">Total Employees</p>
+              <p className="text-sm font-black font-mono text-slate-900">{users.length}</p>
             </div>
           </div>
         </div>
