@@ -1,7 +1,7 @@
 import React from 'react';
-import { LogIn, UserCheck, Clock, Menu, X, BellRing, Sparkles } from 'lucide-react';
+import { LogIn, UserCheck, Clock, Menu, X, BellRing, Sparkles, LogOut } from 'lucide-react';
 
-export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, isMobileMenuOpen, onToggleMobileMenu }) {
+export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, isMobileMenuOpen, onToggleMobileMenu, onLogout }) {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-xs transition-all">
       {/* AppBar Container */}
@@ -82,6 +82,18 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
               </>
             )}
           </button>
+
+          {/* Sign Out Button */}
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="p-2 sm:px-3 sm:py-2 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer active:scale-95"
+              title="Sign Out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Sign Out</span>
+            </button>
+          )}
 
         </div>
 

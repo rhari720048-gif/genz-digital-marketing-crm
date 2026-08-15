@@ -3,9 +3,11 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ComingSoonView from './components/ComingSoonView';
 import AttendanceModal from './components/AttendanceModal';
+import LoginView from './components/LoginView';
 import { CheckCircle2, Sparkles } from 'lucide-react';
 
 const ATTENDANCE_STORAGE_KEY = 'crm_daily_attendance_v2';
+const AUTH_STORAGE_KEY = 'crm_auth_session';
 
 const getTodayDateKey = () => {
   const now = new Date();
@@ -39,6 +41,14 @@ const getStoredAttendance = () => {
 };
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      return localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
   const [activeTab, setActiveTab] = useState('profile');
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -178,10 +188,36 @@ export default function App() {
     }
   };
 
+  const handleLogin = (credentials) => {
+    setIsAuthenticated(true);
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+    } catch (e) {}
+    if (credentials?.name) {
+      setUser(prev => ({
+        ...prev,
+        name: credentials.name,
+        email: credentials.email || prev.email,
+        greeting: `Welcome back, ${credentials.name.split(' ')[0]}`
+      }));
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (e) {}
+  };
+
   const triggerToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
   };
+
+  if (!isAuthenticated) {
+    return <LoginView onLogin={handleLogin} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-royal-500 selection:text-white">
@@ -193,6 +229,7 @@ export default function App() {
         onOpenAttendanceModal={() => setIsAttendanceModalOpen(true)}
         isMobileMenuOpen={isMobileMenuOpen}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        onLogout={handleLogout}
       />
 
       {/* Toast Notification */}
