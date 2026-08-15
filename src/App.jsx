@@ -8,6 +8,8 @@ import { CheckCircle2, Sparkles } from 'lucide-react';
 
 const ATTENDANCE_STORAGE_KEY = 'crm_daily_attendance_v2';
 const AUTH_STORAGE_KEY = 'crm_auth_session';
+const USERS_LIST_STORAGE_KEY = 'crm_registered_users_v2';
+const USER_SESSION_KEY = 'crm_current_user_v2';
 
 const getTodayDateKey = () => {
   const now = new Date();
@@ -94,7 +96,28 @@ const DEFAULT_USERS = [
   }
 ];
 
+const getStoredUser = () => {
+  try {
+    const raw = localStorage.getItem(USER_SESSION_KEY);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {}
+  return null;
+};
+
 export default function App() {
+  const [registeredUsers, setRegisteredUsers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(USERS_LIST_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : DEFAULT_USERS;
+    } catch (e) {
+      return DEFAULT_USERS;
+    }
+  });
+
+  const storedUser = getStoredUser();
+
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     try {
       return localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
@@ -103,22 +126,18 @@ export default function App() {
     }
   });
 
-  const [registeredUsers, setRegisteredUsers] = useState(() => {
-    try {
-      const saved = localStorage.getItem('crm_registered_users_v2');
-      return saved ? JSON.parse(saved) : DEFAULT_USERS;
-    } catch (e) {
-      return DEFAULT_USERS;
-    }
-  });
-
   useEffect(() => {
     try {
-      localStorage.setItem('crm_registered_users_v2', JSON.stringify(registeredUsers));
+      localStorage.setItem(USERS_LIST_STORAGE_KEY, JSON.stringify(registeredUsers));
     } catch (e) {}
   }, [registeredUsers]);
 
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (storedUser?.isAdmin || storedUser?.role === 'Super Admin') {
+      return 'users';
+    }
+    return 'profile';
+  });
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
@@ -128,8 +147,15 @@ export default function App() {
 
   // User state
   const [user, setUser] = useState(() => {
+    if (storedUser) return storedUser;
     return registeredUsers[0] || DEFAULT_USERS[0];
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
+    } catch (e) {}
+  }, [user]);
 
   const handleAddUser = (newUser) => {
     setRegisteredUsers(prev => [newUser, ...prev]);
