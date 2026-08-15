@@ -43,23 +43,13 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
   const adminMenuItems = [
     {
       id: 'users',
-      label: '1. All Users (User Management)',
+      label: '1. All Users',
       icon: Users
     },
     {
-      id: 'analytics',
-      label: '2. System Analytics & Audit',
-      icon: Activity
-    },
-    {
       id: 'attendance-admin',
-      label: '3. Attendance Oversight',
+      label: '2. User Attendance',
       icon: Clock
-    },
-    {
-      id: 'settings',
-      label: '4. System Settings',
-      icon: Zap
     }
   ];
 
