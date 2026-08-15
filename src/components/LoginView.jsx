@@ -46,41 +46,37 @@ export default function LoginView({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between selection:bg-royal-600 selection:text-white font-sans">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between selection:bg-royal-600 selection:text-white font-sans">
       
-      {/* Main Unified Container */}
+      {/* Main Container */}
       <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-10 flex items-center justify-center">
         
-        {/* Single Seamless Unified Floating Card */}
-        <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+        {/* Unified Single Floating Card in Full White Theme */}
+        <div className="w-full bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
           
-          {/* LEFT PANEL: Integrated Dark Slate/Royal Brand Panel */}
-          <div className="lg:col-span-6 bg-gradient-to-br from-slate-900 via-royal-950 to-slate-900 text-white p-6 sm:p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
+          {/* LEFT PANEL: Light White/Royal Tinted Brand Panel */}
+          <div className="lg:col-span-6 bg-gradient-to-br from-royal-50/50 via-slate-50 to-indigo-50/30 border-b lg:border-b-0 lg:border-r border-slate-100 p-6 sm:p-8 lg:p-12 flex flex-col justify-between">
             
-            {/* Ambient Soft Glow Accents */}
-            <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-royal-600/20 blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none"></div>
-
-            <div className="space-y-6 sm:space-y-8 relative z-10">
+            <div className="space-y-6 sm:space-y-8">
               
-              {/* Logo Badge Box */}
-              <div className="inline-flex items-center space-x-3 bg-white/10 backdrop-blur-md border border-white/15 px-3.5 py-2 rounded-2xl">
+              {/* Logo Badge Container */}
+              <div className="inline-flex items-center space-x-3 bg-white border border-slate-200/80 px-3.5 py-2 rounded-2xl shadow-2xs">
                 <img 
                   src="/genz-logo.png" 
                   alt="GEN-Z Digital Marketing CRM" 
-                  className="h-7 w-auto object-contain brightness-110"
+                  className="h-7 w-auto object-contain"
                 />
               </div>
 
               {/* Title & Description */}
               <div className="space-y-3">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-heading text-white tracking-tight leading-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
                   Welcome to <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-royal-300 via-indigo-200 to-white">
+                  <span className="text-royal-600">
                     Marketing CRM
                   </span>
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-md">
+                <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-md">
                   Streamline your business operations, manage projects, and enhance client relationships with our advanced CRM platform.
                 </p>
               </div>
@@ -88,22 +84,22 @@ export default function LoginView({ onLogin }) {
               {/* 3 Checkmark Bullet Points */}
               <div className="space-y-3 pt-1">
                 
-                <div className="flex items-center space-x-3 text-slate-200 text-xs sm:text-sm font-semibold">
-                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <div className="flex items-center space-x-3 text-slate-700 text-xs sm:text-sm font-semibold">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                   <span>Real-time Team & Client Tracking</span>
                 </div>
 
-                <div className="flex items-center space-x-3 text-slate-200 text-xs sm:text-sm font-semibold">
-                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <div className="flex items-center space-x-3 text-slate-700 text-xs sm:text-sm font-semibold">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                   <span>Advanced Task & Project Management</span>
                 </div>
 
-                <div className="flex items-center space-x-3 text-slate-200 text-xs sm:text-sm font-semibold">
-                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <div className="flex items-center space-x-3 text-slate-700 text-xs sm:text-sm font-semibold">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                   <span>Integrated Accounting & Invoicing</span>
@@ -114,14 +110,14 @@ export default function LoginView({ onLogin }) {
             </div>
 
             {/* Operational Status Pill */}
-            <div className="pt-6 sm:pt-8 relative z-10 flex items-center space-x-2 text-xs font-semibold text-slate-400">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div className="pt-6 sm:pt-8 flex items-center space-x-2 text-xs font-semibold text-slate-500">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>All systems operational</span>
             </div>
 
           </div>
 
-          {/* RIGHT PANEL: Integrated Clean White Sign In Form */}
+          {/* RIGHT PANEL: Clean White Sign In Form */}
           <div className="lg:col-span-6 bg-white p-6 sm:p-8 lg:p-12 flex flex-col justify-center space-y-6">
             
             {/* Header */}
