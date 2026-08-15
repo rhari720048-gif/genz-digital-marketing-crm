@@ -164,9 +164,6 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
 
           {/* MENU MODULES NAVIGATION */}
           <nav className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-2 pb-1 font-mono">
-              Menu Modules
-            </p>
             
             {menuItems.map((item) => {
               const Icon = item.icon;
