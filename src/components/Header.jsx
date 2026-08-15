@@ -28,7 +28,7 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
               style={{ height: '24px', maxHeight: '28px' }}
             />
             <div className="-mt-1 leading-none font-heading font-extrabold tracking-tight">
-              <span className="text-xs sm:text-sm font-extrabold text-royal-600">
+              <span className="text-sm sm:text-base font-extrabold text-royal-600">
                 Marketing CRM
               </span>
             </div>
