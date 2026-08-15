@@ -26,11 +26,8 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
               alt="GEN-Z Digital Marketing CRM" 
               className="h-8.5 sm:h-10 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
             />
-            <div className="flex items-center space-x-1 mt-0.5 leading-none font-heading font-extrabold tracking-tight">
-              <span className="text-[10px] sm:text-[11.5px] text-slate-900">
-                Digital
-              </span>
-              <span className="text-[10px] sm:text-[11.5px] text-royal-600">
+            <div className="mt-0.5 leading-none font-heading font-extrabold tracking-tight">
+              <span className="text-[10.5px] sm:text-[12px] text-royal-600">
                 Marketing CRM
               </span>
             </div>
