@@ -59,8 +59,8 @@ export default function LoginView({ onLogin }) {
             
             <div className="space-y-6 sm:space-y-8">
               
-              {/* Logo Image Direct (No Box) */}
-              <div>
+              {/* Logo Image Direct (Positioned slightly down and left) */}
+              <div className="pt-2 sm:pt-3 -ml-1 sm:-ml-2.5">
                 <img 
                   src="/genz-logo.png" 
                   alt="GEN-Z Digital Marketing CRM" 
