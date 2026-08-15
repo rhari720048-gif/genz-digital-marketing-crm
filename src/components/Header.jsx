@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, UserCheck, Clock, Menu, X, Sparkles, Power, CheckCircle2 } from 'lucide-react';
+import { LogIn, UserCheck, Clock, Menu, X, Sun, Power, CheckCircle2 } from 'lucide-react';
 
 export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, isMobileMenuOpen, onToggleMobileMenu, onLogout }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -11,7 +11,6 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
 
   const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const formattedDate = currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  const greetingText = user?.greeting || 'Good Morning';
   const firstName = user?.name ? user.name.split(' ')[0] : 'Alex';
 
   return (
@@ -48,16 +47,23 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
 
         </div>
 
-        {/* CENTER: Desktop Greeting & Live Clock Pill */}
-        <div className="hidden md:flex items-center space-x-2.5 px-3.5 py-1.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span className="font-bold text-slate-800 font-heading">
-            {greetingText}, <span className="text-royal-600 font-black">{firstName}</span>
-          </span>
-          <span className="text-slate-300">•</span>
-          <span className="font-mono font-black text-royal-600">{formattedTime}</span>
-          <span className="text-slate-300">•</span>
-          <span className="font-mono text-slate-500 text-[11px]">{formattedDate}</span>
+        {/* CENTER: Desktop Greeting & Live Clock Pills */}
+        <div className="hidden md:flex items-center space-x-2">
+          
+          {/* Greeting Pill */}
+          <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-slate-800 shadow-2xs">
+            <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>Welcome back, <strong className="text-royal-600 font-bold font-heading">{firstName}</strong></span>
+          </div>
+
+          {/* Live Clock & Date Pill */}
+          <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-royal-50/70 border border-royal-100 text-xs shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-royal-600 shrink-0" />
+            <span className="font-mono font-black text-royal-700">{formattedTime}</span>
+            <span className="text-royal-300">•</span>
+            <span className="font-mono text-slate-600 text-[11px]">{formattedDate}</span>
+          </div>
+
         </div>
 
         {/* Right Side: Action Pills */}
@@ -121,12 +127,10 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
       </div>
 
       {/* MOBILE SUB-BAR: Greeting, Live Clock & Date (< md screens) */}
-      <div className="md:hidden flex items-center justify-between px-3.5 py-1.5 bg-slate-50/90 border-t border-slate-100 text-[11px]">
-        <div className="flex items-center space-x-1.5">
-          <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
-          <span className="font-bold text-slate-800 font-heading">
-            {greetingText}, <span className="text-royal-600 font-black">{firstName}</span>
-          </span>
+      <div className="md:hidden flex items-center justify-between px-3.5 py-1.5 bg-slate-50 border-t border-slate-200/80 text-[11px]">
+        <div className="flex items-center space-x-1.5 text-slate-800 font-semibold">
+          <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <span>Welcome, <strong className="text-royal-600 font-bold">{firstName}</strong></span>
         </div>
         <div className="flex items-center space-x-1.5 font-mono text-[10px]">
           <span className="font-black text-royal-600">{formattedTime}</span>
