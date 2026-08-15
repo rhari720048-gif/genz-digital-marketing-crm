@@ -54,17 +54,21 @@ export default function LoginView({ onLogin }) {
         {/* LEFT COLUMN: Brand Title, Welcome Message & Bullet Points */}
         <div className="lg:col-span-6 space-y-6">
           
-          {/* Big Brand Header */}
-          <div className="space-y-3">
-            <h1 className="text-4xl sm:text-5xl font-black font-heading tracking-tight text-royal-600">
-              Gen Z
-            </h1>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
-              Welcome to Marketing CRM
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-lg">
-              Streamline your business operations, manage projects, and enhance client relationships with our advanced CRM platform.
-            </p>
+          {/* Logo & Big Brand Header */}
+          <div className="space-y-4">
+            <img 
+              src="/genz-logo.png" 
+              alt="GEN-Z Digital Marketing CRM" 
+              className="h-12 sm:h-16 w-auto object-contain drop-shadow-xs"
+            />
+            <div className="space-y-2 pt-1">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
+                Welcome to Marketing CRM
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-lg">
+                Streamline your business operations, manage projects, and enhance client relationships with our advanced CRM platform.
+              </p>
+            </div>
           </div>
 
           {/* 3 Clean Checkmark Bullet Points */}

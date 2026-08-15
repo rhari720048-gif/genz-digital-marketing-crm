@@ -19,22 +19,13 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
             {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-800" /> : <Menu className="w-5 h-5 text-slate-800" />}
           </button>
 
-          {/* Logo Emblem & Brand Name */}
-          <div className="flex items-center space-x-2.5 cursor-pointer">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-royal-600 via-royal-700 to-indigo-700 text-white flex items-center justify-center shadow-md shadow-royal-600/20 shrink-0">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center space-x-1 leading-none">
-                <h1 className="text-sm sm:text-base font-black tracking-tight text-slate-900 font-heading leading-none">
-                  NEURAL<span className="text-royal-600">-X</span>
-                </h1>
-              </div>
-              <p className="text-[8px] sm:text-[9px] font-extrabold tracking-[0.14em] text-royal-600 uppercase font-sans mt-0.5 leading-none">
-                MARKETING CRM
-              </p>
-            </div>
+          {/* Logo Image */}
+          <div className="flex items-center cursor-pointer">
+            <img 
+              src="/genz-logo.png" 
+              alt="GEN-Z Digital Marketing CRM" 
+              className="h-8 sm:h-9 w-auto object-contain drop-shadow-2xs"
+            />
           </div>
 
         </div>
