@@ -50,6 +50,38 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       id: 'attendance-admin',
       label: '2. User Attendance',
       icon: Clock
+    },
+    {
+      id: 'leads',
+      label: '3. All Leads',
+      icon: Target,
+      subItems: [
+        { id: 'leads-all', label: 'All Leads', icon: Target },
+        { id: 'leads-followups', label: 'Follow-ups', icon: PhoneCall },
+        { id: 'leads-canceled', label: 'Canceled Leads', icon: XCircle },
+        { id: 'leads-client', label: 'Clients', icon: Briefcase },
+        { id: 'leads-completed', label: 'Completed Customers', icon: CheckCircle2 }
+      ]
+    },
+    {
+      id: 'quotations',
+      label: '4. Quotations',
+      icon: FileText
+    },
+    {
+      id: 'invoice',
+      label: '5. Invoices',
+      icon: Receipt
+    },
+    {
+      id: 'notes',
+      label: '6. User Notes',
+      icon: StickyNote
+    },
+    {
+      id: 'meetings',
+      label: '7. Meetings',
+      icon: Calendar
     }
   ];
 

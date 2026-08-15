@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StickyNote, 
   Plus, 
@@ -14,45 +14,65 @@ import {
   Check
 } from 'lucide-react';
 
-export default function NotesView({ stats }) {
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      title: 'Apex Solutions Campaign Brief',
-      category: 'Deal Strategy',
-      content: 'Client requested 20% increase in lead volume for Q3. Focus on LinkedIn InMail targeting and Google PPC keywords.',
-      pinned: true,
-      date: 'Aug 12, 2026',
-      color: 'bg-amber-50 border-amber-200 text-amber-900'
-    },
-    {
-      id: 2,
-      title: 'Vogue Media Call Key Action Items',
-      category: 'Client Requirements',
-      content: '1. Send updated proposal by Friday.\n2. Include Instagram reel production pricing.\n3. Schedule follow-up call with Priya.',
-      pinned: true,
-      date: 'Aug 11, 2026',
-      color: 'bg-purple-50 border-purple-200 text-purple-900'
-    },
-    {
-      id: 3,
-      title: 'Nova Tech Onboarding Checklist',
-      category: 'Meeting Call Notes',
-      content: 'Contract signed ($24k). Need domain access for Google Analytics setup and CRM API integration keys.',
-      pinned: false,
-      date: 'Aug 10, 2026',
-      color: 'bg-emerald-50 border-emerald-200 text-emerald-900'
-    },
-    {
-      id: 4,
-      title: 'Q3 Growth Marketing Ideas',
-      category: 'Marketing Ideas',
-      content: 'Test AI automated email sequences for cold leads. Create 3 short video demos for landing page conversion.',
-      pinned: false,
-      date: 'Aug 08, 2026',
-      color: 'bg-blue-50 border-blue-200 text-blue-900'
-    }
-  ]);
+const NOTES_STORAGE_KEY = 'crm_shared_notes_v2';
+
+const DEFAULT_NOTES = [
+  {
+    id: 1,
+    title: 'Apex Solutions Campaign Brief',
+    category: 'Deal Strategy',
+    content: 'Client requested 20% increase in lead volume for Q3. Focus on LinkedIn InMail targeting and Google PPC keywords.',
+    pinned: true,
+    date: 'Aug 12, 2026',
+    author: 'Alex Morgan',
+    color: 'bg-amber-50 border-amber-200 text-amber-900'
+  },
+  {
+    id: 2,
+    title: 'Vogue Media Call Key Action Items',
+    category: 'Client Requirements',
+    content: '1. Send updated proposal by Friday.\n2. Include Instagram reel production pricing.\n3. Schedule follow-up call with Priya.',
+    pinned: true,
+    date: 'Aug 11, 2026',
+    author: 'Dev Ananth',
+    color: 'bg-purple-50 border-purple-200 text-purple-900'
+  },
+  {
+    id: 3,
+    title: 'Nova Tech Onboarding Checklist',
+    category: 'Meeting Call Notes',
+    content: 'Contract signed ($24k). Need domain access for Google Analytics setup and CRM API integration keys.',
+    pinned: false,
+    date: 'Aug 10, 2026',
+    author: 'Sarah Jenkins',
+    color: 'bg-emerald-50 border-emerald-200 text-emerald-900'
+  },
+  {
+    id: 4,
+    title: 'Q3 Growth Marketing Ideas',
+    category: 'Marketing Ideas',
+    content: 'Test AI automated email sequences for cold leads. Create 3 short video demos for landing page conversion.',
+    pinned: false,
+    date: 'Aug 08, 2026',
+    author: 'Admin User',
+    color: 'bg-blue-50 border-blue-200 text-blue-900'
+  }
+];
+
+export default function NotesView({ stats, user }) {
+  const [notes, setNotes] = useState(() => {
+    try {
+      const saved = localStorage.getItem(NOTES_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_NOTES;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+    } catch (e) {}
+  }, [notes]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -82,6 +102,7 @@ export default function NotesView({ stats }) {
       content: newContent,
       pinned: newPinned,
       date: 'Today',
+      author: user?.name || 'Team Member',
       color: colors[Math.floor(Math.random() * colors.length)]
     };
 

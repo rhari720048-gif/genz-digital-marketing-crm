@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
 import { 
   Calendar, 
@@ -18,53 +18,73 @@ import {
   Trash2
 } from 'lucide-react';
 
-export default function MeetingsView({ stats }) {
-  const [meetings, setMeetings] = useState([
-    {
-      id: 1,
-      title: 'Apex Solutions - Contract Review & Demo',
-      client: 'Apex Solutions (Rohan Sharma)',
-      date: '14/08/2026',
-      time: '02:30 PM',
-      duration: '45 mins',
-      type: 'Client Demo',
-      link: 'https://meet.google.com/gnx-apex-demo',
-      status: 'Scheduled'
-    },
-    {
-      id: 2,
-      title: 'Vogue Media - Social Campaign Strategy',
-      client: 'Vogue Media (Priya Patel)',
-      date: '14/08/2026',
-      time: '04:00 PM',
-      duration: '30 mins',
-      type: 'Strategy Call',
-      link: 'https://meet.google.com/gnx-vogue-strat',
-      status: 'Scheduled'
-    },
-    {
-      id: 3,
-      title: 'Nova Tech - API Integration Technical Alignment',
-      client: 'Nova Tech Ltd (Michael Chang)',
-      date: '15/08/2026',
-      time: '11:00 AM',
-      duration: '60 mins',
-      type: 'Technical Alignment',
-      link: 'https://meet.google.com/gnx-novatech-sync',
-      status: 'Upcoming'
-    },
-    {
-      id: 4,
-      title: 'Alpha Group - Initial Discovery Pitch',
-      client: 'Alpha Group (Vikram Malhotra)',
-      date: '13/08/2026',
-      time: '10:30 AM',
-      duration: '30 mins',
-      type: 'Discovery Call',
-      link: 'https://meet.google.com/gnx-alpha-pitch',
-      status: 'Completed'
-    }
-  ]);
+const MEETINGS_STORAGE_KEY = 'crm_shared_meetings_v2';
+
+const DEFAULT_MEETINGS = [
+  {
+    id: 1,
+    title: 'Apex Solutions - Contract Review & Demo',
+    client: 'Apex Solutions (Rohan Sharma)',
+    date: '14/08/2026',
+    time: '02:30 PM',
+    duration: '45 mins',
+    type: 'Client Demo',
+    link: 'https://meet.google.com/gnx-apex-demo',
+    status: 'Scheduled',
+    createdBy: 'Alex Morgan'
+  },
+  {
+    id: 2,
+    title: 'Vogue Media - Social Campaign Strategy',
+    client: 'Vogue Media (Priya Patel)',
+    date: '14/08/2026',
+    time: '04:00 PM',
+    duration: '30 mins',
+    type: 'Strategy Call',
+    link: 'https://meet.google.com/gnx-vogue-strat',
+    status: 'Scheduled',
+    createdBy: 'Dev Ananth'
+  },
+  {
+    id: 3,
+    title: 'Nova Tech - API Integration Technical Alignment',
+    client: 'Nova Tech Ltd (Michael Chang)',
+    date: '15/08/2026',
+    time: '11:00 AM',
+    duration: '60 mins',
+    type: 'Technical Alignment',
+    link: 'https://meet.google.com/gnx-novatech-sync',
+    status: 'Upcoming',
+    createdBy: 'Sarah Jenkins'
+  },
+  {
+    id: 4,
+    title: 'Alpha Group - Initial Discovery Pitch',
+    client: 'Alpha Group (Vikram Malhotra)',
+    date: '13/08/2026',
+    time: '10:30 AM',
+    duration: '30 mins',
+    type: 'Discovery Call',
+    link: 'https://meet.google.com/gnx-alpha-pitch',
+    status: 'Completed',
+    createdBy: 'Admin User'
+  }
+];
+
+export default function MeetingsView({ stats, user }) {
+  const [meetings, setMeetings] = useState(() => {
+    try {
+      const saved = localStorage.getItem(MEETINGS_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_MEETINGS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(meetings));
+    } catch (e) {}
+  }, [meetings]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

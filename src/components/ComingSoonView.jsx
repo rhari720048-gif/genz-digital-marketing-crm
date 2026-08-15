@@ -65,12 +65,12 @@ export default function ComingSoonView({
 
   // 6. User Notes Page
   if (activeTab === 'notes') {
-    return <NotesView stats={stats} />;
+    return <NotesView stats={stats} user={user} />;
   }
 
   // 7. Meetings Page
   if (activeTab === 'meetings') {
-    return <MeetingsView stats={stats} />;
+    return <MeetingsView stats={stats} user={user} />;
   }
 
   // 8. All Users Management Page
