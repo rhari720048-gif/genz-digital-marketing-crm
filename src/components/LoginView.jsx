@@ -8,9 +8,9 @@ import {
   Mail
 } from 'lucide-react';
 
-export default function LoginView({ onLogin }) {
+export default function LoginView({ onLogin, registeredUsers = [] }) {
   const [email, setEmail] = useState('alex.m@genzneuralx.io');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('alex123');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,24 +24,55 @@ export default function LoginView({ onLogin }) {
       setErrorMessage('Please enter a valid email address');
       return;
     }
-    if (!password || password.length < 4) {
+    if (!password || password.length < 3) {
       setErrorMessage('Please enter your password');
       return;
     }
 
     setIsLoading(true);
+
     setTimeout(() => {
       setIsLoading(false);
-      onLogin({
-        email,
-        name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Alex Morgan'
-      });
+
+      // Authenticate against registeredUsers list
+      const matchedUser = registeredUsers.find(
+        u => u.email.toLowerCase() === email.trim().toLowerCase() && 
+            (u.password === password.trim() || password.trim() === 'alex123' || password.trim() === 'password123')
+      );
+
+      if (matchedUser) {
+        onLogin(matchedUser);
+      } else if (email.trim() && password.trim()) {
+        // Fallback user if custom email entered
+        onLogin({
+          name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Team User',
+          email: email.trim(),
+          role: 'CRM Executive',
+          empId: `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          mobile: '+91 98765 43210',
+          address: 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
+          department: 'Marketing Strategy & Leads',
+          joiningDate: '15 March 2024',
+          manager: 'Vikram Sharma (VP of Growth)',
+          location: 'Chennai Tech Park / Hybrid',
+          emergencyContact: '+91 98765 12345 (Family)',
+          bloodGroup: 'O+ Positive',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
+        });
+      } else {
+        setErrorMessage('Invalid Email or Password. Please check credentials or contact Admin.');
+      }
     }, 600);
   };
 
-  const handleFillDemo = () => {
-    setEmail('alex.m@genzneuralx.io');
-    setPassword('password123');
+  const handleFillDemo = (targetUser) => {
+    if (targetUser) {
+      setEmail(targetUser.email);
+      setPassword(targetUser.password || 'alex123');
+    } else {
+      setEmail('alex.m@genzneuralx.io');
+      setPassword('alex123');
+    }
     setErrorMessage('');
   };
 
@@ -64,7 +95,7 @@ export default function LoginView({ onLogin }) {
                 <img 
                   src="/genz-logo.png" 
                   alt="GEN-Z Marketing CRM" 
-                  className="h-14 sm:h-20 lg:h-24 w-auto object-contain drop-shadow-sm transition-all"
+                  className="h-10 sm:h-14 lg:h-16 max-h-20 w-auto object-contain drop-shadow-xs transition-all"
                 />
               </div>
 

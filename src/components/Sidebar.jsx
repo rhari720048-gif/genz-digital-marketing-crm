@@ -79,6 +79,11 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       id: 'meetings',
       label: '7. Meetings',
       icon: Calendar
+    },
+    {
+      id: 'users',
+      label: '8. All Users',
+      icon: Users
     }
   ];
 

@@ -6,8 +6,21 @@ import QuotationsView from './QuotationsView';
 import InvoicesView from './InvoicesView';
 import NotesView from './NotesView';
 import MeetingsView from './MeetingsView';
+import UsersView from './UsersView';
 
-export default function ComingSoonView({ activeTab, setActiveTab, user, stats, refetchStats, attendanceLogs, onToggleCheckIn }) {
+export default function ComingSoonView({ 
+  activeTab, 
+  setActiveTab, 
+  user, 
+  stats, 
+  refetchStats, 
+  attendanceLogs, 
+  onToggleCheckIn,
+  registeredUsers,
+  onAddUser,
+  onDeleteUser,
+  onLoginAsUser
+}) {
   // 1. My Profile Page
   if (activeTab === 'profile') {
     return <ProfileView user={user} />;
@@ -55,6 +68,18 @@ export default function ComingSoonView({ activeTab, setActiveTab, user, stats, r
   // 7. Meetings Page
   if (activeTab === 'meetings') {
     return <MeetingsView stats={stats} />;
+  }
+
+  // 8. All Users Management Page
+  if (activeTab === 'users') {
+    return (
+      <UsersView
+        users={registeredUsers || []}
+        onAddUser={onAddUser}
+        onDeleteUser={onDeleteUser}
+        onLoginAsUser={onLoginAsUser}
+      />
+    );
   }
 
   // Fallback to ProfileView
