@@ -793,44 +793,44 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       )}
 
       {/* 1. PAGE HEADER & QUICK STATS */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-royal-600 via-royal-700 to-royal-800 p-5 sm:p-6 rounded-3xl border border-royal-500/30 shadow-xl text-white">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1">
             {headerDetails.title}
           </h1>
-          <p className="text-xs sm:text-sm text-royal-100 mt-1 font-medium">
+          <p className="text-xs text-slate-500 mt-0.5">
             {headerDetails.subtitle}
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5 sm:gap-3">
-          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 flex items-center space-x-3 min-w-[120px]">
-            <div className="p-2 rounded-xl bg-white/20 text-white">
+          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/50 flex items-center space-x-3 min-w-[120px]">
+            <div className="p-2 rounded-xl bg-royal-100 text-royal-700">
               <TrendingUp className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold text-royal-200 uppercase tracking-wider">Total Leads</p>
-              <p className="text-sm font-black font-mono text-white mt-0.5">{totalLeadsCount}</p>
+              <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Total Leads</p>
+              <p className="text-sm font-black font-mono text-royal-950 mt-0.5">{totalLeadsCount}</p>
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 flex items-center space-x-3 min-w-[120px]">
-            <div className="p-2 rounded-xl bg-amber-400/20 text-amber-300">
+          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/50 flex items-center space-x-3 min-w-[120px]">
+            <div className="p-2 rounded-xl bg-amber-100 text-amber-700">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold text-royal-200 uppercase tracking-wider">Follow-ups</p>
-              <p className="text-sm font-black font-mono text-white mt-0.5">{pendingFollowupsCount}</p>
+              <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Follow-ups</p>
+              <p className="text-sm font-black font-mono text-royal-950 mt-0.5">{pendingFollowupsCount}</p>
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 flex items-center space-x-3 min-w-[120px]">
-            <div className="p-2 rounded-xl bg-emerald-400/20 text-emerald-300">
+          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/50 flex items-center space-x-3 min-w-[120px]">
+            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700">
               <UserCheck className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold text-royal-200 uppercase tracking-wider">Converted</p>
-              <p className="text-sm font-black font-mono text-white mt-0.5">{convertedClientsCount}</p>
+              <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Converted</p>
+              <p className="text-sm font-black font-mono text-royal-950 mt-0.5">{convertedClientsCount}</p>
             </div>
           </div>
         </div>

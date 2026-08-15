@@ -214,21 +214,21 @@ export default function MeetingsView({ stats }) {
       )}
 
       {/* HEADER */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-royal-600 via-royal-700 to-royal-800 p-5 sm:p-6 rounded-3xl border border-royal-500/30 shadow-xl text-white">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
             Meetings & Client Schedule
           </h1>
-          <p className="text-xs sm:text-sm text-royal-100 mt-1 font-medium">
+          <p className="text-xs text-slate-500 mt-0.5">
             Schedule sales demos, discovery calls, and virtual video meetings.
           </p>
         </div>
 
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2.5 bg-white hover:bg-royal-50 text-royal-700 rounded-xl text-xs font-black transition-all shadow-md flex items-center justify-center space-x-1.5 active:scale-95 shrink-0"
+          className="px-4 py-2.5 bg-royal-600 hover:bg-royal-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center space-x-1.5 active:scale-95 shrink-0"
         >
-          <Plus className="w-4 h-4 text-royal-700" />
+          <Plus className="w-3.5 h-3.5" />
           <span>Schedule Meeting</span>
         </button>
       </div>
