@@ -112,57 +112,15 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       `}>
         <div className="space-y-4 overflow-y-auto pr-0.5">
           
-          {/* USER CARD IN SIDEBAR */}
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-            
-            {/* Mobile Close Header */}
-            <div className="flex items-center justify-between lg:hidden pb-1 border-b border-slate-200">
-              <span className="text-[10px] font-black font-mono text-royal-700 uppercase">GENZ NEURAL-X</span>
-              <button onClick={onCloseMobile} className="p-1 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Top Compact User Row */}
-            <div className="flex items-center space-x-2.5">
-              <div className="relative shrink-0">
-                <img
-                  src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
-                  alt={user?.name || 'Alex Morgan'}
-                  className="w-9 h-9 rounded-xl object-cover ring-2 ring-royal-500/20"
-                />
-                <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${user?.isCheckedIn ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-black font-heading text-slate-900 truncate leading-none">
-                  {user?.name || 'Alex Morgan'}
-                </h3>
-                <p className="text-[10px] font-bold text-royal-600 truncate mt-1 leading-none">
-                  {user?.role || 'Head of Growth Marketing'}
-                </p>
-              </div>
-            </div>
-
-            {/* Shift & Clock Status */}
-            <div className="p-2 rounded-xl bg-white border border-slate-200/70 space-y-1 text-[10px]">
-              <div className="flex items-center justify-between font-bold text-slate-700">
-                <span className="flex items-center space-x-1">
-                  <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
-                  <span className="truncate">{user?.greeting || 'Good Morning'}</span>
-                </span>
-                <span className="font-mono font-black text-royal-600">{formattedTime}</span>
-              </div>
-
-              <div className="flex items-center space-x-1 font-mono text-[9px] text-slate-500 pt-1 border-t border-slate-100">
-                <Clock className="w-3 h-3 text-royal-500 shrink-0" />
-                <span>{formattedDate}</span>
-              </div>
-            </div>
-
+          {/* Mobile Drawer Header (< lg screens) */}
+          <div className="flex items-center justify-between lg:hidden pb-2 mb-2 border-b border-slate-200">
+            <span className="text-xs font-black font-heading text-royal-700 uppercase tracking-wider">GEN-Z MARKETING CRM</span>
+            <button onClick={onCloseMobile} className="p-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          {/* MENU MODULES NAVIGATION */}
+          {/* SIDEBAR NAVIGATION */}
           <nav className="space-y-1">
             
             {menuItems.map((item) => {

@@ -1,13 +1,25 @@
-import React from 'react';
-import { LogIn, UserCheck, Clock, Menu, X, BellRing, Sparkles, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LogIn, UserCheck, Clock, Menu, X, Sparkles, LogOut } from 'lucide-react';
 
 export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, isMobileMenuOpen, onToggleMobileMenu, onLogout }) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formattedDate = currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const greetingText = user?.greeting || 'Good Morning';
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Alex';
+
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-xs transition-all">
-      {/* AppBar Container */}
+      {/* Main AppBar Container */}
       <div className="px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between max-w-7xl mx-auto">
         
-        {/* Left Side: Flutter Drawer Menu Button + Logo Emblem */}
+        {/* Left Side: Drawer Menu Button + Logo Emblem */}
         <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           
           {/* Drawer Menu Button */}
@@ -36,7 +48,19 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
 
         </div>
 
-        {/* Right Side: Flutter Action Pills */}
+        {/* CENTER: Desktop Greeting & Live Clock Pill */}
+        <div className="hidden md:flex items-center space-x-2.5 px-3.5 py-1.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs shadow-2xs">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <span className="font-bold text-slate-800 font-heading">
+            {greetingText}, <span className="text-royal-600 font-black">{firstName}</span>
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="font-mono font-black text-royal-600">{formattedTime}</span>
+          <span className="text-slate-300">•</span>
+          <span className="font-mono text-slate-500 text-[11px]">{formattedDate}</span>
+        </div>
+
+        {/* Right Side: Action Pills */}
         <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           
           {/* Status Badge */}
@@ -95,6 +119,22 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
         </div>
 
       </div>
+
+      {/* MOBILE SUB-BAR: Greeting, Live Clock & Date (< md screens) */}
+      <div className="md:hidden flex items-center justify-between px-3.5 py-1.5 bg-slate-50/90 border-t border-slate-100 text-[11px]">
+        <div className="flex items-center space-x-1.5">
+          <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+          <span className="font-bold text-slate-800 font-heading">
+            {greetingText}, <span className="text-royal-600 font-black">{firstName}</span>
+          </span>
+        </div>
+        <div className="flex items-center space-x-1.5 font-mono text-[10px]">
+          <span className="font-black text-royal-600">{formattedTime}</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-slate-500">{formattedDate}</span>
+        </div>
+      </div>
+
     </header>
   );
 }
