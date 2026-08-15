@@ -64,7 +64,7 @@ export default function LoginView({ onLogin }) {
                 <img 
                   src="/genz-logo.png" 
                   alt="GEN-Z Marketing CRM" 
-                  className="h-20 sm:h-28 lg:h-32 w-auto object-contain drop-shadow-md transition-all"
+                  className="h-14 sm:h-20 lg:h-24 w-auto object-contain drop-shadow-sm transition-all"
                 />
               </div>
 
