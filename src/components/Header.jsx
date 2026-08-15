@@ -24,10 +24,10 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
             <img 
               src="/genz-logo.png" 
               alt="GEN-Z Digital Marketing CRM" 
-              className="h-8.5 sm:h-10 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
+              className="h-6.5 sm:h-7.5 w-auto object-contain drop-shadow-2xs group-hover:opacity-95 transition-opacity"
             />
-            <div className="mt-0.5 leading-none font-heading font-extrabold tracking-tight">
-              <span className="text-[10.5px] sm:text-[12px] text-royal-600">
+            <div className="-mt-1 sm:-mt-1.5 leading-none font-heading font-extrabold tracking-tight">
+              <span className="text-xs sm:text-sm text-royal-600">
                 Marketing CRM
               </span>
             </div>
