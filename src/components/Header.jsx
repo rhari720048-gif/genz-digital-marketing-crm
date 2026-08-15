@@ -53,7 +53,16 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
           {/* Greeting Pill */}
           <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-slate-800 shadow-2xs">
             <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span>Welcome back, <strong className="text-royal-600 font-bold font-heading">{firstName}</strong></span>
+            <span>
+              {user?.isAdmin ? (
+                <span className="flex items-center space-x-1.5">
+                  <span className="px-2 py-0.5 rounded-md bg-royal-600 text-white font-black text-[10px] font-mono tracking-wider uppercase">ADMIN PORTAL</span>
+                  <span className="font-bold text-slate-900">System Administrator</span>
+                </span>
+              ) : (
+                <>Welcome back, <strong className="text-royal-600 font-bold font-heading">{firstName}</strong></>
+              )}
+            </span>
           </div>
 
           {/* Live Clock & Date Pill */}

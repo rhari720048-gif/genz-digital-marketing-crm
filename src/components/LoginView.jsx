@@ -33,21 +33,50 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
 
     setTimeout(() => {
       setIsLoading(false);
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanPass = password.trim();
 
-      // Authenticate against registeredUsers list
+      // 1. ADMIN LOGIN CHECK
+      if (
+        cleanEmail === 'admin' || 
+        cleanEmail === 'admin@genzneuralx.io' || 
+        cleanEmail === 'admin@crm.com' ||
+        (cleanEmail.includes('admin') && (cleanPass === 'admin@123' || cleanPass === 'admin'))
+      ) {
+        onLogin({
+          id: 'admin-001',
+          name: 'System Administrator',
+          email: 'admin@genzneuralx.io',
+          role: 'Super Admin',
+          isAdmin: true,
+          empId: 'GNX-ADMIN-01',
+          mobile: '+91 98765 00000',
+          department: 'Executive Administration',
+          joiningDate: '01 Jan 2024',
+          manager: 'Board of Directors',
+          location: 'Headquarters, OMR Chennai',
+          address: 'Executive Suite 01, Neural Tower, OMR Tech Corridor, Chennai',
+          emergencyContact: '+91 98765 00001 (HQ Desk)',
+          bloodGroup: 'O+ Positive',
+          avatar: '/genz-logo.png'
+        });
+        return;
+      }
+
+      // 2. REGULAR USER LOGIN CHECK
       const matchedUser = registeredUsers.find(
-        u => u.email.toLowerCase() === email.trim().toLowerCase() && 
-            (u.password === password.trim() || password.trim() === 'alex123' || password.trim() === 'password123')
+        u => u.email.toLowerCase() === cleanEmail && 
+            (u.password === cleanPass || cleanPass === 'alex123' || cleanPass === 'password123')
       );
 
       if (matchedUser) {
-        onLogin(matchedUser);
-      } else if (email.trim() && password.trim()) {
-        // Fallback user if custom email entered
+        onLogin({ ...matchedUser, isAdmin: false });
+      } else if (cleanEmail && cleanPass) {
         onLogin({
-          name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Team User',
-          email: email.trim(),
+          name: cleanEmail.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Team User',
+          email: cleanEmail,
           role: 'CRM Executive',
+          isAdmin: false,
           empId: `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`,
           mobile: '+91 98765 43210',
           address: 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
@@ -63,6 +92,12 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
         setErrorMessage('Invalid Email or Password. Please check credentials or contact Admin.');
       }
     }, 600);
+  };
+
+  const handleFillAdmin = () => {
+    setEmail('admin@genzneuralx.io');
+    setPassword('admin@123');
+    setErrorMessage('');
   };
 
   const handleFillDemo = (targetUser) => {
@@ -252,11 +287,28 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
 
             </form>
 
-            {/* Footer Support Text */}
-            <div className="text-center pt-2 border-t border-slate-100">
-              <p className="text-[11px] font-medium text-slate-500">
-                Having trouble logging in? <button onClick={handleFillDemo} className="font-bold text-royal-600 hover:underline">Auto-fill Demo Credentials</button>
-              </p>
+            {/* Quick Access Roles */}
+            <div className="pt-3 border-t border-slate-100 space-y-2">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 text-center">Quick Login Roles</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={handleFillAdmin}
+                  className="px-3 py-2 rounded-xl bg-royal-50 hover:bg-royal-100 border border-royal-200/80 text-royal-700 font-extrabold text-xs flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                >
+                  <Lock className="w-3.5 h-3.5 text-royal-600" />
+                  <span>Admin (`admin` / `admin@123`)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleFillDemo()}
+                  className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                >
+                  <Mail className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Employee Login</span>
+                </button>
+              </div>
             </div>
 
           </div>

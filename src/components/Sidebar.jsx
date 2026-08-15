@@ -19,7 +19,9 @@ import {
   Zap,
   LayoutDashboard,
   Plus,
-  Minus
+  Minus,
+  Activity,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMobile, onCloseMobile }) {
@@ -36,7 +38,32 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
   const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const formattedDate = currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-  const menuItems = [
+  const isAdmin = user?.isAdmin || user?.role === 'Super Admin';
+
+  const adminMenuItems = [
+    {
+      id: 'users',
+      label: '1. All Users (User Management)',
+      icon: Users
+    },
+    {
+      id: 'analytics',
+      label: '2. System Analytics & Audit',
+      icon: Activity
+    },
+    {
+      id: 'attendance-admin',
+      label: '3. Attendance Oversight',
+      icon: Clock
+    },
+    {
+      id: 'settings',
+      label: '4. System Settings',
+      icon: Zap
+    }
+  ];
+
+  const employeeMenuItems = [
     {
       id: 'profile',
       label: '1. My Profile',
@@ -79,13 +106,10 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       id: 'meetings',
       label: '7. Meetings',
       icon: Calendar
-    },
-    {
-      id: 'users',
-      label: '8. All Users',
-      icon: Users
     }
   ];
+
+  const menuItems = isAdmin ? adminMenuItems : employeeMenuItems;
 
   const handleSelect = (item) => {
     if (item.subItems) {

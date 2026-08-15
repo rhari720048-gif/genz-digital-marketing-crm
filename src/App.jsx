@@ -265,11 +265,18 @@ export default function App() {
       localStorage.setItem(AUTH_STORAGE_KEY, 'true');
     } catch (e) {}
     if (loggedUser) {
-      setUser(prev => ({
-        ...prev,
+      const isSysAdmin = loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.email?.includes('admin');
+      const updatedUser = {
         ...loggedUser,
-        greeting: `Welcome back, ${loggedUser.name?.split(' ')[0] || 'User'}`
-      }));
+        isAdmin: isSysAdmin,
+        greeting: isSysAdmin ? 'Welcome, System Administrator' : `Welcome back, ${loggedUser.name?.split(' ')[0] || 'User'}`
+      };
+      setUser(updatedUser);
+      if (isSysAdmin) {
+        setActiveTab('users');
+      } else {
+        setActiveTab('profile');
+      }
     }
   };
 
