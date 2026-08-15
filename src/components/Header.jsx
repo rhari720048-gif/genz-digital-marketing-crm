@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, UserCheck, Clock, Menu, X, Sparkles, LogOut } from 'lucide-react';
+import { LogIn, UserCheck, Clock, Menu, X, Sparkles, Power, CheckCircle2 } from 'lucide-react';
 
 export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, isMobileMenuOpen, onToggleMobileMenu, onLogout }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -93,12 +93,12 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
               </>
             ) : user.hasCheckedOutToday ? (
               <>
-                <UserCheck className="w-3.5 h-3.5 text-slate-500" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
                 <span className="text-xs">Shift Done Today</span>
               </>
             ) : (
               <>
-                <LogIn className="w-3.5 h-3.5" />
+                <Clock className="w-3.5 h-3.5" />
                 <span className="text-xs">Check In</span>
               </>
             )}
@@ -111,7 +111,7 @@ export default function Header({ user, onToggleCheckIn, onOpenAttendanceModal, i
               className="p-2 sm:px-3 sm:py-2 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer active:scale-95"
               title="Sign Out"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <Power className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Sign Out</span>
             </button>
           )}
