@@ -169,7 +169,7 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed lg:sticky top-0 lg:top-[var(--header-height)] left-0 z-50 lg:z-30 h-screen lg:h-[calc(100vh-var(--header-height))] w-72 lg:w-60 bg-white border-r border-slate-200 p-4 lg:p-3 flex flex-col justify-between shrink-0 shadow-2xl lg:shadow-none transition-transform duration-300 ease-in-out
+        fixed lg:relative top-0 left-0 z-50 lg:z-30 h-screen lg:h-full w-72 lg:w-60 bg-white border-r border-slate-200 p-4 lg:pt-3 lg:pb-3 lg:px-2.5 flex flex-col justify-between shrink-0 shadow-2xl lg:shadow-none overflow-y-auto transition-transform duration-300 ease-in-out
         ${isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="space-y-4 overflow-y-auto pr-0.5">

@@ -6,16 +6,18 @@
 @layer base {
   html, body {
     max-width: 100%;
-    overflow-x: hidden;
     margin: 0;
     padding: 0;
-    overflow-y: scroll;
+    overflow: hidden;
+    height: 100%;
   }
 
   #root {
     width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   body {

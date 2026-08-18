@@ -664,7 +664,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden lg:min-h-[calc(100vh-var(--header-height))]">
+      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-hidden lg:h-[calc(100vh-var(--header-height))]">
 
         <Sidebar
           activeTab={activeTab}
@@ -675,7 +675,7 @@ export default function App() {
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 p-2.5 sm:p-4 lg:p-5 min-w-0 max-w-full bg-slate-50/50 pb-6 overflow-x-hidden">
+        <main className="flex-1 p-2.5 sm:p-4 lg:pt-0 lg:px-5 lg:pb-6 min-w-0 max-w-full bg-slate-50/50 overflow-y-auto h-full">
           <ComingSoonView
             activeTab={activeTab}
             setActiveTab={setActiveTab}
