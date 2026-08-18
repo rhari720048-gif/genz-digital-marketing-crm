@@ -54,7 +54,8 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
     emergencyContact: '+91 98765 12345 (Family)',
     bloodGroup: 'O+ Positive',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-    status: 'Active'
+    status: 'Active',
+    isAdmin: false
   });
 
   const showToast = (msg) => {
@@ -74,16 +75,20 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
       return;
     }
 
+    const isSysAdmin = Boolean(formData.isAdmin);
+
     const newUser = {
       id: Date.now(),
       ...formData,
+      isAdmin: isSysAdmin,
+      role: isSysAdmin ? 'Super Admin' : (formData.role || 'Marketing Executive'),
       status: 'Active',
       joiningDate: formData.joiningDate ? new Date(formData.joiningDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '15 March 2024'
     };
 
     onAddUser(newUser);
     setIsAddModalOpen(false);
-    showToast(`User ${newUser.name} registered successfully! Enabled for instant login.`);
+    showToast(`User ${newUser.name} registered as ${isSysAdmin ? 'System Admin' : 'Employee'}! Enabled for instant login.`);
     
     // Reset form
     setFormData({
@@ -101,7 +106,8 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
       emergencyContact: '+91 98765 12345 (Family)',
       bloodGroup: 'O+ Positive',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-      status: 'Active'
+      status: 'Active',
+      isAdmin: false
     });
   };
 
@@ -112,7 +118,14 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
       return;
     }
 
-    onUpdateUser(editingUser);
+    const isSysAdmin = Boolean(editingUser.isAdmin || editingUser.role === 'Super Admin');
+    const updatedObj = {
+      ...editingUser,
+      isAdmin: isSysAdmin,
+      role: isSysAdmin ? 'Super Admin' : (editingUser.role === 'Super Admin' ? 'Marketing Executive' : editingUser.role)
+    };
+
+    onUpdateUser(updatedObj);
     showToast(`User ${editingUser.name} details updated!`);
     setEditingUser(null);
   };
@@ -267,9 +280,16 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
                     {/* 2. Emp ID & Role */}
                     <td className="px-4 py-3.5">
-                      <div className="flex flex-col">
+                      <div className="flex flex-col space-y-0.5">
                         <span className="font-mono text-xs font-black text-royal-700">{u.empId}</span>
-                        <span className="text-xs font-bold text-slate-800">{u.role}</span>
+                        <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
+                          <span className="text-xs font-bold text-slate-800">{u.role}</span>
+                          {(u.isAdmin || u.role === 'Super Admin') && (
+                            <span className="px-1.5 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-800 font-extrabold text-[9px] uppercase tracking-wider">
+                              ADMIN
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
 
@@ -639,6 +659,26 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                   />
                 </div>
 
+                {/* 14. Grant System Administrator Access Checkbox */}
+                <div className="sm:col-span-2 p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-black text-amber-900 block">Grant System Administrator Access (Admin Role)</span>
+                      <span className="text-[10px] text-amber-700 font-medium leading-tight block">Ticking this creates this user as an Admin. Logging in with this user's credentials opens the Admin Portal directly.</span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    name="isAdmin"
+                    checked={formData.isAdmin || false}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isAdmin: e.target.checked }))}
+                    className="w-5 h-5 rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer shrink-0 ml-3"
+                  />
+                </div>
+
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 shrink-0">
@@ -850,6 +890,29 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     value={editingUser.address || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })}
                     className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                {/* Grant System Administrator Access Checkbox */}
+                <div className="sm:col-span-2 p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-black text-amber-900 block">System Administrator Privileges (Admin Role)</span>
+                      <span className="text-[10px] text-amber-700 font-medium leading-tight block">Ticking this gives full System Administrator control to this employee.</span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={editingUser.isAdmin || editingUser.role === 'Super Admin' || false}
+                    onChange={(e) => setEditingUser(prev => ({ 
+                      ...prev, 
+                      isAdmin: e.target.checked,
+                      role: e.target.checked ? 'Super Admin' : (prev.role === 'Super Admin' ? 'Marketing Executive' : prev.role)
+                    }))}
+                    className="w-5 h-5 rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer shrink-0 ml-3"
                   />
                 </div>
               </div>
