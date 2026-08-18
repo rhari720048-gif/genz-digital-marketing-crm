@@ -77,7 +77,6 @@ export default function InvoicesView({ stats }) {
   // Invoice Form state
   const [formInvoiceId, setFormInvoiceId] = useState('');
   const [formClientName, setFormClientName] = useState('');
-  const [formClientAddress, setFormClientAddress] = useState('');
   const [formClientPhone, setFormClientPhone] = useState('');
   const [formClientEmail, setFormClientEmail] = useState('');
   
@@ -164,10 +163,9 @@ export default function InvoicesView({ stats }) {
     const newInvoice = {
       id: formInvoiceId.trim(),
       clientName: formClientName.trim(),
-      clientAddress: formClientAddress.trim(),
       clientPhone: formClientPhone.trim(),
       email: formClientEmail.trim() || 'client@example.com',
-      service: formService,
+      service: formService.trim(),
       quantity: Number(formQuantity) || 1,
       sellingPrice: Number(formSellingPrice) || 0,
       discount: Number(formDiscount) || 0,
@@ -188,7 +186,6 @@ export default function InvoicesView({ stats }) {
     showToast(`Invoice ${newInvoice.id} generated and saved!`);
     setFormInvoiceId(`IV-${Date.now().toString().slice(-4)}`);
     setFormClientName('');
-    setFormClientAddress('');
     setFormClientPhone('');
     setFormClientEmail('');
   };
@@ -220,7 +217,7 @@ export default function InvoicesView({ stats }) {
     }
   };
 
-  // Vector Default logo path for watermark (clean, large size)
+  // Vector Default logo path for watermark (clean, large size, straight)
   const defaultWatermarkSvg = (
     <svg className="w-[320px] h-[320px] text-royal-600/15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -307,18 +304,7 @@ export default function InvoicesView({ stats }) {
               </div>
 
               <div className="space-y-1 col-span-2">
-                <label className="text-[9px] font-black uppercase text-slate-400">Client Billing Address</label>
-                <textarea
-                  rows={2}
-                  placeholder="Street, City, State, Pin Code..."
-                  value={formClientAddress}
-                  onChange={(e) => setFormClientAddress(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
-                />
-              </div>
-
-              <div className="space-y-1 col-span-2">
-                <label className="text-[9px] font-black uppercase text-slate-400">Client Email</label>
+                <label className="text-[9px] font-black uppercase text-slate-400">Client Email (Optional)</label>
                 <input
                   type="email"
                   placeholder="client@mail.com"
@@ -329,18 +315,15 @@ export default function InvoicesView({ stats }) {
               </div>
 
               <div className="space-y-1 col-span-2">
-                <label className="text-[9px] font-black uppercase text-slate-400">Service / Particulars</label>
-                <select
+                <label className="text-[9px] font-black uppercase text-slate-400">Service / Particulars *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. Website Development"
                   value={formService}
                   onChange={(e) => setFormService(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
-                >
-                  <option value="Website Development">Website Development</option>
-                  <option value="Mobile App Development">Mobile App Development</option>
-                  <option value="Digital Marketing & SEO">Digital Marketing & SEO</option>
-                  <option value="Cloud Hosting Infrastructure">Cloud Hosting Infrastructure</option>
-                  <option value="Branding & Content Strategy">Branding & Content Strategy</option>
-                </select>
+                />
               </div>
 
               <div className="space-y-1">
@@ -423,7 +406,7 @@ export default function InvoicesView({ stats }) {
             <div 
               ref={billPreviewRef} 
               id="invoice-bill-container" 
-              className="relative bg-white text-slate-800 p-8 w-full min-w-[700px] max-w-[760px] mx-auto min-h-[940px] flex flex-col justify-between border-2 border-slate-800 shadow-lg select-none"
+              className="relative bg-white text-slate-800 p-8 w-full min-w-[700px] max-w-[760px] mx-auto min-h-[940px] flex flex-col justify-between border-2 border-slate-800 shadow-lg select-none animate-fadeIn"
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
@@ -478,18 +461,12 @@ export default function InvoicesView({ stats }) {
                   </div>
                 </div>
 
-                {/* 2. Bill To (Client details) */}
-                <div className="border-2 border-t-0 border-slate-800 p-4 mt-[-16px] space-y-1.5 text-[10px] bg-white/80">
-                  <h3 className="font-black text-slate-500 uppercase tracking-wider">Bill To :</h3>
-                  <div className="space-y-0.5">
-                    <p className="font-black text-slate-955 text-xs uppercase">{formClientName || 'Client Name'}</p>
-                    {formClientAddress && (
-                      <p className="text-slate-700 font-medium whitespace-pre-line leading-normal max-w-xl">{formClientAddress}</p>
-                    )}
-                    {formClientPhone && (
-                      <p className="text-slate-900 font-extrabold mt-0.5" style={{ fontFamily: "'Space Mono', monospace" }}>Phone No : {formClientPhone}</p>
-                    )}
-                  </div>
+                {/* 2. Bill To (Client details, BILL TO prefix removed) */}
+                <div className="border-2 border-t-0 border-slate-800 p-4 mt-[-16px] space-y-1 text-[10px] bg-white/80">
+                  <p className="font-black text-slate-955 text-xs uppercase">{formClientName || 'Client Name'}</p>
+                  {formClientPhone && (
+                    <p className="text-slate-900 font-extrabold mt-0.5" style={{ fontFamily: "'Space Mono', monospace" }}>Phone No : {formClientPhone}</p>
+                  )}
                 </div>
 
                 {/* 3. Main Itemized Box Table (Thick border-2, strict columns alignment, 100% connected lines) */}
@@ -506,54 +483,54 @@ export default function InvoicesView({ stats }) {
                     <thead>
                       <tr className="bg-slate-50 border-b-2 border-slate-800 text-[10px] font-black uppercase text-slate-500 font-mono">
                         <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center">S.No</th>
-                        <th className="px-3 py-2.5 border-r-2 border-slate-800">Particulars</th>
-                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right">Rate (₹)</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800">Service</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right">Rate (<span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹</span>)</th>
                         <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center">Qty</th>
                         <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right">Discount</th>
-                        <th className="px-3 py-2.5 text-right">Amount</th>
+                        <th className="px-3 py-2.5 text-right font-sans">Amount</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y-2 border-slate-800 font-semibold text-slate-700">
                       <tr className="align-top">
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>1</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800">
+                        <td className="px-3 py-3.5 border-2 border-slate-800 text-center font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>1</td>
+                        <td className="px-3 py-3.5 border-2 border-slate-800">
                           <p className="font-bold text-slate-955 uppercase">{formService}</p>
                         </td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-955" style={{ fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-2 border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{formSellingPrice.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-2 border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
+                        <td className="px-3 py-3.5 border-2 border-slate-800 text-right font-mono text-rose-600" style={{ fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-2 border-slate-800 text-right font-mono font-black text-slate-955" style={{ fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
                       
-                      {/* Empty padding rows (Dolphin publications style) using non-collapsing &nbsp; cells and explicit height on <tr> */}
+                      {/* Empty padding spacer rows (Dolphin publications style) using non-collapsing &nbsp; cells, each cell has solid borders */}
                       <tr style={{ height: '140px' }}>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td>&nbsp;</td>
+                        <td className="border-2 border-slate-800">&nbsp;</td>
+                        <td className="border-2 border-slate-800">&nbsp;</td>
+                        <td className="border-2 border-slate-800">&nbsp;</td>
+                        <td className="border-2 border-slate-800">&nbsp;</td>
+                        <td className="border-2 border-slate-800">&nbsp;</td>
+                        <td className="border-2 border-slate-800">&nbsp;</td>
                       </tr>
 
                       {/* Total row aligned 100% using single matching columns with vertical dividers */}
                       <tr className="bg-slate-50/50 font-black text-slate-850 font-mono text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right uppercase font-sans font-black text-slate-500">Total :</td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-center text-slate-950">{formQuantity}</td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-2.5 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-2.5 border-2 border-slate-800">&nbsp;</td>
+                        <td className="px-3 py-2.5 border-2 border-slate-800 text-right uppercase font-sans font-black text-slate-500">Total :</td>
+                        <td className="px-3 py-2.5 border-2 border-slate-800">&nbsp;</td>
+                        <td className="px-3 py-2.5 border-2 border-slate-800 text-center text-slate-950">{formQuantity}</td>
+                        <td className="px-3 py-2.5 border-2 border-slate-800 text-right text-rose-600"><span style={{ fontSize: '11px', fontWeight: 'bold' }}>₹</span>{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-2.5 border-2 border-slate-800 text-right text-slate-950"><span style={{ fontSize: '11px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
 
-                      {/* Net Amount row with blank description box instead of GST text */}
-                      <tr className="border-t-2 border-slate-800 bg-white font-extrabold">
-                        {/* Spanning 5 columns cleanly so that it aligns directly with the total value cell */}
-                        <td colSpan="5" className="px-3 py-3 border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="px-3 py-3 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
+                      {/* Net Amount row - Spanning exactly 4 columns to fit perfectly in a 6-column grid */}
+                      <tr className="bg-white font-extrabold">
+                        {/* Spanning 4 columns cleanly so that it aligns directly with the total value cell */}
+                        <td colSpan="4" className="px-3 py-3 border-2 border-slate-800">&nbsp;</td>
+                        <td className="px-3 py-3 border-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
                           Net Amount
                         </td>
-                        <td className="px-3 py-3 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
-                          ₹{calculatedTotal.toLocaleString('en-IN')}.00
+                        <td className="px-3 py-3 border-2 border-slate-800 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
+                          <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00
                         </td>
                       </tr>
                     </tbody>
@@ -636,7 +613,6 @@ export default function InvoicesView({ stats }) {
                         onClick={() => {
                           setFormInvoiceId(inv.id);
                           setFormClientName(inv.clientName);
-                          setFormClientAddress(inv.clientAddress || '');
                           setFormClientPhone(inv.clientPhone || '');
                           setFormClientEmail(inv.email);
                           setFormService(inv.service || 'Website Development');
