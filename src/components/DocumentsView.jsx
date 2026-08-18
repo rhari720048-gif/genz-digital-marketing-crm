@@ -3,80 +3,23 @@ import {
   FolderKanban, 
   UploadCloud, 
   Search, 
-  Filter, 
   FileText, 
   Download, 
   Trash2, 
   Eye, 
-  FileCode, 
   Image as ImageIcon, 
   FileCheck, 
-  Sparkles, 
   X, 
   Check, 
   Plus, 
-  FileSpreadsheet, 
   HardDrive, 
-  Layers, 
   Clock, 
   User, 
-  ExternalLink,
   Grid,
   List
 } from 'lucide-react';
 
-const STORAGE_KEY = 'crm_user_documents_v1';
-
-const DEFAULT_DOCUMENTS = [
-  {
-    id: 'doc_101',
-    title: 'GENZ Neural-X Employee Non-Disclosure Agreement',
-    fileName: 'NDA_Agreement_Signed.pdf',
-    category: 'Contracts',
-    fileSize: '1.4 MB',
-    fileType: 'application/pdf',
-    uploadDate: '12 Aug 2026',
-    uploadedBy: 'Alex Morgan',
-    notes: 'Signed NDA for Head of Growth Marketing role.',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-  },
-  {
-    id: 'doc_102',
-    title: 'Government Identity & Address Verification',
-    fileName: 'Aadhaar_Passport_Verification.jpg',
-    category: 'ID Proofs',
-    fileSize: '850 KB',
-    fileType: 'image/jpeg',
-    uploadDate: '10 Aug 2026',
-    uploadedBy: 'Alex Morgan',
-    notes: 'Primary HR ID proof verification copy.',
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'doc_103',
-    title: 'Q3 Digital Growth Strategy & Client Presentation',
-    fileName: 'Growth_Strategy_Q3_2026.pdf',
-    category: 'Marketing',
-    fileSize: '4.2 MB',
-    fileType: 'application/pdf',
-    uploadDate: '08 Aug 2026',
-    uploadedBy: 'Alex Morgan',
-    notes: 'Growth deck presented to enterprise clients.',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-  },
-  {
-    id: 'doc_104',
-    title: 'Monthly CRM Tax & Billing Statement',
-    fileName: 'Invoice_AUG_2026_GENZ.pdf',
-    category: 'Invoices',
-    fileSize: '420 KB',
-    fileType: 'application/pdf',
-    uploadDate: '05 Aug 2026',
-    uploadedBy: 'Finance Dept',
-    notes: 'Approved billing statement for tech infrastructure.',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-  }
-];
+const STORAGE_KEY = 'crm_user_documents_v2';
 
 export default function DocumentsView({ user }) {
   const [documents, setDocuments] = useState(() => {
@@ -84,20 +27,18 @@ export default function DocumentsView({ user }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {}
-    return DEFAULT_DOCUMENTS;
+    return [];
   });
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   
   // Upload Modal State
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [titleInput, setTitleInput] = useState('');
-  const [categoryInput, setCategoryInput] = useState('Contracts');
   const [notesInput, setNotesInput] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState(null);
@@ -153,18 +94,17 @@ export default function DocumentsView({ user }) {
     const fileName = selectedFile ? selectedFile.name : `Document_${Date.now()}.pdf`;
     const fileSize = selectedFile ? formatFileSize(selectedFile.size) : '1.5 MB';
     const fileType = selectedFile ? selectedFile.type : 'application/pdf';
-    const fileUrl = filePreviewUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+    const fileUrl = filePreviewUrl || '';
 
     const newDoc = {
       id: `doc_${Date.now()}`,
       title: titleInput.trim(),
       fileName: fileName,
-      category: categoryInput,
       fileSize: fileSize,
       fileType: fileType,
       uploadDate: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
       uploadedBy: user?.name || 'Current User',
-      notes: notesInput.trim() || 'User uploaded document',
+      notes: notesInput.trim() || '',
       url: fileUrl
     };
 
@@ -173,7 +113,6 @@ export default function DocumentsView({ user }) {
     
     // Reset Form
     setTitleInput('');
-    setCategoryInput('Contracts');
     setNotesInput('');
     setSelectedFile(null);
     setFilePreviewUrl(null);
@@ -203,33 +142,16 @@ export default function DocumentsView({ user }) {
     showToast(`Downloading "${doc.fileName || doc.title}"...`);
   };
 
-  const categories = ['all', 'Contracts', 'ID Proofs', 'Invoices', 'Marketing', 'Reports', 'Others'];
-
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           doc.fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (doc.notes && doc.notes.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
-  const getCategoryBadgeClass = (category) => {
-    switch (category) {
-      case 'Contracts': return 'bg-royal-100 text-royal-800 border-royal-200';
-      case 'ID Proofs': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'Invoices': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'Marketing': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Reports': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-      default: return 'bg-slate-100 text-slate-800 border-slate-200';
-    }
-  };
-
-  const getFileIcon = (fileType, category) => {
-    if (fileType?.includes('image') || category === 'ID Proofs') {
+  const getFileIcon = (fileType) => {
+    if (fileType?.includes('image')) {
       return <ImageIcon className="w-5 h-5 text-emerald-600" />;
-    }
-    if (category === 'Invoices') {
-      return <FileSpreadsheet className="w-5 h-5 text-amber-600" />;
     }
     return <FileText className="w-5 h-5 text-royal-600" />;
   };
@@ -258,7 +180,7 @@ export default function DocumentsView({ user }) {
               User Document Repository
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Secure digital vault for uploading contracts, ID proofs, invoices & marketing files.
+              Upload and manage your official user documents, files, and records.
             </p>
           </div>
         </div>
@@ -272,8 +194,8 @@ export default function DocumentsView({ user }) {
         </button>
       </div>
 
-      {/* 4 STATS METRIC CARDS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+      {/* 3 STATS METRIC CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
           <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Total Documents</p>
@@ -283,82 +205,54 @@ export default function DocumentsView({ user }) {
               <FileText className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-[10px] text-emerald-600 font-bold">100% Secured Repository</p>
+          <p className="text-[10px] text-emerald-600 font-bold">100% Secure Storage</p>
         </div>
 
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
-          <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">ID & Verification Proofs</p>
+          <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Recent Uploads</p>
           <div className="flex items-center justify-between">
             <p className="text-xl sm:text-2xl font-black text-emerald-600 font-mono">
-              {documents.filter(d => d.category === 'ID Proofs').length}
+              {documents.length > 0 ? 'Active' : 'None'}
             </p>
             <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-              <FileCheck className="w-4 h-4" />
+              <Clock className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-[10px] text-emerald-600 font-bold">HR Verified</p>
+          <p className="text-[10px] text-slate-500 font-mono">
+            {documents.length > 0 ? `Latest: ${documents[0].uploadDate}` : 'No uploads yet'}
+          </p>
         </div>
 
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
-          <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Contracts & Agreements</p>
+          <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Storage Encryption</p>
           <div className="flex items-center justify-between">
-            <p className="text-xl sm:text-2xl font-black text-royal-600 font-mono">
-              {documents.filter(d => d.category === 'Contracts').length}
-            </p>
-            <div className="p-2 rounded-xl bg-royal-50 text-royal-600">
-              <Layers className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-[10px] text-royal-600 font-bold">Active NDAs & Agreements</p>
-        </div>
-
-        <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
-          <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Storage Capacity</p>
-          <div className="flex items-center justify-between">
-            <p className="text-xl sm:text-2xl font-black text-slate-900 font-mono">7.8 MB</p>
+            <p className="text-xl sm:text-2xl font-black text-royal-600 font-mono">AES-256</p>
             <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
               <HardDrive className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-[10px] text-slate-500 font-mono">Cloud Encrypted</p>
+          <p className="text-[10px] text-slate-500 font-mono">Protected Storage</p>
         </div>
 
       </div>
 
-      {/* SEARCH, CATEGORY FILTER & VIEW TOGGLE BAR */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+      {/* SEARCH & VIEW TOGGLE BAR */}
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
         
         {/* Real-time Search Input */}
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full sm:w-80">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search document title, filename..."
+            placeholder="Search document title or filename..."
             className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/60 focus:outline-none focus:ring-1 focus:ring-royal-500 focus:bg-white font-medium"
           />
         </div>
 
-        {/* Category Pill Filters */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap capitalize ${
-                selectedCategory === cat
-                  ? 'bg-royal-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {cat === 'all' ? 'All Files' : cat}
-            </button>
-          ))}
-        </div>
-
         {/* Layout Mode Toggle */}
-        <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl shrink-0 self-end md:self-center">
+        <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl shrink-0">
           <button
             onClick={() => setViewMode('grid')}
             className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
@@ -387,16 +281,16 @@ export default function DocumentsView({ user }) {
           <div className="w-12 h-12 rounded-2xl bg-royal-50 text-royal-600 flex items-center justify-center mx-auto">
             <FolderKanban className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-black text-slate-800 font-heading">No documents found</h3>
+          <h3 className="text-base font-black text-slate-800 font-heading">No documents uploaded yet</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            {searchQuery ? `No document matching "${searchQuery}".` : 'Click "Upload Document" to add your first contract or verification document.'}
+            {searchQuery ? `No document matching "${searchQuery}".` : 'Click "Upload Document" to upload your files.'}
           </p>
           <button
             onClick={() => setIsUploadModalOpen(true)}
             className="px-4 py-2 rounded-xl bg-royal-600 text-white font-bold text-xs shadow-xs hover:bg-royal-700 inline-flex items-center space-x-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Upload Now</span>
+            <span>Upload Document</span>
           </button>
         </div>
       ) : viewMode === 'grid' ? (
@@ -410,12 +304,8 @@ export default function DocumentsView({ user }) {
               <div className="space-y-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 shrink-0 group-hover:scale-105 transition-transform">
-                    {getFileIcon(doc.fileType, doc.category)}
+                    {getFileIcon(doc.fileType)}
                   </div>
-
-                  <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold border font-mono ${getCategoryBadgeClass(doc.category)}`}>
-                    {doc.category}
-                  </span>
                 </div>
 
                 <div>
@@ -476,7 +366,6 @@ export default function DocumentsView({ user }) {
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
                   <th className="px-5 py-3.5">Document Details</th>
-                  <th className="px-5 py-3.5">Category</th>
                   <th className="px-5 py-3.5">Size</th>
                   <th className="px-5 py-3.5">Uploaded By & Date</th>
                   <th className="px-5 py-3.5 text-right">Actions</th>
@@ -488,19 +377,13 @@ export default function DocumentsView({ user }) {
                     <td className="px-5 py-3.5">
                       <div className="flex items-center space-x-3">
                         <div className="p-2 rounded-xl bg-slate-100 shrink-0">
-                          {getFileIcon(doc.fileType, doc.category)}
+                          {getFileIcon(doc.fileType)}
                         </div>
                         <div>
                           <p className="font-black text-slate-900 font-heading">{doc.title}</p>
                           <p className="text-[10px] text-slate-400 font-mono">{doc.fileName}</p>
                         </div>
                       </div>
-                    </td>
-
-                    <td className="px-5 py-3.5">
-                      <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border font-mono ${getCategoryBadgeClass(doc.category)}`}>
-                        {doc.category}
-                      </span>
                     </td>
 
                     <td className="px-5 py-3.5 font-mono text-[11px] text-slate-600">
@@ -607,40 +490,21 @@ export default function DocumentsView({ user }) {
                   type="text"
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
-                  placeholder="e.g. Employee Agreement / Aadhaar Card"
+                  placeholder="Enter document title"
                   className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-royal-500 font-medium"
                 />
-              </div>
-
-              {/* Category Selection */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">
-                  Document Category
-                </label>
-                <select
-                  value={categoryInput}
-                  onChange={(e) => setCategoryInput(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-royal-500 font-extrabold bg-white cursor-pointer"
-                >
-                  <option value="Contracts">Contracts & Agreements</option>
-                  <option value="ID Proofs">ID & Verification Proofs</option>
-                  <option value="Invoices">Invoices & Financials</option>
-                  <option value="Marketing">Marketing Assets & Decks</option>
-                  <option value="Reports">Reports & Analytics</option>
-                  <option value="Others">Others</option>
-                </select>
               </div>
 
               {/* Notes Input */}
               <div className="space-y-1">
                 <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">
-                  Optional Notes / Remarks
+                  Optional Description / Notes
                 </label>
                 <textarea
                   rows={2}
                   value={notesInput}
                   onChange={(e) => setNotesInput(e.target.value)}
-                  placeholder="Add notes (e.g. Signed copy for HR compliance...)"
+                  placeholder="Add optional notes..."
                   className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-royal-500 font-sans"
                 />
               </div>
@@ -690,11 +554,7 @@ export default function DocumentsView({ user }) {
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
               
               {/* Document Metadata Box */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-extrabold">Category</p>
-                  <p className="font-bold text-royal-700 font-mono mt-0.5">{previewDoc.category}</p>
-                </div>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 grid grid-cols-3 gap-3 text-xs">
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase font-extrabold">File Size</p>
                   <p className="font-mono text-slate-800 mt-0.5">{previewDoc.fileSize}</p>
