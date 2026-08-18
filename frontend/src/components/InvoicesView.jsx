@@ -17,8 +17,7 @@ import {
   FileCheck,
   Printer,
   Sparkles,
-  MapPin,
-  Truck
+  MapPin
 } from 'lucide-react';
 
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
@@ -88,11 +87,7 @@ export default function InvoicesView({ stats }) {
   const [formSellingPrice, setFormSellingPrice] = useState(10000);
   const [formDiscount, setFormDiscount] = useState(1000);
 
-  // Extra Transport & Destination fields (matching dolphin publications layout)
-  const [formTransport, setFormTransport] = useState('DIRECT SALES');
-  const [formDestination, setFormDestination] = useState('Chennai');
-  const [formLRNo, setFormLRNo] = useState('-');
-  const [formTerms, setFormTerms] = useState('1. If you wish to return the books/materials, you must return them within a month.');
+  const [formTerms, setFormTerms] = useState('1. If you wish to return/claim, you must do so within a month.');
 
   const billPreviewRef = useRef(null);
 
@@ -175,9 +170,6 @@ export default function InvoicesView({ stats }) {
       status: 'Paid',
       dueDate: new Date().toISOString(),
       createdAt: new Date().toISOString(),
-      transport: formTransport,
-      destination: formDestination,
-      lrNo: formLRNo,
       terms: formTerms
     };
 
@@ -221,6 +213,13 @@ export default function InvoicesView({ stats }) {
       showToast('PDF Invoice downloaded successfully!');
     }
   };
+
+  // Vector Default logo path for watermark (clean, large size)
+  const defaultWatermarkSvg = (
+    <svg className="w-[320px] h-[320px] text-royal-600/5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+    </svg>
+  );
 
   const defaultLogoSvg = (
     <svg className="w-10 h-10 text-royal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -267,7 +266,7 @@ export default function InvoicesView({ stats }) {
 
           <form onSubmit={handleCreateInvoice} className="space-y-3.5 text-xs">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <label className="text-[9px] font-black uppercase text-slate-400">Invoice Number *</label>
                 <input
                   required
@@ -275,17 +274,6 @@ export default function InvoicesView({ stats }) {
                   value={formInvoiceId}
                   onChange={(e) => setFormInvoiceId(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-slate-300 font-bold font-mono bg-white text-slate-800"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400">Transport Method</label>
-                <input
-                  type="text"
-                  placeholder="e.g. DIRECT SALES"
-                  value={formTransport}
-                  onChange={(e) => setFormTransport(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
                 />
               </div>
 
@@ -302,13 +290,13 @@ export default function InvoicesView({ stats }) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400">Destination</label>
+                <label className="text-[9px] font-black uppercase text-slate-400">Client Phone No</label>
                 <input
                   type="text"
-                  placeholder="e.g. Chennai"
-                  value={formDestination}
-                  onChange={(e) => setFormDestination(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
+                  placeholder="9585549567"
+                  value={formClientPhone}
+                  onChange={(e) => setFormClientPhone(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
                 />
               </div>
 
@@ -323,18 +311,7 @@ export default function InvoicesView({ stats }) {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400">Client Phone No</label>
-                <input
-                  type="text"
-                  placeholder="9585549567"
-                  value={formClientPhone}
-                  onChange={(e) => setFormClientPhone(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
-                />
-              </div>
-
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <label className="text-[9px] font-black uppercase text-slate-400">Client Email</label>
                 <input
                   type="email"
@@ -384,7 +361,7 @@ export default function InvoicesView({ stats }) {
                 />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <label className="text-[9px] font-black uppercase text-slate-400">Discount (₹)</label>
                 <input
                   required
@@ -393,17 +370,6 @@ export default function InvoicesView({ stats }) {
                   value={formDiscount}
                   onChange={(e) => setFormDiscount(Number(e.target.value) || 0)}
                   className="w-full p-2.5 rounded-xl border border-slate-300 font-bold font-mono text-rose-600 bg-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400">LR Date / No</label>
-                <input
-                  type="text"
-                  placeholder="LR Date"
-                  value={formLRNo}
-                  onChange={(e) => setFormLRNo(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
                 />
               </div>
 
@@ -451,136 +417,121 @@ export default function InvoicesView({ stats }) {
             <div 
               ref={billPreviewRef} 
               id="invoice-bill-container" 
-              className="relative bg-white text-slate-800 p-8 font-sans w-full min-w-[700px] max-w-[760px] mx-auto min-h-[960px] flex flex-col justify-between border border-slate-300 shadow-lg select-none"
+              className="relative bg-white text-slate-800 p-8 font-sans w-full min-w-[700px] max-w-[760px] mx-auto min-h-[940px] flex flex-col justify-between border-2 border-slate-800 shadow-lg select-none"
               style={{ colorScheme: 'light' }}
             >
               
-              {/* WATERMARK BACKGROUND LOGO */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden opacity-[0.03] z-0 select-none">
+              {/* WATERMARK BACKGROUND LOGO (Dynamic base64 or default SVG fallback) */}
+              <div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-0"
+                style={{ opacity: 0.05 }}
+              >
                 {companySettings.companyLogo ? (
-                  <img src={companySettings.companyLogo} className="w-[300px] h-[300px] object-contain rotate-12" alt="watermark" />
+                  <img src={companySettings.companyLogo} className="w-[320px] h-[320px] object-contain rotate-12" alt="watermark" />
                 ) : (
-                  <div className="w-[300px] h-[300px] flex items-center justify-center text-royal-600 scale-[6] rotate-12">
-                    {defaultLogoSvg}
+                  <div className="w-[320px] h-[320px] flex items-center justify-center rotate-12">
+                    {defaultWatermarkSvg}
                   </div>
                 )}
               </div>
 
-              {/* 1. Header Box (With layout borders matching the photo structure) */}
+              {/* 1. Header Box (Thick borders matching Dolphin style) */}
               <div className="relative z-10 space-y-4">
-                <div className="border border-slate-400 grid grid-cols-10">
-                  {/* Left Side: Logo & Address */}
-                  <div className="col-span-6 p-4 border-r border-slate-400 flex items-start space-x-3.5">
+                <div className="border-2 border-slate-800 grid grid-cols-10">
+                  {/* Left Side: Logo, Name & Address */}
+                  <div className="col-span-6 p-4 border-r-2 border-slate-800 flex items-start space-x-3.5">
                     {companySettings.companyLogo ? (
                       <img src={companySettings.companyLogo} className="h-12 w-12 object-contain" alt="Logo" />
                     ) : (
                       defaultLogoSvg
                     )}
-                    <div className="space-y-1">
-                      <h2 className="text-sm font-black tracking-tight text-slate-900 uppercase">
+                    <div className="space-y-1 text-slate-900">
+                      <h2 className="text-sm font-black tracking-tight uppercase">
                         {companySettings.companyName}
                       </h2>
-                      <p className="text-[10px] text-slate-500 font-semibold font-mono whitespace-pre-line leading-relaxed">
+                      <p className="text-[9px] text-slate-700 font-semibold font-mono whitespace-pre-line leading-relaxed">
                         {companySettings.companyAddress}
+                      </p>
+                      {/* Company Contact Details Added Here */}
+                      <p className="text-[9px] text-slate-800 font-extrabold font-mono border-t border-slate-200 pt-1 mt-1">
+                        E-Mail: info@genzneuralx.com | Website: www.genzneuralx.com
                       </p>
                     </div>
                   </div>
 
-                  {/* Right Side: Metadata grid layout */}
-                  <div className="col-span-4 grid grid-rows-3 text-[10px] font-mono">
-                    <div className="p-2 border-b border-slate-400 grid grid-cols-2">
-                      <span className="font-extrabold text-slate-400 uppercase">Bill No:</span>
-                      <span className="font-black text-slate-900 text-right">{formInvoiceId}</span>
+                  {/* Right Side: Bill Details (Ample row space, no overflow) */}
+                  <div className="col-span-4 grid grid-rows-2 text-[10px] font-mono">
+                    <div className="p-3 border-b-2 border-slate-800 flex justify-between items-center bg-slate-50/50">
+                      <span className="font-extrabold text-slate-500 uppercase">Bill No:</span>
+                      <span className="font-black text-slate-950 text-right">{formInvoiceId}</span>
                     </div>
-                    <div className="p-2 border-b border-slate-400 grid grid-cols-2">
-                      <span className="font-extrabold text-slate-400 uppercase">Date:</span>
-                      <span className="font-black text-slate-900 text-right">{formatDateDDMMYYYY(new Date().toISOString())}</span>
-                    </div>
-                    <div className="p-2 grid grid-cols-2 items-center">
-                      <span className="font-extrabold text-slate-400 uppercase">Transport:</span>
-                      <span className="font-black text-slate-900 text-[9px] text-right truncate" title={formTransport}>{formTransport}</span>
+                    <div className="p-3 flex justify-between items-center bg-slate-50/50">
+                      <span className="font-extrabold text-slate-500 uppercase">Date:</span>
+                      <span className="font-black text-slate-950 text-right">{formatDateDDMMYYYY(new Date().toISOString())}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 2. Bill To & Destination Grid Row */}
-                <div className="border border-t-0 border-slate-400 grid grid-cols-10 mt-[-16px]">
-                  <div className="col-span-6 p-4 border-r border-slate-400 space-y-1.5 text-[10px]">
-                    <h3 className="font-black text-slate-400 uppercase tracking-wider">Bill To :</h3>
-                    <div className="space-y-0.5">
-                      <p className="font-black text-slate-900 text-xs uppercase">{formClientName || 'Client Name'}</p>
-                      {formClientAddress && (
-                        <p className="text-slate-500 font-medium whitespace-pre-line leading-normal">{formClientAddress}</p>
-                      )}
-                      {formClientPhone && (
-                        <p className="text-slate-800 font-extrabold mt-0.5">Phone No : {formClientPhone}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="col-span-4 p-4 text-[10px] font-mono space-y-1.5">
-                    <div className="flex justify-between">
-                      <span className="font-extrabold text-slate-400 uppercase">Destination:</span>
-                      <span className="font-black text-slate-900">{formDestination}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-extrabold text-slate-400 uppercase">LR No:</span>
-                      <span className="font-black text-slate-900">{formLRNo}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-extrabold text-slate-400 uppercase">LR Date:</span>
-                      <span className="font-black text-slate-900">{formatDateDDMMYYYY(new Date().toISOString())}</span>
-                    </div>
+                {/* 2. Bill To (Client details) */}
+                <div className="border-2 border-t-0 border-slate-800 p-4 mt-[-16px] space-y-1.5 text-[10px]">
+                  <h3 className="font-black text-slate-500 uppercase tracking-wider">Bill To :</h3>
+                  <div className="space-y-0.5">
+                    <p className="font-black text-slate-950 text-xs uppercase">{formClientName || 'Client Name'}</p>
+                    {formClientAddress && (
+                      <p className="text-slate-700 font-medium whitespace-pre-line leading-normal max-w-xl">{formClientAddress}</p>
+                    )}
+                    {formClientPhone && (
+                      <p className="text-slate-900 font-extrabold mt-0.5">Phone No : {formClientPhone}</p>
+                    )}
                   </div>
                 </div>
 
-                {/* 3. Main Itemized Box Table */}
-                <div className="border border-slate-400 overflow-hidden bg-white mt-1">
+                {/* 3. Main Itemized Box Table (Thick slate-800 borders) */}
+                <div className="border-2 border-slate-800 overflow-hidden bg-white mt-1">
                   <table className="w-full border-collapse text-left text-[11px]">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-400 text-[10px] font-black uppercase text-slate-500 font-mono">
-                        <th className="px-3 py-2.5 border-r border-slate-400 text-center w-12">S.No</th>
-                        <th className="px-3 py-2.5 border-r border-slate-400">Particulars / Service</th>
-                        <th className="px-3 py-2.5 border-r border-slate-400 text-right w-24">Rate (₹)</th>
-                        <th className="px-3 py-2.5 border-r border-slate-400 text-center w-16">Qty</th>
-                        <th className="px-3 py-2.5 border-r border-slate-400 text-right w-20">Discount</th>
+                      <tr className="bg-slate-50 border-b-2 border-slate-800 text-[10px] font-black uppercase text-slate-500 font-mono">
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center w-12">S.No</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800">Particulars</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right w-24">Rate (₹)</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center w-16">Qty</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right w-20">Discount</th>
                         <th className="px-3 py-2.5 text-right w-28">Amount</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 font-semibold text-slate-700 min-h-[300px]">
+                    <tbody className="divide-y border-slate-800 font-semibold text-slate-700">
                       <tr className="align-top">
-                        <td className="px-3 py-3 border-r border-slate-400 text-center font-mono">1</td>
-                        <td className="px-3 py-3 border-r border-slate-400 space-y-1">
-                          <p className="font-bold text-slate-900">{formService}</p>
-                          <p className="text-[9px] text-slate-400">Professional branding implementation and deliverables</p>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono">1</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800">
+                          <p className="font-bold text-slate-950 uppercase">{formService}</p>
                         </td>
-                        <td className="px-3 py-3 border-r border-slate-400 text-right font-mono">₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3 border-r border-slate-400 text-center font-mono">{formQuantity}</td>
-                        <td className="px-3 py-3 border-r border-slate-400 text-right font-mono text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3 text-right font-mono font-extrabold text-slate-900">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900">₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900">{formQuantity}</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
-                      {/* Empty padding rows to match dolphin print sheet layout height */}
-                      <tr className="h-28">
-                        <td className="border-r border-slate-400"></td>
-                        <td className="border-r border-slate-400"></td>
-                        <td className="border-r border-slate-400"></td>
-                        <td className="border-r border-slate-400"></td>
-                        <td className="border-r border-slate-400"></td>
+                      {/* Empty padding rows for printing sheet spacing */}
+                      <tr className="h-32">
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
                         <td></td>
                       </tr>
-                      {/* Total row matching photo style */}
-                      <tr className="border-t border-slate-400 bg-slate-50/50 font-black text-slate-800 font-mono text-[10px]">
-                        <td colSpan="3" className="px-3 py-2 border-r border-slate-400 text-right uppercase">Total :</td>
-                        <td className="px-3 py-2 border-r border-slate-400 text-center">{formQuantity}</td>
-                        <td className="px-3 py-2 border-r border-slate-400 text-right">₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-2 text-right">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                      {/* Total row with bold border lines */}
+                      <tr className="border-t-2 border-slate-800 bg-slate-50/50 font-black text-slate-800 font-mono text-[10px]">
+                        <td colSpan="3" className="px-3 py-2 border-r-2 border-slate-800 text-right uppercase">Total :</td>
+                        <td className="px-3 py-2 border-r-2 border-slate-800 text-center text-slate-900">{formQuantity}</td>
+                        <td className="px-3 py-2 border-r-2 border-slate-800 text-right text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-2 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
                       {/* GST / Net row structure */}
-                      <tr className="border-t border-slate-400 bg-white font-extrabold">
-                        <td colSpan="4" className="px-3 py-2.5 border-r border-slate-400 text-left text-[9px] uppercase text-slate-400">
+                      <tr className="border-t-2 border-slate-800 bg-white font-extrabold">
+                        <td colSpan="4" className="px-3 py-2.5 border-r-2 border-slate-800 text-left text-[9px] uppercase text-slate-400">
                           GST / Brand Service Exempted Goods
                         </td>
-                        <td className="px-3 py-2.5 border-r border-slate-400 text-right text-[10px] font-black uppercase text-slate-600">
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
                           Net Amount
                         </td>
                         <td className="px-3 py-2.5 text-right font-mono font-black text-royal-700 text-sm">
@@ -592,16 +543,16 @@ export default function InvoicesView({ stats }) {
                 </div>
 
                 {/* Amount in words */}
-                <div className="border border-t-0 border-slate-400 p-3 mt-[-16px] text-[10px] font-mono bg-slate-50/30">
-                  <span className="font-extrabold text-slate-400 uppercase">Amount (Words) : </span>
-                  <span className="font-black text-slate-900 uppercase">
+                <div className="border-2 border-t-0 border-slate-800 p-3 mt-[-16px] text-[10px] font-mono bg-slate-50/20">
+                  <span className="font-extrabold text-slate-500 uppercase">Amount (Words) : </span>
+                  <span className="font-black text-slate-950 uppercase">
                     {convertNumberToWords(calculatedTotal)}
                   </span>
                 </div>
               </div>
 
               {/* FOOTER & TERMS */}
-              <div className="relative z-10 pt-4 mt-6 border-t border-slate-400 text-[10px]">
+              <div className="relative z-10 pt-4 mt-6 border-t-2 border-slate-800 text-[10px]">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Terms box */}
                   <div className="space-y-1">
@@ -617,7 +568,7 @@ export default function InvoicesView({ stats }) {
                       <p className="text-[9px] text-slate-400 font-extrabold uppercase">For {companySettings.companyName}</p>
                     </div>
                     <div>
-                      <p className="border-t border-dashed border-slate-400 pt-1 font-bold text-slate-900 inline-block w-40 text-center uppercase text-[8px] tracking-wider font-mono">
+                      <p className="border-t border-slate-800 pt-1 font-bold text-slate-950 inline-block w-40 text-center uppercase text-[8px] tracking-wider font-mono">
                         Authorised Signatory
                       </p>
                     </div>
@@ -683,10 +634,7 @@ export default function InvoicesView({ stats }) {
                           setFormQuantity(inv.quantity || 1);
                           setFormSellingPrice(inv.sellingPrice || 0);
                           setFormDiscount(inv.discount || 0);
-                          setFormTransport(inv.transport || 'DIRECT SALES');
-                          setFormDestination(inv.destination || 'Chennai');
-                          setFormLRNo(inv.lrNo || '-');
-                          setFormTerms(inv.terms || '1. If you wish to return the books/materials, you must return them within a month.');
+                          setFormTerms(inv.terms || '1. If you wish to return/claim, you must do so within a month.');
                           showToast(`Invoice ${inv.id} loaded into preview!`);
                         }}
                         className="p-1 hover:bg-slate-100 rounded-lg text-royal-600 transition-colors cursor-pointer"
