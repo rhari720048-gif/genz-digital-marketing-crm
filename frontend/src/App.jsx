@@ -204,6 +204,16 @@ export default function App() {
     } catch (e) {}
   }, [user]);
 
+  // Auto-logout user if they are deactivated (Inactive) or deleted from registeredUsers list
+  useEffect(() => {
+    if (!isAuthenticated || !user || registeredUsers.length === 0) return;
+    const currentUserInList = registeredUsers.find(u => (u.email || '').toLowerCase() === user.email.toLowerCase());
+    if (!currentUserInList || currentUserInList.status === 'Inactive') {
+      handleLogout();
+      alert('Your account has been deactivated or deleted by the administrator. Logging out.');
+    }
+  }, [registeredUsers, user, isAuthenticated]);
+
   const handleUpdateUserAttendance = (userEmail, logs, userStatusUpdate) => {
     const emailKey = (userEmail || user?.email || '').toLowerCase();
     if (!emailKey) return;
@@ -227,7 +237,7 @@ export default function App() {
       if (user && user.email.toLowerCase() === emailKey) {
         const updatedUser = { ...user, ...userStatusUpdate };
         setUser(updatedUser);
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
+        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
       }
     }
   };
@@ -241,6 +251,14 @@ export default function App() {
     setRegisteredUsers(prev => 
       prev.map(u => (u.id === updatedUser.id || u.empId === updatedUser.empId) ? { ...u, ...updatedUser } : u)
     );
+    if (user && (user.id === updatedUser.id || user.empId === updatedUser.empId || user.email.toLowerCase() === updatedUser.email.toLowerCase())) {
+      const isSysAdmin = Boolean(updatedUser.isAdmin || updatedUser.role === 'Super Admin' || updatedUser.id === 'admin-001');
+      const finalUser = { ...updatedUser, isAdmin: isSysAdmin };
+      setUser(finalUser);
+      try {
+        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(finalUser));
+      } catch (e) {}
+    }
   };
 
   const handleToggleUserStatus = (userId) => {
@@ -249,7 +267,15 @@ export default function App() {
         if (u.id === userId || u.empId === userId) {
           const newStatus = u.status === 'Inactive' ? 'Active' : 'Inactive';
           triggerToast(`User ${u.name} set to ${newStatus}`);
-          return { ...u, status: newStatus };
+          const updated = { ...u, status: newStatus };
+          
+          if (user && (user.id === userId || user.empId === userId || user.email.toLowerCase() === u.email.toLowerCase())) {
+            if (newStatus === 'Inactive') {
+              // Trigger auto-logout
+              setTimeout(() => handleLogout(), 100);
+            }
+          }
+          return updated;
         }
         return u;
       })
@@ -257,7 +283,14 @@ export default function App() {
   };
 
   const handleDeleteUser = (userId) => {
-    setRegisteredUsers(prev => prev.filter(u => u.id !== userId && u.empId !== userId));
+    setRegisteredUsers(prev => {
+      const filtered = prev.filter(u => u.id !== userId && u.empId !== userId);
+      const wasCurrentUserDeleted = prev.some(u => (u.id === userId || u.empId === userId) && user && (user.id === u.id || user.empId === u.empId || user.email.toLowerCase() === u.email.toLowerCase()));
+      if (wasCurrentUserDeleted) {
+        setTimeout(() => handleLogout(), 100);
+      }
+      return filtered;
+    });
   };
 
   const handleLoginAsUser = (targetUser) => {
