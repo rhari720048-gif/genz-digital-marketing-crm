@@ -128,7 +128,7 @@ export default function App() {
   }, [registeredUsers]);
 
   const [activeTab, setActiveTab] = useState(() => {
-    const isSysAdmin = storedUser?.isAdmin || storedUser?.role === 'Super Admin' || storedUser?.email === 'admin@genzneuralx.io';
+    const isSysAdmin = Boolean(storedUser?.isAdmin || storedUser?.role === 'Super Admin' || storedUser?.id === 'admin-001');
     try {
       const savedTab = localStorage.getItem('crm_active_tab_v2');
       if (savedTab) {
@@ -159,7 +159,7 @@ export default function App() {
   // Role-based activeTab guard effect
   useEffect(() => {
     if (!user) return;
-    const isSysAdmin = user.isAdmin || user.role === 'Super Admin' || user.email === 'admin@genzneuralx.io';
+    const isSysAdmin = Boolean(user.isAdmin || user.role === 'Super Admin' || user.id === 'admin-001');
     if (!isSysAdmin && (activeTab === 'users' || activeTab === 'attendance-admin' || activeTab === 'analytics')) {
       setActiveTab('profile');
       try {
@@ -467,7 +467,7 @@ export default function App() {
       localStorage.setItem(AUTH_STORAGE_KEY, 'true');
     } catch (e) {}
     if (loggedUser) {
-      const isSysAdmin = loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.email === 'admin@genzneuralx.io';
+      const isSysAdmin = Boolean(loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.id === 'admin-001');
       const updatedUser = {
         ...loggedUser,
         isAdmin: isSysAdmin,

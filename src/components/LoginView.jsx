@@ -36,36 +36,10 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
       const cleanEmail = email.trim().toLowerCase();
       const cleanPass = password.trim();
 
-      // 1. ADMIN LOGIN CHECK
-      if (
-        cleanEmail === 'admin' || 
-        cleanEmail === 'admin@genzneuralx.io' || 
-        cleanEmail === 'admin@crm.com' ||
-        (cleanEmail.includes('admin') && (cleanPass === 'admin@123' || cleanPass === 'admin123' || cleanPass === 'admin'))
-      ) {
-        onLogin({
-          id: 'admin-001',
-          name: 'System Administrator',
-          email: 'admin@genzneuralx.io',
-          role: 'Super Admin',
-          isAdmin: true,
-          empId: 'GNX-ADMIN-01',
-          mobile: '+91 98765 00000',
-          department: 'Executive Administration',
-          joiningDate: '01 Jan 2024',
-          manager: 'Board of Directors',
-          location: 'Headquarters, OMR Chennai',
-          address: 'Executive Suite 01, Neural Tower, OMR Tech Corridor, Chennai',
-          emergencyContact: '+91 98765 00001 (HQ Desk)',
-          bloodGroup: 'O+ Positive',
-          avatar: '/genz-logo.png'
-        });
-        return;
-      }
-
-      // 2. REGULAR USER LOGIN CHECK (STRICT: ONLY REGISTERED USERS CREATED BY ADMIN)
+      // Dynamic Login Check from registeredUsers
       const matchedUser = registeredUsers.find(
-        u => (u.email || '').trim().toLowerCase() === cleanEmail
+        u => (u.email || '').trim().toLowerCase() === cleanEmail ||
+             (cleanEmail === 'admin' && (u.isAdmin || u.role === 'Super Admin' || u.id === 'admin-001'))
       );
 
       if (matchedUser) {
@@ -73,25 +47,33 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
           setErrorMessage(`Account for "${matchedUser.name}" has been DEACTIVATED by Administrator. Login is disabled.`);
           return;
         }
+
         if (matchedUser.password === cleanPass) {
-          onLogin({ ...matchedUser, isAdmin: false });
+          const isSysAdmin = Boolean(matchedUser.isAdmin || matchedUser.role === 'Super Admin' || matchedUser.id === 'admin-001');
+          onLogin({
+            ...matchedUser,
+            isAdmin: isSysAdmin
+          });
         } else {
-          setErrorMessage('Invalid Password. Please enter the correct password provided by Admin.');
+          setErrorMessage('Invalid Password. Please enter the correct password.');
         }
       } else {
-        setErrorMessage('Invalid Email or Password. Only users registered by Admin can log in.');
+        setErrorMessage('Invalid Email or Password. Please check credentials or contact Admin.');
       }
     }, 600);
   };
 
   const handleFillAdmin = () => {
-    setEmail('admin@genzneuralx.io');
-    setPassword('admin123');
+    const adminUser = registeredUsers.find(u => u.isAdmin || u.role === 'Super Admin' || u.id === 'admin-001') || registeredUsers[0];
+    if (adminUser) {
+      setEmail(adminUser.email);
+      setPassword(adminUser.password || 'admin123');
+    }
     setErrorMessage('');
   };
 
   const handleFillDemo = () => {
-    const firstEmp = registeredUsers.find(u => !u.isAdmin && u.email !== 'admin@genzneuralx.io');
+    const firstEmp = registeredUsers.find(u => !u.isAdmin && u.role !== 'Super Admin' && u.id !== 'admin-001');
     if (firstEmp) {
       setEmail(firstEmp.email);
       setPassword(firstEmp.password || '');
