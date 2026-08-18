@@ -70,16 +70,18 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
   const handleCreateUserSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
-      showToast('Error: Full Name, Email, and Password are required!');
+    if (!formData.name.trim() || !formData.email.trim()) {
+      showToast('Error: Full Name and Work Email are required!');
       return;
     }
 
     const isSysAdmin = Boolean(formData.isAdmin);
+    const finalPassword = (formData.password || '').trim() || (isSysAdmin ? 'admin123' : '123456');
 
     const newUser = {
       id: Date.now(),
       ...formData,
+      password: finalPassword,
       isAdmin: isSysAdmin,
       role: isSysAdmin ? 'Super Admin' : (formData.role || 'Marketing Executive'),
       status: 'Active',
@@ -88,7 +90,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
     onAddUser(newUser);
     setIsAddModalOpen(false);
-    showToast(`User ${newUser.name} registered as ${isSysAdmin ? 'System Admin' : 'Employee'}! Enabled for instant login.`);
+    showToast(`User ${newUser.name} registered as ${isSysAdmin ? 'System Admin' : 'Employee'}! Login Password: "${finalPassword}".`);
     
     // Reset form
     setFormData({
