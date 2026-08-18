@@ -16,11 +16,52 @@ import {
   TrendingUp,
   FileCheck,
   Printer,
-  Sparkles
+  Sparkles,
+  MapPin,
+  Truck
 } from 'lucide-react';
 
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
 import { getApiUrl } from '../apiConfig';
+
+// Helper to convert number to Indian Rupees words
+function convertNumberToWords(amount) {
+  const words = {
+    0: 'Zero', 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine',
+    10: 'Ten', 11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', 15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen',
+    20: 'Twenty', 30: 'Thirty', 40: 'Forty', 50: 'Fifty', 60: 'Sixty', 70: 'Seventy', 80: 'Eighty', 90: 'Ninety'
+  };
+
+  if (amount === 0) return 'Zero Rupees Only';
+
+  let temp = Math.floor(amount);
+  let wordStr = '';
+
+  if (temp >= 100000) {
+    wordStr += convertNumberToWords(Math.floor(temp / 100000)).replace(' Rupees Only', '') + ' Lakh ';
+    temp %= 100000;
+  }
+  if (temp >= 1000) {
+    wordStr += convertNumberToWords(Math.floor(temp / 1000)).replace(' Rupees Only', '') + ' Thousand ';
+    temp %= 1000;
+  }
+  if (temp >= 100) {
+    wordStr += convertNumberToWords(Math.floor(temp / 100)).replace(' Rupees Only', '') + ' Hundred ';
+    temp %= 100;
+  }
+  if (temp > 0) {
+    if (wordStr !== '') wordStr += 'and ';
+    if (temp < 20) {
+      wordStr += words[temp];
+    } else {
+      wordStr += words[Math.floor(temp / 10) * 10];
+      if (temp % 10 > 0) {
+        wordStr += ' ' + words[temp % 10];
+      }
+    }
+  }
+  return wordStr.trim() + ' Rupees Only';
+}
 
 export default function InvoicesView({ stats }) {
   const [invoices, setInvoices] = useState([]);
@@ -37,11 +78,21 @@ export default function InvoicesView({ stats }) {
   // Invoice Form state
   const [formInvoiceId, setFormInvoiceId] = useState('');
   const [formClientName, setFormClientName] = useState('');
+  const [formClientAddress, setFormClientAddress] = useState('');
+  const [formClientPhone, setFormClientPhone] = useState('');
   const [formClientEmail, setFormClientEmail] = useState('');
+  
+  // Table item details
   const [formService, setFormService] = useState('Website Development');
   const [formQuantity, setFormQuantity] = useState(1);
   const [formSellingPrice, setFormSellingPrice] = useState(10000);
-  const [formDiscount, setFormDiscount] = useState(5000);
+  const [formDiscount, setFormDiscount] = useState(1000);
+
+  // Extra Transport & Destination fields (matching dolphin publications layout)
+  const [formTransport, setFormTransport] = useState('DIRECT SALES');
+  const [formDestination, setFormDestination] = useState('Chennai');
+  const [formLRNo, setFormLRNo] = useState('-');
+  const [formTerms, setFormTerms] = useState('1. If you wish to return the books/materials, you must return them within a month.');
 
   const billPreviewRef = useRef(null);
 
@@ -52,8 +103,7 @@ export default function InvoicesView({ stats }) {
 
   // Sync settings and invoices on mount
   useEffect(() => {
-    // Generate initial unique Invoice ID
-    setFormInvoiceId(`IV-${Date.now().toString().slice(-6)}`);
+    setFormInvoiceId(`IV-${Date.now().toString().slice(-4)}`);
 
     // Fetch settings
     fetch(getApiUrl('/api/module/settings?_t=' + Date.now()))
@@ -84,7 +134,7 @@ export default function InvoicesView({ stats }) {
       });
   }, []);
 
-  // Save invoices to TiDB database when state changes
+  // Save invoices to database
   useEffect(() => {
     if (!isInitialized) return;
     try {
@@ -113,19 +163,24 @@ export default function InvoicesView({ stats }) {
     const newInvoice = {
       id: formInvoiceId.trim(),
       clientName: formClientName.trim(),
+      clientAddress: formClientAddress.trim(),
+      clientPhone: formClientPhone.trim(),
       email: formClientEmail.trim() || 'client@example.com',
       service: formService,
       quantity: Number(formQuantity) || 1,
       sellingPrice: Number(formSellingPrice) || 0,
       discount: Number(formDiscount) || 0,
       amount: calculatedTotal,
-      paidAmount: calculatedTotal, // default fully paid
+      paidAmount: calculatedTotal,
       status: 'Paid',
       dueDate: new Date().toISOString(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      transport: formTransport,
+      destination: formDestination,
+      lrNo: formLRNo,
+      terms: formTerms
     };
 
-    // Prevent duplicate IDs
     if (invoices.some(inv => inv.id === newInvoice.id)) {
       showToast('Error: Invoice Number already exists!');
       return;
@@ -133,14 +188,14 @@ export default function InvoicesView({ stats }) {
 
     setInvoices([newInvoice, ...invoices]);
     showToast(`Invoice ${newInvoice.id} generated and saved!`);
-    
-    // Reset ID and client
-    setFormInvoiceId(`IV-${Date.now().toString().slice(-6)}`);
+    setFormInvoiceId(`IV-${Date.now().toString().slice(-4)}`);
     setFormClientName('');
+    setFormClientAddress('');
+    setFormClientPhone('');
     setFormClientEmail('');
   };
 
-  // PDF download handler using html2pdf.js dynamically loaded from cdnjs
+  // PDF download handler
   const handleDownloadPDF = () => {
     const element = billPreviewRef.current;
     if (!element) return;
@@ -167,9 +222,8 @@ export default function InvoicesView({ stats }) {
     }
   };
 
-  // Default svg fallback for logo
   const defaultLogoSvg = (
-    <svg className="w-12 h-12 text-royal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg className="w-10 h-10 text-royal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
     </svg>
   );
@@ -179,7 +233,7 @@ export default function InvoicesView({ stats }) {
       {/* Toast */}
       {toastMsg && (
         <div className="fixed top-20 right-4 z-50 animate-bounce">
-          <div className="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl border border-royal-500/30 flex items-center space-x-2 text-xs font-bold">
+          <div className="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl border border-royal-500/30 flex items-center space-x-2 text-xs font-bold font-sans">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{toastMsg}</span>
           </div>
@@ -194,7 +248,7 @@ export default function InvoicesView({ stats }) {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-              Invoices & Billing
+              Invoices & Billing Panel
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">Generate premium billing slips and download them as high-quality PDFs.</p>
           </div>
@@ -202,99 +256,164 @@ export default function InvoicesView({ stats }) {
       </div>
 
       {/* CREATION WORKSPACE */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         
         {/* LEFT COLUMN: BILL GENERATOR FORM */}
-        <div className="xl:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 space-y-4 h-fit">
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 space-y-4 h-fit">
           <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
             <Sparkles className="w-4 h-4 text-royal-600" />
-            <h3 className="font-extrabold text-sm text-slate-900">Invoice Information</h3>
+            <h3 className="font-extrabold text-sm text-slate-900">Billing Form</h3>
           </div>
 
-          <form onSubmit={handleCreateInvoice} className="space-y-3.5">
+          <form onSubmit={handleCreateInvoice} className="space-y-3.5 text-xs">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black uppercase text-slate-400">Invoice Number *</label>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Invoice Number *</label>
                 <input
                   required
                   type="text"
                   value={formInvoiceId}
                   onChange={(e) => setFormInvoiceId(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold font-mono"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold font-mono bg-white text-slate-800"
                 />
               </div>
 
-              <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black uppercase text-slate-400">Client Company / Name *</label>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Transport Method</label>
+                <input
+                  type="text"
+                  placeholder="e.g. DIRECT SALES"
+                  value={formTransport}
+                  onChange={(e) => setFormTransport(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Client Name *</label>
                 <input
                   required
                   type="text"
-                  placeholder="e.g. Acme Corporation"
+                  placeholder="e.g. THIYAGARAJA SCHOOL"
                   value={formClientName}
                   onChange={(e) => setFormClientName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Destination</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chennai"
+                  value={formDestination}
+                  onChange={(e) => setFormDestination(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
                 />
               </div>
 
               <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black uppercase text-slate-400">Client Email</label>
+                <label className="text-[9px] font-black uppercase text-slate-400">Client Billing Address</label>
+                <textarea
+                  rows={2}
+                  placeholder="Street, City, State, Pin Code..."
+                  value={formClientAddress}
+                  onChange={(e) => setFormClientAddress(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Client Phone No</label>
+                <input
+                  type="text"
+                  placeholder="9585549567"
+                  value={formClientPhone}
+                  onChange={(e) => setFormClientPhone(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Client Email</label>
                 <input
                   type="email"
-                  placeholder="client@acme.com"
+                  placeholder="client@mail.com"
                   value={formClientEmail}
                   onChange={(e) => setFormClientEmail(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
                 />
               </div>
 
               <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black uppercase text-slate-400">Service / Description</label>
+                <label className="text-[9px] font-black uppercase text-slate-400">Service / Particulars</label>
                 <select
                   value={formService}
                   onChange={(e) => setFormService(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
                 >
                   <option value="Website Development">Website Development</option>
                   <option value="Mobile App Development">Mobile App Development</option>
                   <option value="Digital Marketing & SEO">Digital Marketing & SEO</option>
-                  <option value="Cloud Migration Hosting">Cloud Migration Hosting</option>
-                  <option value="Brand Identity Design">Brand Identity Design</option>
+                  <option value="Cloud Hosting Infrastructure">Cloud Hosting Infrastructure</option>
+                  <option value="Branding & Content Strategy">Branding & Content Strategy</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Quantity</label>
+                <label className="text-[9px] font-black uppercase text-slate-400">Quantity (Qty)</label>
                 <input
                   required
                   type="number"
                   min="1"
                   value={formQuantity}
                   onChange={(e) => setFormQuantity(Number(e.target.value) || 1)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold font-mono"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold font-mono bg-white text-slate-800"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Selling Price ($)</label>
+                <label className="text-[9px] font-black uppercase text-slate-400">Rate / Price (₹)</label>
                 <input
                   required
                   type="number"
                   min="0"
                   value={formSellingPrice}
                   onChange={(e) => setFormSellingPrice(Number(e.target.value) || 0)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold font-mono"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold font-mono bg-white text-slate-800"
                 />
               </div>
 
-              <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black uppercase text-slate-400">Discount Amount ($)</label>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">Discount (₹)</label>
                 <input
                   required
                   type="number"
                   min="0"
                   value={formDiscount}
                   onChange={(e) => setFormDiscount(Number(e.target.value) || 0)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold font-mono text-rose-600"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold font-mono text-rose-600 bg-white"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400">LR Date / No</label>
+                <input
+                  type="text"
+                  placeholder="LR Date"
+                  value={formLRNo}
+                  onChange={(e) => setFormLRNo(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-bold bg-white text-slate-800"
+                />
+              </div>
+
+              <div className="space-y-1 col-span-2">
+                <label className="text-[9px] font-black uppercase text-slate-400">Terms & Conditions</label>
+                <textarea
+                  rows={2}
+                  value={formTerms}
+                  onChange={(e) => setFormTerms(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
                 />
               </div>
             </div>
@@ -302,16 +421,16 @@ export default function InvoicesView({ stats }) {
             <div className="flex gap-2.5 pt-2">
               <button
                 type="submit"
-                className="flex-1 py-3 rounded-xl bg-royal-600 hover:bg-royal-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center space-x-1.5 active:scale-98 cursor-pointer"
+                className="flex-1 py-3 rounded-xl bg-royal-600 hover:bg-royal-700 text-white font-bold transition-all shadow-xs flex items-center justify-center space-x-1.5 active:scale-98 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>Save Bill Record</span>
+                <span>Save Invoice Record</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleDownloadPDF}
-                className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 active:scale-98 cursor-pointer"
+                className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold transition-all flex items-center justify-center space-x-1.5 active:scale-98 cursor-pointer"
                 title="Download PDF"
               >
                 <Printer className="w-4 h-4" />
@@ -321,116 +440,187 @@ export default function InvoicesView({ stats }) {
           </form>
         </div>
 
-        {/* RIGHT COLUMN: PREMIUM WHITE BILL PREVIEW */}
-        <div className="xl:col-span-3 space-y-3">
+        {/* RIGHT COLUMN: PREMIUM A4 PREVIEW WITH MOBILE responsiveness */}
+        <div className="lg:col-span-3 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-slate-400">Live Bill Preview (A4 Dimensions)</span>
+            <span className="text-[10px] font-black uppercase text-slate-400">Live Bill Preview (A4 aspect-ratio scrollable on mobile)</span>
           </div>
 
-          {/* PRINT CONTAINER */}
-          <div className="bg-slate-100 p-2 rounded-2xl border border-slate-200 shadow-xs max-h-[700px] overflow-y-auto">
+          {/* HORIZONTAL SCROLL WRAPPER FOR MOBILE VIEWS */}
+          <div className="overflow-x-auto w-full border border-slate-200/80 rounded-3xl bg-slate-50/50 p-2 sm:p-4 shadow-inner">
             <div 
               ref={billPreviewRef} 
               id="invoice-bill-container" 
-              className="relative bg-white text-slate-800 p-8 shadow-md rounded-xl font-sans w-full max-w-[800px] mx-auto min-h-[850px] flex flex-col justify-between border border-slate-200 overflow-hidden"
+              className="relative bg-white text-slate-800 p-8 font-sans w-full min-w-[700px] max-w-[760px] mx-auto min-h-[960px] flex flex-col justify-between border border-slate-300 shadow-lg select-none"
               style={{ colorScheme: 'light' }}
             >
               
               {/* WATERMARK BACKGROUND LOGO */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden opacity-[0.03] z-0 select-none">
                 {companySettings.companyLogo ? (
-                  <img src={companySettings.companyLogo} className="w-[380px] h-[380px] object-contain rotate-12" alt="watermark" />
+                  <img src={companySettings.companyLogo} className="w-[300px] h-[300px] object-contain rotate-12" alt="watermark" />
                 ) : (
-                  <div className="w-[380px] h-[380px] flex items-center justify-center text-royal-600 scale-[8] rotate-12">
+                  <div className="w-[300px] h-[300px] flex items-center justify-center text-royal-600 scale-[6] rotate-12">
                     {defaultLogoSvg}
                   </div>
                 )}
               </div>
 
-              {/* TOP BRANDING ROW */}
-              <div className="relative z-10 space-y-6">
-                <div className="flex flex-col items-center text-center space-y-2 pb-6 border-b-2 border-slate-100">
-                  {companySettings.companyLogo ? (
-                    <img src={companySettings.companyLogo} className="h-16 max-w-[200px] object-contain" alt="Company Logo" />
-                  ) : (
-                    defaultLogoSvg
-                  )}
-                  <div>
-                    <h2 className="text-xl font-black tracking-tight text-slate-900 uppercase">
-                      {companySettings.companyName}
-                    </h2>
-                    <p className="text-[10px] text-slate-400 font-mono tracking-widest uppercase mt-0.5">Invoice Bill slip</p>
+              {/* 1. Header Box (With layout borders matching the photo structure) */}
+              <div className="relative z-10 space-y-4">
+                <div className="border border-slate-400 grid grid-cols-10">
+                  {/* Left Side: Logo & Address */}
+                  <div className="col-span-6 p-4 border-r border-slate-400 flex items-start space-x-3.5">
+                    {companySettings.companyLogo ? (
+                      <img src={companySettings.companyLogo} className="h-12 w-12 object-contain" alt="Logo" />
+                    ) : (
+                      defaultLogoSvg
+                    )}
+                    <div className="space-y-1">
+                      <h2 className="text-sm font-black tracking-tight text-slate-900 uppercase">
+                        {companySettings.companyName}
+                      </h2>
+                      <p className="text-[10px] text-slate-500 font-semibold font-mono whitespace-pre-line leading-relaxed">
+                        {companySettings.companyAddress}
+                      </p>
+                    </div>
                   </div>
-                  
-                  {/* Address */}
-                  <div className="text-center max-w-md">
-                    <p className="text-[10px] text-slate-500 font-semibold whitespace-pre-line leading-relaxed font-mono">
-                      {companySettings.companyAddress}
-                    </p>
+
+                  {/* Right Side: Metadata grid layout */}
+                  <div className="col-span-4 grid grid-rows-3 text-[10px] font-mono">
+                    <div className="p-2 border-b border-slate-400 grid grid-cols-2">
+                      <span className="font-extrabold text-slate-400 uppercase">Bill No:</span>
+                      <span className="font-black text-slate-900 text-right">{formInvoiceId}</span>
+                    </div>
+                    <div className="p-2 border-b border-slate-400 grid grid-cols-2">
+                      <span className="font-extrabold text-slate-400 uppercase">Date:</span>
+                      <span className="font-black text-slate-900 text-right">{formatDateDDMMYYYY(new Date().toISOString())}</span>
+                    </div>
+                    <div className="p-2 grid grid-cols-2 items-center">
+                      <span className="font-extrabold text-slate-400 uppercase">Transport:</span>
+                      <span className="font-black text-slate-900 text-[9px] text-right truncate" title={formTransport}>{formTransport}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* BILL METADATA */}
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/60 space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Billed To</p>
-                    <p className="font-extrabold text-slate-900">{formClientName || 'Client Business Name'}</p>
-                    <p className="font-semibold text-slate-500">{formClientEmail || 'client@email.com'}</p>
+                {/* 2. Bill To & Destination Grid Row */}
+                <div className="border border-t-0 border-slate-400 grid grid-cols-10 mt-[-16px]">
+                  <div className="col-span-6 p-4 border-r border-slate-400 space-y-1.5 text-[10px]">
+                    <h3 className="font-black text-slate-400 uppercase tracking-wider">Bill To :</h3>
+                    <div className="space-y-0.5">
+                      <p className="font-black text-slate-900 text-xs uppercase">{formClientName || 'Client Name'}</p>
+                      {formClientAddress && (
+                        <p className="text-slate-500 font-medium whitespace-pre-line leading-normal">{formClientAddress}</p>
+                      )}
+                      {formClientPhone && (
+                        <p className="text-slate-800 font-extrabold mt-0.5">Phone No : {formClientPhone}</p>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/60 text-right space-y-1 font-mono">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Billing Details</p>
-                    <p className="font-extrabold text-slate-900">Invoice No: {formInvoiceId}</p>
-                    <p className="text-slate-500">Date: {formatDateDDMMYYYY(new Date().toISOString())}</p>
+                  <div className="col-span-4 p-4 text-[10px] font-mono space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-extrabold text-slate-400 uppercase">Destination:</span>
+                      <span className="font-black text-slate-900">{formDestination}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-extrabold text-slate-400 uppercase">LR No:</span>
+                      <span className="font-black text-slate-900">{formLRNo}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-extrabold text-slate-400 uppercase">LR Date:</span>
+                      <span className="font-black text-slate-900">{formatDateDDMMYYYY(new Date().toISOString())}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* THE CORE TABLE BOX */}
-                <div className="border-2 border-slate-200 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                  <table className="w-full border-collapse text-left text-xs">
+                {/* 3. Main Itemized Box Table */}
+                <div className="border border-slate-400 overflow-hidden bg-white mt-1">
+                  <table className="w-full border-collapse text-left text-[11px]">
                     <thead>
-                      <tr className="bg-slate-50 border-b-2 border-slate-200 text-[10px] font-black uppercase text-slate-400 font-mono">
-                        <th className="px-4 py-3 text-center w-12">S.No</th>
-                        <th className="px-4 py-3">Invoice Number</th>
-                        <th className="px-4 py-3">Service / Item</th>
-                        <th className="px-4 py-3 text-center">Qty</th>
-                        <th className="px-4 py-3 text-right">Selling Price</th>
-                        <th className="px-4 py-3 text-right">Discount</th>
-                        <th className="px-4 py-3 text-right w-24">Total</th>
+                      <tr className="bg-slate-50 border-b border-slate-400 text-[10px] font-black uppercase text-slate-500 font-mono">
+                        <th className="px-3 py-2.5 border-r border-slate-400 text-center w-12">S.No</th>
+                        <th className="px-3 py-2.5 border-r border-slate-400">Particulars / Service</th>
+                        <th className="px-3 py-2.5 border-r border-slate-400 text-right w-24">Rate (₹)</th>
+                        <th className="px-3 py-2.5 border-r border-slate-400 text-center w-16">Qty</th>
+                        <th className="px-3 py-2.5 border-r border-slate-400 text-right w-20">Discount</th>
+                        <th className="px-3 py-2.5 text-right w-28">Amount</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y-2 divide-slate-100 font-semibold text-slate-700">
-                      <tr>
-                        <td className="px-4 py-3 text-center font-mono">1</td>
-                        <td className="px-4 py-3 font-mono font-bold text-slate-900">{formInvoiceId}</td>
-                        <td className="px-4 py-3 text-slate-900">{formService}</td>
-                        <td className="px-4 py-3 text-center font-mono">{formQuantity}</td>
-                        <td className="px-4 py-3 text-right font-mono">${formSellingPrice.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right font-mono text-rose-600">-${formDiscount.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right font-mono font-extrabold text-slate-900">${calculatedTotal.toLocaleString()}</td>
+                    <tbody className="divide-y divide-slate-200 font-semibold text-slate-700 min-h-[300px]">
+                      <tr className="align-top">
+                        <td className="px-3 py-3 border-r border-slate-400 text-center font-mono">1</td>
+                        <td className="px-3 py-3 border-r border-slate-400 space-y-1">
+                          <p className="font-bold text-slate-900">{formService}</p>
+                          <p className="text-[9px] text-slate-400">Professional branding implementation and deliverables</p>
+                        </td>
+                        <td className="px-3 py-3 border-r border-slate-400 text-right font-mono">₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3 border-r border-slate-400 text-center font-mono">{formQuantity}</td>
+                        <td className="px-3 py-3 border-r border-slate-400 text-right font-mono text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3 text-right font-mono font-extrabold text-slate-900">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
-                      {/* Empty pad rows for professional print spacing */}
-                      <tr className="h-16 bg-slate-50/10">
-                        <td colSpan="7"></td>
+                      {/* Empty padding rows to match dolphin print sheet layout height */}
+                      <tr className="h-28">
+                        <td className="border-r border-slate-400"></td>
+                        <td className="border-r border-slate-400"></td>
+                        <td className="border-r border-slate-400"></td>
+                        <td className="border-r border-slate-400"></td>
+                        <td className="border-r border-slate-400"></td>
+                        <td></td>
+                      </tr>
+                      {/* Total row matching photo style */}
+                      <tr className="border-t border-slate-400 bg-slate-50/50 font-black text-slate-800 font-mono text-[10px]">
+                        <td colSpan="3" className="px-3 py-2 border-r border-slate-400 text-right uppercase">Total :</td>
+                        <td className="px-3 py-2 border-r border-slate-400 text-center">{formQuantity}</td>
+                        <td className="px-3 py-2 border-r border-slate-400 text-right">₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-2 text-right">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                      </tr>
+                      {/* GST / Net row structure */}
+                      <tr className="border-t border-slate-400 bg-white font-extrabold">
+                        <td colSpan="4" className="px-3 py-2.5 border-r border-slate-400 text-left text-[9px] uppercase text-slate-400">
+                          GST / Brand Service Exempted Goods
+                        </td>
+                        <td className="px-3 py-2.5 border-r border-slate-400 text-right text-[10px] font-black uppercase text-slate-600">
+                          Net Amount
+                        </td>
+                        <td className="px-3 py-2.5 text-right font-mono font-black text-royal-700 text-sm">
+                          ₹{calculatedTotal.toLocaleString('en-IN')}.00
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+
+                {/* Amount in words */}
+                <div className="border border-t-0 border-slate-400 p-3 mt-[-16px] text-[10px] font-mono bg-slate-50/30">
+                  <span className="font-extrabold text-slate-400 uppercase">Amount (Words) : </span>
+                  <span className="font-black text-slate-900 uppercase">
+                    {convertNumberToWords(calculatedTotal)}
+                  </span>
+                </div>
               </div>
 
-              {/* FOOTER & TOTALS */}
-              <div className="relative z-10 pt-6 mt-8 border-t-2 border-slate-100">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-left space-y-0.5">
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Authorized Signature</p>
-                    <p className="text-xs font-black font-heading text-slate-900">{companySettings.companyName}</p>
-                    <p className="text-[9px] text-slate-400 font-semibold">Thank you for your business!</p>
+              {/* FOOTER & TERMS */}
+              <div className="relative z-10 pt-4 mt-6 border-t border-slate-400 text-[10px]">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Terms box */}
+                  <div className="space-y-1">
+                    <p className="font-black text-slate-400 uppercase tracking-wider">Terms and Conditions</p>
+                    <p className="text-slate-500 font-semibold leading-relaxed font-mono whitespace-pre-line">
+                      {formTerms}
+                    </p>
                   </div>
 
-                  {/* GRAND TOTAL SUM BOX */}
-                  <div className="w-full sm:w-64 p-3.5 bg-slate-900 text-white rounded-2xl flex items-center justify-between font-mono">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Grand Total</span>
-                    <span className="text-base font-black">${calculatedTotal.toLocaleString()}</span>
+                  {/* Signatory card */}
+                  <div className="text-right flex flex-col justify-between h-20">
+                    <div>
+                      <p className="text-[9px] text-slate-400 font-extrabold uppercase">For {companySettings.companyName}</p>
+                    </div>
+                    <div>
+                      <p className="border-t border-dashed border-slate-400 pt-1 font-bold text-slate-900 inline-block w-40 text-center uppercase text-[8px] tracking-wider font-mono">
+                        Authorised Signatory
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -473,9 +663,9 @@ export default function InvoicesView({ stats }) {
                     <td className="py-3 font-extrabold text-slate-900">{inv.clientName}</td>
                     <td className="py-3 text-slate-500">{inv.service || 'Service Work'}</td>
                     <td className="py-3 text-center font-mono">{inv.quantity || 1}</td>
-                    <td className="py-3 text-right font-mono">${(inv.sellingPrice * (inv.quantity || 1)).toLocaleString()}</td>
-                    <td className="py-3 text-right font-mono text-rose-500">-${(inv.discount || 0).toLocaleString()}</td>
-                    <td className="py-3 text-right font-mono font-extrabold text-slate-900">${(inv.amount || 0).toLocaleString()}</td>
+                    <td className="py-3 text-right font-mono">₹{(inv.sellingPrice * (inv.quantity || 1)).toLocaleString('en-IN')}.00</td>
+                    <td className="py-3 text-right font-mono text-rose-500">-₹{(inv.discount || 0).toLocaleString('en-IN')}.00</td>
+                    <td className="py-3 text-right font-mono font-extrabold text-slate-900">₹{(inv.amount || 0).toLocaleString('en-IN')}.00</td>
                     <td className="py-3 text-center">
                       <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[9px] font-extrabold">
                         {inv.status || 'Paid'}
@@ -486,11 +676,17 @@ export default function InvoicesView({ stats }) {
                         onClick={() => {
                           setFormInvoiceId(inv.id);
                           setFormClientName(inv.clientName);
+                          setFormClientAddress(inv.clientAddress || '');
+                          setFormClientPhone(inv.clientPhone || '');
                           setFormClientEmail(inv.email);
                           setFormService(inv.service || 'Website Development');
                           setFormQuantity(inv.quantity || 1);
                           setFormSellingPrice(inv.sellingPrice || 0);
                           setFormDiscount(inv.discount || 0);
+                          setFormTransport(inv.transport || 'DIRECT SALES');
+                          setFormDestination(inv.destination || 'Chennai');
+                          setFormLRNo(inv.lrNo || '-');
+                          setFormTerms(inv.terms || '1. If you wish to return the books/materials, you must return them within a month.');
                           showToast(`Invoice ${inv.id} loaded into preview!`);
                         }}
                         className="p-1 hover:bg-slate-100 rounded-lg text-royal-600 transition-colors cursor-pointer"
