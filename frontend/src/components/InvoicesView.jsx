@@ -96,9 +96,15 @@ export default function InvoicesView({ stats }) {
     setTimeout(() => setToastMsg(null), 3000);
   };
 
-  // Sync settings and invoices on mount
+  // Sync settings and invoices on mount, and load fonts
   useEffect(() => {
     setFormInvoiceId(`IV-${Date.now().toString().slice(-4)}`);
+
+    // Load premium Google fonts for the bill styling
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap';
+    document.head.appendChild(link);
 
     // Fetch settings
     fetch(getApiUrl('/api/module/settings?_t=' + Date.now()))
@@ -417,8 +423,8 @@ export default function InvoicesView({ stats }) {
             <div 
               ref={billPreviewRef} 
               id="invoice-bill-container" 
-              className="relative bg-white text-slate-800 p-8 font-sans w-full min-w-[700px] max-w-[760px] mx-auto min-h-[940px] flex flex-col justify-between border-2 border-slate-800 shadow-lg select-none"
-              style={{ colorScheme: 'light' }}
+              className="relative bg-white text-slate-800 p-8 w-full min-w-[700px] max-w-[760px] mx-auto min-h-[940px] flex flex-col justify-between border-2 border-slate-800 shadow-lg select-none"
+              style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
               {/* WATERMARK BACKGROUND LOGO (Dynamic base64 or default SVG fallback) */}
@@ -452,7 +458,7 @@ export default function InvoicesView({ stats }) {
                       <p className="text-[9px] text-slate-700 font-semibold font-mono whitespace-pre-line leading-relaxed">
                         {companySettings.companyAddress}
                       </p>
-                      {/* Company Contact Details Added Here */}
+                      {/* Company Contact Details */}
                       <p className="text-[9px] text-slate-800 font-extrabold font-mono border-t border-slate-200 pt-1 mt-1">
                         E-Mail: info@genzneuralx.com | Website: www.genzneuralx.com
                       </p>
@@ -460,14 +466,14 @@ export default function InvoicesView({ stats }) {
                   </div>
 
                   {/* Right Side: Bill Details (Ample row space, no overflow) */}
-                  <div className="col-span-4 grid grid-rows-2 text-[10px] font-mono">
+                  <div className="col-span-4 grid grid-rows-2 text-[10px]">
                     <div className="p-3 border-b-2 border-slate-800 flex justify-between items-center bg-slate-50/50">
                       <span className="font-extrabold text-slate-500 uppercase">Bill No:</span>
-                      <span className="font-black text-slate-950 text-right">{formInvoiceId}</span>
+                      <span className="font-black text-slate-950 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formInvoiceId}</span>
                     </div>
                     <div className="p-3 flex justify-between items-center bg-slate-50/50">
                       <span className="font-extrabold text-slate-500 uppercase">Date:</span>
-                      <span className="font-black text-slate-950 text-right">{formatDateDDMMYYYY(new Date().toISOString())}</span>
+                      <span className="font-black text-slate-950 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formatDateDDMMYYYY(new Date().toISOString())}</span>
                     </div>
                   </div>
                 </div>
@@ -476,41 +482,50 @@ export default function InvoicesView({ stats }) {
                 <div className="border-2 border-t-0 border-slate-800 p-4 mt-[-16px] space-y-1.5 text-[10px]">
                   <h3 className="font-black text-slate-500 uppercase tracking-wider">Bill To :</h3>
                   <div className="space-y-0.5">
-                    <p className="font-black text-slate-950 text-xs uppercase">{formClientName || 'Client Name'}</p>
+                    <p className="font-black text-slate-955 text-xs uppercase">{formClientName || 'Client Name'}</p>
                     {formClientAddress && (
                       <p className="text-slate-700 font-medium whitespace-pre-line leading-normal max-w-xl">{formClientAddress}</p>
                     )}
                     {formClientPhone && (
-                      <p className="text-slate-900 font-extrabold mt-0.5">Phone No : {formClientPhone}</p>
+                      <p className="text-slate-900 font-extrabold mt-0.5" style={{ fontFamily: "'Space Mono', monospace" }}>Phone No : {formClientPhone}</p>
                     )}
                   </div>
                 </div>
 
-                {/* 3. Main Itemized Box Table (Thick slate-800 borders) */}
+                {/* 3. Main Itemized Box Table (Thick slate-800 borders, fixed aligned columns, no colSpan gaps) */}
                 <div className="border-2 border-slate-800 overflow-hidden bg-white mt-1">
-                  <table className="w-full border-collapse text-left text-[11px]">
+                  <table className="w-full border-collapse text-left text-[11px]" style={{ tableLayout: 'fixed' }}>
+                    <colgroup>
+                      <col style={{ width: '55px' }} />
+                      <col />
+                      <col style={{ width: '120px' }} />
+                      <col style={{ width: '60px' }} />
+                      <col style={{ width: '100px' }} />
+                      <col style={{ width: '120px' }} />
+                    </colgroup>
                     <thead>
                       <tr className="bg-slate-50 border-b-2 border-slate-800 text-[10px] font-black uppercase text-slate-500 font-mono">
-                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center w-12">S.No</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center">S.No</th>
                         <th className="px-3 py-2.5 border-r-2 border-slate-800">Particulars</th>
-                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right w-24">Rate (₹)</th>
-                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center w-16">Qty</th>
-                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right w-20">Discount</th>
-                        <th className="px-3 py-2.5 text-right w-28">Amount</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right">Rate (₹)</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-center">Qty</th>
+                        <th className="px-3 py-2.5 border-r-2 border-slate-800 text-right">Discount</th>
+                        <th className="px-3 py-2.5 text-right">Amount</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y border-slate-800 font-semibold text-slate-700">
+                    <tbody className="divide-y-2 border-slate-800 font-semibold text-slate-700">
                       <tr className="align-top">
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono">1</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>1</td>
                         <td className="px-3 py-3.5 border-r-2 border-slate-800">
                           <p className="font-bold text-slate-950 uppercase">{formService}</p>
                         </td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900">₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900">{formQuantity}</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-950" style={{ fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
-                      {/* Empty padding rows for printing sheet spacing */}
+                      
+                      {/* Empty padding rows for printing sheet spacing with matching vertical borders */}
                       <tr className="h-32">
                         <td className="border-r-2 border-slate-800"></td>
                         <td className="border-r-2 border-slate-800"></td>
@@ -519,22 +534,24 @@ export default function InvoicesView({ stats }) {
                         <td className="border-r-2 border-slate-800"></td>
                         <td></td>
                       </tr>
-                      {/* Total row with bold border lines */}
-                      <tr className="border-t-2 border-slate-800 bg-slate-50/50 font-black text-slate-800 font-mono text-[10px]">
-                        <td colSpan="3" className="px-3 py-2 border-r-2 border-slate-800 text-right uppercase">Total :</td>
+
+                      {/* Total row aligned 100% using single matching columns instead of colSpan */}
+                      <tr className="bg-slate-50/50 font-black text-slate-800 font-mono text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>
+                        <td className="px-3 py-2 border-r-2 border-slate-800"></td>
+                        <td className="px-3 py-2 border-r-2 border-slate-800 text-right uppercase font-sans font-extrabold text-slate-500">Total :</td>
+                        <td className="px-3 py-2 border-r-2 border-slate-800"></td>
                         <td className="px-3 py-2 border-r-2 border-slate-800 text-center text-slate-900">{formQuantity}</td>
                         <td className="px-3 py-2 border-r-2 border-slate-800 text-right text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
                         <td className="px-3 py-2 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
-                      {/* GST / Net row structure */}
+
+                      {/* Net Amount row with blank description box instead of GST text */}
                       <tr className="border-t-2 border-slate-800 bg-white font-extrabold">
-                        <td colSpan="4" className="px-3 py-2.5 border-r-2 border-slate-800 text-left text-[9px] uppercase text-slate-400">
-                          GST / Brand Service Exempted Goods
-                        </td>
+                        <td colSpan="4" className="px-3 py-2.5 border-r-2 border-slate-800"></td>
                         <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
                           Net Amount
                         </td>
-                        <td className="px-3 py-2.5 text-right font-mono font-black text-royal-700 text-sm">
+                        <td className="px-3 py-2.5 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
                           ₹{calculatedTotal.toLocaleString('en-IN')}.00
                         </td>
                       </tr>
@@ -544,7 +561,7 @@ export default function InvoicesView({ stats }) {
 
                 {/* Amount in words */}
                 <div className="border-2 border-t-0 border-slate-800 p-3 mt-[-16px] text-[10px] font-mono bg-slate-50/20">
-                  <span className="font-extrabold text-slate-500 uppercase">Amount (Words) : </span>
+                  <span className="font-extrabold text-slate-500 uppercase font-sans">Amount (Words) : </span>
                   <span className="font-black text-slate-950 uppercase">
                     {convertNumberToWords(calculatedTotal)}
                   </span>
@@ -562,17 +579,8 @@ export default function InvoicesView({ stats }) {
                     </p>
                   </div>
 
-                  {/* Signatory card */}
-                  <div className="text-right flex flex-col justify-between h-20">
-                    <div>
-                      <p className="text-[9px] text-slate-400 font-extrabold uppercase">For {companySettings.companyName}</p>
-                    </div>
-                    <div>
-                      <p className="border-t border-slate-800 pt-1 font-bold text-slate-950 inline-block w-40 text-center uppercase text-[8px] tracking-wider font-mono">
-                        Authorised Signatory
-                      </p>
-                    </div>
-                  </div>
+                  {/* Clean blank stamp/signing area with perfect height spacer */}
+                  <div className="h-20"></div>
                 </div>
               </div>
 
