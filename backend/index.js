@@ -293,18 +293,48 @@ app.post('/api/users', async (req, res) => {
       `INSERT INTO users (id, name, email, password, role, empId, mobile, department, manager, joiningDate, location, address, emergencyContact, bloodGroup, avatar, status, isAdmin)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        id, name, email, finalPassword, role || 'Marketing Executive', empId || `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-        mobile || '', department || 'Marketing Strategy & Leads', manager || '', joiningDate || new Date().toISOString().split('T')[0],
-        location || 'Chennai Tech Park / Hybrid', address || '', emergencyContact || '', bloodGroup || 'O+', avatar || '', 'Active', isSysAdmin
+        id, 
+        name, 
+        email, 
+        finalPassword, 
+        role || 'Marketing Executive', 
+        empId || `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        mobile || '', 
+        department || 'Marketing Strategy & Leads', 
+        manager || '', 
+        joiningDate || new Date().toISOString().split('T')[0],
+        location || 'Chennai Tech Park / Hybrid', 
+        address || '', 
+        emergencyContact || '', 
+        bloodGroup || 'O+', 
+        avatar || '', 
+        'Active', 
+        isSysAdmin
       ]
     );
 
     res.json({
-      id, name, email, password: finalPassword, role: role || 'Marketing Executive', empId, mobile, department, manager, joiningDate, location, address, emergencyContact, bloodGroup, avatar, status: 'Active', isAdmin: isSysAdmin
+      id, 
+      name, 
+      email, 
+      password: finalPassword, 
+      role: role || 'Marketing Executive', 
+      empId: empId || `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`, 
+      mobile: mobile || '', 
+      department: department || 'Marketing Strategy & Leads', 
+      manager: manager || '', 
+      joiningDate: joiningDate || new Date().toISOString().split('T')[0], 
+      location: location || 'Chennai Tech Park / Hybrid', 
+      address: address || '', 
+      emergencyContact: emergencyContact || '', 
+      bloodGroup: bloodGroup || 'O+', 
+      avatar: avatar || '', 
+      status: 'Active', 
+      isAdmin: isSysAdmin
     });
   } catch (error) {
     console.error('Error creating user:', error);
-    res.status(500).json({ error: 'Database error creating user' });
+    res.status(500).json({ error: `Database error creating user: ${error.message}` });
   }
 });
 
@@ -321,16 +351,48 @@ app.put('/api/users/:id', async (req, res) => {
       `UPDATE users SET name = ?, email = ?, password = ?, role = ?, empId = ?, mobile = ?, department = ?, manager = ?, joiningDate = ?, location = ?, address = ?, emergencyContact = ?, bloodGroup = ?, avatar = ?, status = ?, isAdmin = ?
        WHERE id = ?`,
       [
-        name, email, finalPassword, role, empId, mobile, department, manager, joiningDate, location, address, emergencyContact, bloodGroup, avatar, status || 'Active', isSysAdmin, id
+        name || '', 
+        email || '', 
+        finalPassword || '123456', 
+        role || 'Marketing Executive', 
+        empId || '', 
+        mobile || '', 
+        department || 'Marketing Strategy & Leads', 
+        manager || '', 
+        joiningDate || new Date().toISOString().split('T')[0], 
+        location || 'Chennai', 
+        address || '', 
+        emergencyContact || '', 
+        bloodGroup || 'O+', 
+        avatar || '', 
+        status || 'Active', 
+        isSysAdmin, 
+        id
       ]
     );
 
     res.json({
-      id, name, email, password: finalPassword, role, empId, mobile, department, manager, joiningDate, location, address, emergencyContact, bloodGroup, avatar, status: status || 'Active', isAdmin: isSysAdmin
+      id,
+      name: name || '',
+      email: email || '',
+      password: finalPassword || '123456',
+      role: role || 'Marketing Executive',
+      empId: empId || '',
+      mobile: mobile || '',
+      department: department || 'Marketing Strategy & Leads',
+      manager: manager || '',
+      joiningDate: joiningDate || new Date().toISOString().split('T')[0],
+      location: location || 'Chennai',
+      address: address || '',
+      emergencyContact: emergencyContact || '',
+      bloodGroup: bloodGroup || 'O+',
+      avatar: avatar || '',
+      status: status || 'Active',
+      isAdmin: isSysAdmin
     });
   } catch (error) {
     console.error('Error updating user:', error);
-    res.status(500).json({ error: 'Database error updating user' });
+    res.status(500).json({ error: `Database error updating user: ${error.message}` });
   }
 });
 
