@@ -427,7 +427,7 @@ export default function InvoicesView({ stats }) {
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
-              {/* WATERMARK BACKGROUND LOGO (Dynamic base64 or default SVG fallback) */}
+              {/* WATERMARK BACKGROUND LOGO */}
               <div 
                 className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-0"
                 style={{ opacity: 0.05 }}
@@ -473,7 +473,7 @@ export default function InvoicesView({ stats }) {
                     </div>
                     <div className="p-3 flex justify-between items-center bg-slate-50/50">
                       <span className="font-extrabold text-slate-500 uppercase">Date:</span>
-                      <span className="font-black text-slate-950 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formatDateDDMMYYYY(new Date().toISOString())}</span>
+                      <span className="font-black text-slate-955 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formatDateDDMMYYYY(new Date().toISOString())}</span>
                     </div>
                   </div>
                 </div>
@@ -492,7 +492,7 @@ export default function InvoicesView({ stats }) {
                   </div>
                 </div>
 
-                {/* 3. Main Itemized Box Table (Thick slate-800 borders, fixed aligned columns, no colSpan gaps) */}
+                {/* 3. Main Itemized Box Table (Thick border-2, strict columns alignment, 100% connected lines) */}
                 <div className="border-2 border-slate-800 overflow-hidden bg-white mt-1">
                   <table className="w-full border-collapse text-left text-[11px]" style={{ tableLayout: 'fixed' }}>
                     <colgroup>
@@ -517,7 +517,7 @@ export default function InvoicesView({ stats }) {
                       <tr className="align-top">
                         <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>1</td>
                         <td className="px-3 py-3.5 border-r-2 border-slate-800">
-                          <p className="font-bold text-slate-950 uppercase">{formService}</p>
+                          <p className="font-bold text-slate-955 uppercase">{formService}</p>
                         </td>
                         <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
                         <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
@@ -535,23 +535,23 @@ export default function InvoicesView({ stats }) {
                         <td></td>
                       </tr>
 
-                      {/* Total row aligned 100% using single matching columns instead of colSpan */}
-                      <tr className="bg-slate-50/50 font-black text-slate-800 font-mono text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>
-                        <td className="px-3 py-2 border-r-2 border-slate-800"></td>
-                        <td className="px-3 py-2 border-r-2 border-slate-800 text-right uppercase font-sans font-extrabold text-slate-500">Total :</td>
-                        <td className="px-3 py-2 border-r-2 border-slate-800"></td>
-                        <td className="px-3 py-2 border-r-2 border-slate-800 text-center text-slate-900">{formQuantity}</td>
-                        <td className="px-3 py-2 border-r-2 border-slate-800 text-right text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-2 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                      {/* Total row aligned 100% using single matching columns with vertical dividers */}
+                      <tr className="bg-slate-50/50 font-black text-slate-850 font-mono text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800"></td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right uppercase font-sans font-black text-slate-550">Total :</td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800"></td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-center text-slate-950">{formQuantity}</td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-2.5 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
 
                       {/* Net Amount row with blank description box instead of GST text */}
                       <tr className="border-t-2 border-slate-800 bg-white font-extrabold">
-                        <td colSpan="4" className="px-3 py-2.5 border-r-2 border-slate-800"></td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
+                        {/* Spanning 5 columns cleanly so that it aligns directly with the total value cell */}
+                        <td colSpan="5" className="px-3 py-3 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
                           Net Amount
                         </td>
-                        <td className="px-3 py-2.5 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
+                        <td className="px-3 py-3 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
                           ₹{calculatedTotal.toLocaleString('en-IN')}.00
                         </td>
                       </tr>
@@ -562,7 +562,7 @@ export default function InvoicesView({ stats }) {
                 {/* Amount in words */}
                 <div className="border-2 border-t-0 border-slate-800 p-3 mt-[-16px] text-[10px] font-mono bg-slate-50/20">
                   <span className="font-extrabold text-slate-500 uppercase font-sans">Amount (Words) : </span>
-                  <span className="font-black text-slate-950 uppercase">
+                  <span className="font-black text-slate-955 uppercase">
                     {convertNumberToWords(calculatedTotal)}
                   </span>
                 </div>
