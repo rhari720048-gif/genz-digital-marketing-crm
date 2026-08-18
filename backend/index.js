@@ -745,6 +745,8 @@ app.delete('/api/users/:id', async (req, res) => {
 // GET dashboard stats from TiDB
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
+    const userEmail = (req.query.email || '').toLowerCase().trim();
+
     // 1. Fetch leads status counts
     const [leads] = await pool.query('SELECT status FROM leads');
     let allLeads = 0;
@@ -795,8 +797,12 @@ app.get('/api/dashboard/stats', async (req, res) => {
       try {
         const meetingsArr = JSON.parse(meetingsRows[0].data);
         if (Array.isArray(meetingsArr)) {
-          meetingsCount = meetingsArr.length;
-          meetingsList = meetingsArr;
+          // If userEmail is provided, filter meetings assigned to that user
+          const myMeetings = userEmail 
+            ? meetingsArr.filter(m => !m.assignedUserEmail || m.assignedUserEmail.toLowerCase() === userEmail)
+            : meetingsArr;
+          meetingsCount = myMeetings.length;
+          meetingsList = myMeetings;
         }
       } catch (e) {}
     }

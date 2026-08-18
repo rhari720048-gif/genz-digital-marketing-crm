@@ -41,7 +41,7 @@ export default function DashboardView({ user }) {
     if (isRefresh) setRefreshing(true);
     try {
       // 1. Fetch database stats
-      const res = await fetch(getApiUrl('/api/dashboard/stats'));
+      const res = await fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}`));
       let data = {
         allLeads: 0,
         followups: 0,
@@ -65,7 +65,12 @@ export default function DashboardView({ user }) {
         if (mRes.ok) {
           const meetingsList = await mRes.json();
           if (Array.isArray(meetingsList)) {
-            data.meetings = meetingsList.length;
+            // Filter meetings assigned to currently logged-in user
+            const myMeetings = meetingsList.filter(m => {
+              if (!m.assignedUserEmail) return true; // Legacy fallback
+              return m.assignedUserEmail.toLowerCase() === user.email.toLowerCase();
+            });
+            data.meetings = myMeetings.length;
             
             // Filter and sort upcoming meetings
             const parseDateTime = (dStr, tStr) => {
@@ -96,7 +101,7 @@ export default function DashboardView({ user }) {
               return new Date(8640000000000000);
             };
 
-            const sortedMeetings = meetingsList.sort((a, b) => {
+            const sortedMeetings = myMeetings.sort((a, b) => {
               return parseDateTime(a.date, a.time) - parseDateTime(b.date, b.time);
             });
 

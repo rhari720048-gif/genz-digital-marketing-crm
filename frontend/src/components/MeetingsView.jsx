@@ -24,7 +24,7 @@ const MEETINGS_STORAGE_KEY = 'crm_shared_meetings_v3';
 
 const DEFAULT_MEETINGS = [];
 
-export default function MeetingsView({ stats, user }) {
+export default function MeetingsView({ stats, user, users = [] }) {
   const [meetings, setMeetings] = useState(() => {
     try {
       const saved = localStorage.getItem(MEETINGS_STORAGE_KEY);
@@ -85,6 +85,9 @@ export default function MeetingsView({ stats, user }) {
   const [editTime, setEditTime] = useState('');
   const [editLink, setEditLink] = useState('');
 
+  const [assignedUserEmail, setAssignedUserEmail] = useState(user?.email || '');
+  const [editAssignedUserEmail, setEditAssignedUserEmail] = useState('');
+
   const showToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3000);
@@ -112,14 +115,17 @@ export default function MeetingsView({ stats, user }) {
       formattedTime = `${hours.toString().padStart(2, '0')}:${m} ${ampm}`;
     }
 
+    const selectedUsr = users.find(u => u.email.toLowerCase() === assignedUserEmail.toLowerCase()) || user;
+
     const newM = {
       id: Date.now(),
       title: newTitle,
       client: newClient,
       date: formattedDate,
       time: formattedTime,
-      duration: '30 mins',
-      link: finalLink
+      link: finalLink,
+      assignedUserEmail: assignedUserEmail || user.email,
+      assignedUserName: selectedUsr?.name || user.name
     };
 
     setMeetings([newM, ...meetings]);
@@ -129,6 +135,7 @@ export default function MeetingsView({ stats, user }) {
     setNewDate('');
     setNewTime('');
     setNewLink('');
+    setAssignedUserEmail(user?.email || '');
     showToast(`Meeting scheduled with ${newClient}!`);
   };
 
@@ -139,6 +146,7 @@ export default function MeetingsView({ stats, user }) {
     setEditDate('');
     setEditTime('');
     setEditLink(m.link || '');
+    setEditAssignedUserEmail(m.assignedUserEmail || user?.email || '');
     setIsEditModalOpen(true);
   };
 
@@ -161,13 +169,17 @@ export default function MeetingsView({ stats, user }) {
       formattedTime = `${hours.toString().padStart(2, '0')}:${m} ${ampm}`;
     }
 
+    const selectedUsr = users.find(u => u.email.toLowerCase() === editAssignedUserEmail.toLowerCase()) || user;
+
     const updatedM = {
       ...selectedMeeting,
       title: editTitle,
       client: editClient,
       date: formattedDate,
       time: formattedTime,
-      link: editLink.trim()
+      link: editLink.trim(),
+      assignedUserEmail: editAssignedUserEmail || user.email,
+      assignedUserName: selectedUsr?.name || user.name
     };
 
     setMeetings(meetings.map(m => m.id === selectedMeeting.id ? updatedM : m));
@@ -194,7 +206,12 @@ export default function MeetingsView({ stats, user }) {
     showToast(`Joining Google Meet call...`);
   };
 
-  const filteredMeetings = meetings.filter(m => {
+  const myMeetings = meetings.filter(m => {
+    if (!m.assignedUserEmail) return true; // Fallback for legacy meetings
+    return m.assignedUserEmail.toLowerCase() === user.email.toLowerCase();
+  });
+
+  const filteredMeetings = myMeetings.filter(m => {
     return m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
            m.client.toLowerCase().includes(searchQuery.toLowerCase());
   });
@@ -326,6 +343,24 @@ export default function MeetingsView({ stats, user }) {
             </div>
 
             <form onSubmit={handleAddMeeting} className="p-5 space-y-3.5">
+              
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-slate-400">Assign CRM User / Employee *</label>
+                <select
+                  value={assignedUserEmail}
+                  onChange={(e) => setAssignedUserEmail(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-royal-500 cursor-pointer"
+                >
+                  {users.length === 0 ? (
+                    <option value={user.email}>{user.name} ({user.role})</option>
+                  ) : (
+                    users.map(u => (
+                      <option key={u.id} value={u.email}>{u.name} ({u.role})</option>
+                    ))
+                  )}
+                </select>
+              </div>
+
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase text-slate-400">Meeting Topic / Title *</label>
                 <input
@@ -430,6 +465,24 @@ export default function MeetingsView({ stats, user }) {
             </div>
 
             <form onSubmit={handleEditMeetingSubmit} className="p-5 space-y-3.5">
+              
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-slate-400">Assign CRM User / Employee *</label>
+                <select
+                  value={editAssignedUserEmail}
+                  onChange={(e) => setEditAssignedUserEmail(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-royal-500 cursor-pointer"
+                >
+                  {users.length === 0 ? (
+                    <option value={user.email}>{user.name} ({user.role})</option>
+                  ) : (
+                    users.map(u => (
+                      <option key={u.id} value={u.email}>{u.name} ({u.role})</option>
+                    ))
+                  )}
+                </select>
+              </div>
+
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase text-slate-400">Meeting Topic / Title *</label>
                 <input

@@ -81,7 +81,7 @@ export default function ComingSoonView({
 
   // 7. Meetings Page
   if (activeTab === 'meetings') {
-    return <MeetingsView stats={stats} user={user} />;
+    return <MeetingsView stats={stats} user={user} users={registeredUsers} />;
   }
 
   // 8. Documents Page
