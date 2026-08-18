@@ -255,22 +255,24 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetch('/api/user')
-      .then(res => res.json())
-      .then(data => {
-        setUser(prev => ({
-          ...prev,
-          name: data.name || prev.name,
-          role: data.role || prev.role,
-          avatar: data.avatar || prev.avatar,
-          department: data.department || prev.department,
-          location: data.location || prev.location
-        }));
-      })
-      .catch(() => {});
-
     refetchStats();
   }, []);
+
+  // Sync active user profile with registeredUsers state whenever Admin makes updates
+  useEffect(() => {
+    if (user && user.email && !user.isAdmin) {
+      const latestInList = registeredUsers.find(u => (u.email || '').toLowerCase() === user.email.toLowerCase());
+      if (latestInList) {
+        setUser(prev => {
+          const merged = { ...prev, ...latestInList };
+          try {
+            localStorage.setItem(USER_SESSION_KEY, JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
+      }
+    }
+  }, [registeredUsers]);
 
   const handleToggleCheckIn = () => {
     const todayKey = getTodayDateKey();

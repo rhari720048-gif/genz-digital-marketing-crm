@@ -41,7 +41,7 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
         cleanEmail === 'admin' || 
         cleanEmail === 'admin@genzneuralx.io' || 
         cleanEmail === 'admin@crm.com' ||
-        (cleanEmail.includes('admin') && (cleanPass === 'admin@123' || cleanPass === 'admin'))
+        (cleanEmail.includes('admin') && (cleanPass === 'admin@123' || cleanPass === 'admin123' || cleanPass === 'admin'))
       ) {
         onLogin({
           id: 'admin-001',
@@ -63,59 +63,38 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
         return;
       }
 
-      // 2. REGULAR USER LOGIN CHECK
+      // 2. REGULAR USER LOGIN CHECK (STRICT: ONLY REGISTERED USERS CREATED BY ADMIN)
       const matchedUser = registeredUsers.find(
-        u => u.email.toLowerCase() === cleanEmail
+        u => (u.email || '').trim().toLowerCase() === cleanEmail
       );
 
       if (matchedUser) {
         if (matchedUser.status === 'Inactive' || matchedUser.isInactive) {
           setErrorMessage(`Account for "${matchedUser.name}" has been DEACTIVATED by Administrator. Login is disabled.`);
-          setIsSubmitting(false);
           return;
         }
-        if (matchedUser.password === cleanPass || cleanPass === 'alex123' || cleanPass === 'password123') {
+        if (matchedUser.password === cleanPass) {
           onLogin({ ...matchedUser, isAdmin: false });
         } else {
-          setErrorMessage('Invalid Password. Please check credentials or contact Admin.');
+          setErrorMessage('Invalid Password. Please enter the correct password provided by Admin.');
         }
-      } else if (cleanEmail && cleanPass) {
-        onLogin({
-          name: cleanEmail.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Team User',
-          email: cleanEmail,
-          role: 'CRM Executive',
-          isAdmin: false,
-          status: 'Active',
-          empId: `GNX-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-          mobile: '+91 98765 43210',
-          address: 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
-          department: 'Marketing Strategy & Leads',
-          joiningDate: '15 March 2024',
-          manager: 'Vikram Sharma (VP of Growth)',
-          location: 'Chennai Tech Park / Hybrid',
-          emergencyContact: '+91 98765 12345 (Family)',
-          bloodGroup: 'O+ Positive',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
-        });
       } else {
-        setErrorMessage('Invalid Email or Password. Please check credentials or contact Admin.');
+        setErrorMessage('Invalid Email or Password. Only users registered by Admin can log in.');
       }
     }, 600);
   };
 
   const handleFillAdmin = () => {
     setEmail('admin@genzneuralx.io');
-    setPassword('admin@123');
+    setPassword('admin123');
     setErrorMessage('');
   };
 
-  const handleFillDemo = (targetUser) => {
-    if (targetUser) {
-      setEmail(targetUser.email);
-      setPassword(targetUser.password || 'alex123');
-    } else {
-      setEmail('alex.m@genzneuralx.io');
-      setPassword('alex123');
+  const handleFillDemo = () => {
+    const firstEmp = registeredUsers.find(u => !u.isAdmin && u.email !== 'admin@genzneuralx.io');
+    if (firstEmp) {
+      setEmail(firstEmp.email);
+      setPassword(firstEmp.password || '');
     }
     setErrorMessage('');
   };
