@@ -297,11 +297,6 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
   useEffect(() => {
     fetchLeads();
     
-    // Poll backend every 10 seconds to sync leads and status updates between user and admin screens
-    const interval = setInterval(() => {
-      fetchLeads();
-    }, 10000);
-    
     // Instant tab synchronization via storage listener
     const handleStorageChange = (e) => {
       if (e.key === 'crm_leads') {
@@ -316,7 +311,6 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
-      clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
