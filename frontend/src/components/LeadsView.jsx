@@ -44,8 +44,26 @@ import {
 import { formatDateDDMMYYYY, getNowFormattedDDMMYYYY } from '../utils/dateFormatter';
 
 export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', setActiveSubTab }) {
-  const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [leads, setLeads] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crm_leads');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crm_leads');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch (e) {}
+    return true;
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [notifiedTabs, setNotifiedTabs] = useState({});
@@ -253,7 +271,9 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
   // Fetch leads from Express backend, fallback to local storage
   const fetchLeads = async () => {
     try {
-      setLoading(true);
+      if (leads.length === 0) {
+        setLoading(true);
+      }
       const res = await fetch(getApiUrl('/api/leads'));
       if (res.ok) {
         const data = await res.json();
