@@ -799,7 +799,11 @@ app.get('/api/dashboard/stats', async (req, res) => {
         if (Array.isArray(meetingsArr)) {
           // If userEmail is provided, filter meetings assigned to that user
           const myMeetings = userEmail 
-            ? meetingsArr.filter(m => !m.assignedUserEmail || m.assignedUserEmail.toLowerCase() === userEmail)
+            ? meetingsArr.filter(m => {
+                if (!m.assignedUserEmail) return true; // Legacy fallback
+                const emails = m.assignedUserEmail.toLowerCase().split(',').map(e => e.trim());
+                return emails.includes(userEmail);
+              })
             : meetingsArr;
           meetingsCount = myMeetings.length;
           meetingsList = myMeetings;

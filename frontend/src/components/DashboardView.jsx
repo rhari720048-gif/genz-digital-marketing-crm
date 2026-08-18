@@ -40,8 +40,14 @@ export default function DashboardView({ user }) {
   const fetchStats = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      // 1. Fetch database stats
-      const res = await fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}`));
+      // 1. Fetch database stats and direct module lists in parallel to make dashboard load instantly
+      const [res, mRes, nRes, dRes] = await Promise.all([
+        fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}`)).catch(() => null),
+        fetch(getApiUrl('/api/module/meetings')).catch(() => null),
+        fetch(getApiUrl('/api/module/notes')).catch(() => null),
+        fetch(getApiUrl('/api/module/documents')).catch(() => null)
+      ]);
+
       let data = {
         allLeads: 0,
         followups: 0,
@@ -55,20 +61,20 @@ export default function DashboardView({ user }) {
         upcomingMeetings: []
       };
       
-      if (res.ok) {
+      if (res && res.ok) {
         data = await res.json();
       }
 
-      // 2. Fetch direct module lists to bypass Render backend code deployment caching/delay
-      try {
-        const mRes = await fetch(getApiUrl('/api/module/meetings'));
-        if (mRes.ok) {
+      // 2. Parse direct module lists
+      if (mRes && mRes.ok) {
+        try {
           const meetingsList = await mRes.json();
           if (Array.isArray(meetingsList)) {
-            // Filter meetings assigned to currently logged-in user
+            // Filter meetings assigned to currently logged-in user (split comma-separated email list)
             const myMeetings = meetingsList.filter(m => {
               if (!m.assignedUserEmail) return true; // Legacy fallback
-              return m.assignedUserEmail.toLowerCase() === user.email.toLowerCase();
+              const emails = m.assignedUserEmail.toLowerCase().split(',').map(e => e.trim());
+              return emails.includes(user.email.toLowerCase());
             });
             data.meetings = myMeetings.length;
             
@@ -113,33 +119,31 @@ export default function DashboardView({ user }) {
               return mDate.getTime() >= todayStart.getTime();
             }).slice(0, 5);
           }
+        } catch (err) {
+          console.error('Error syncing meetings count:', err);
         }
-      } catch (err) {
-        console.error('Error syncing meetings count:', err);
       }
 
-      try {
-        const nRes = await fetch(getApiUrl('/api/module/notes'));
-        if (nRes.ok) {
+      if (nRes && nRes.ok) {
+        try {
           const notesList = await nRes.json();
           if (Array.isArray(notesList)) {
             data.notes = notesList.length;
           }
+        } catch (err) {
+          console.error('Error syncing notes count:', err);
         }
-      } catch (err) {
-        console.error('Error syncing notes count:', err);
       }
 
-      try {
-        const dRes = await fetch(getApiUrl('/api/module/documents'));
-        if (dRes.ok) {
+      if (dRes && dRes.ok) {
+        try {
           const docsList = await dRes.json();
           if (Array.isArray(docsList)) {
             data.documents = docsList.length;
           }
+        } catch (err) {
+          console.error('Error syncing documents count:', err);
         }
-      } catch (err) {
-        console.error('Error syncing documents count:', err);
       }
 
       setStats(data);

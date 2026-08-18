@@ -24,6 +24,30 @@ const MEETINGS_STORAGE_KEY = 'crm_shared_meetings_v3';
 
 const DEFAULT_MEETINGS = [];
 
+const convertDDMMYYYYtoYYYYMMDD = (dStr) => {
+  if (!dStr || !dStr.includes('/')) return '';
+  const parts = dStr.split('/');
+  if (parts.length === 3) {
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+  }
+  return '';
+};
+
+const convert12hTo24h = (tStr) => {
+  if (!tStr) return '';
+  const clean = tStr.replace(/\s*\(.*?\)/, '').trim();
+  const match = clean.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (match) {
+    let hours = parseInt(match[1], 10);
+    const minutes = match[2];
+    const ampm = match[3].toUpperCase();
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+    return `${hours.toString().padStart(2, '0')}:${minutes}`;
+  }
+  return '';
+};
+
 export default function MeetingsView({ stats, user, users = [] }) {
   const [meetings, setMeetings] = useState(() => {
     try {
@@ -168,8 +192,8 @@ export default function MeetingsView({ stats, user, users = [] }) {
     setSelectedMeeting(m);
     setEditTitle(m.title || '');
     setEditClient(m.client || '');
-    setEditDate('');
-    setEditTime('');
+    setEditDate(convertDDMMYYYYtoYYYYMMDD(m.date));
+    setEditTime(convert12hTo24h(m.time));
     setEditLink(m.link || '');
     
     const emails = m.assignedUserEmail 
