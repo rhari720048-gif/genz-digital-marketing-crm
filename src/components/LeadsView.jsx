@@ -622,8 +622,8 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     }
 
     const headers = ['ID', 'Name', 'Company', 'Email', 'Phone', 'Location', 'Requirement', 'Value (₹)', 'Source', 'Lead Added Date&Time', 'Client Converted Date&Time', 'Customer Converted Date&Time', 'Completed Date&Time', 'Status'];
-    const rows = completedLeads.map(l => [
-      l.id,
+    const rows = completedLeads.map((l, idx) => [
+      getCategoryFormattedId(l, idx, 'completed'),
       `"${l.name}"`,
       `"${l.company || ''}"`,
       `"${l.email || ''}"`,
@@ -673,6 +673,35 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       case 'all':
       default:
         return leads.filter(l => !l.status || l.status === 'Contacted' || l.status === 'New');
+    }
+  };
+
+  // Category & Index based 001 ID Formatter (LED-001, FOL-001, CAN-001, CLI-001, COM-001)
+  const getCategoryFormattedId = (lead, index, subTab) => {
+    if (!lead) return 'LED-001';
+    
+    let itemIndex = index;
+    if (itemIndex === undefined || itemIndex < 0) {
+      const currentCategoryList = getSubTabFilteredLeads();
+      const foundIdx = currentCategoryList.findIndex(l => l.id === lead.id);
+      itemIndex = foundIdx !== -1 ? foundIdx : 0;
+    }
+
+    const numStr = String(itemIndex + 1).padStart(3, '0');
+    const targetTab = subTab || activeSubTab;
+
+    switch (targetTab) {
+      case 'followups':
+        return `FOL-${numStr}`;
+      case 'canceled':
+        return `CAN-${numStr}`;
+      case 'client':
+        return `CLI-${numStr}`;
+      case 'completed':
+        return `COM-${numStr}`;
+      case 'all':
+      default:
+        return `LED-${numStr}`;
     }
   };
 
@@ -935,9 +964,9 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-                  {filteredLeads.map((lead) => (
+                  {filteredLeads.map((lead, index) => (
                     <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-6 py-4.5 font-mono font-bold text-slate-400">{lead.id}</td>
+                      <td className="px-6 py-4.5 font-mono font-bold text-royal-600 bg-royal-50/30 font-mono text-xs">{getCategoryFormattedId(lead, index, activeSubTab)}</td>
                       <td className="px-6 py-4.5">
                         <div className="flex flex-col">
                           <span className="font-extrabold text-slate-900">{lead.name}</span>
@@ -1480,7 +1509,12 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
             <div className="p-6 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-lg font-black font-heading text-slate-900 leading-snug">{selectedLead.name}</h2>
+                  <div className="flex items-center space-x-2">
+                    <h2 className="text-lg font-black font-heading text-slate-900 leading-snug">{selectedLead.name}</h2>
+                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase font-mono bg-royal-50 text-royal-700 border border-royal-200">
+                      {getCategoryFormattedId(selectedLead)}
+                    </span>
+                  </div>
                   <p className="text-xs text-slate-400 font-bold flex items-center mt-0.5">
                     <Building className="w-3.5 h-3.5 text-slate-300 mr-1 shrink-0" />
                     <span>{selectedLead.company}</span>
