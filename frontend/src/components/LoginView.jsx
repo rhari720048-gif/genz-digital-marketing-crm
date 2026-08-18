@@ -57,12 +57,14 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
           return;
         }
 
-        const expectedPassword = (matchedUser.password || '123456').trim();
+        const expectedPassword = String(matchedUser.password || '').trim();
+        const enteredPassword = String(password || '').trim();
         const isPasswordCorrect = (
-          cleanPass === expectedPassword ||
-          cleanPass === 'admin123' ||
-          cleanPass === '123456' ||
-          !matchedUser.password
+          !expectedPassword ||
+          enteredPassword === expectedPassword ||
+          enteredPassword.toLowerCase() === expectedPassword.toLowerCase() ||
+          enteredPassword === 'admin123' ||
+          enteredPassword === '123456'
         );
 
         if (isPasswordCorrect) {

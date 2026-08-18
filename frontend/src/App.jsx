@@ -204,13 +204,40 @@ export default function App() {
     } catch (e) {}
   }, [user]);
 
-  // Auto-logout user if they are deactivated (Inactive) or deleted from registeredUsers list
+  // Auto-logout user if they are deactivated (Inactive) or deleted from registeredUsers list, and dynamically sync role changes
   useEffect(() => {
     if (!isAuthenticated || !user || registeredUsers.length === 0) return;
     const currentUserInList = registeredUsers.find(u => (u.email || '').toLowerCase() === user.email.toLowerCase());
-    if (!currentUserInList || currentUserInList.status === 'Inactive') {
+    
+    if (!currentUserInList) {
       handleLogout();
-      alert('Your account has been deactivated or deleted by the administrator. Logging out.');
+      alert('Your account has been deleted by the administrator. Logging out.');
+      return;
+    }
+    
+    if (currentUserInList.status === 'Inactive') {
+      handleLogout();
+      alert('Your account has been deactivated by the administrator. Logging out.');
+      return;
+    }
+
+    // Role changes: Admin access granted or removed
+    const currentIsAdmin = Boolean(user.isAdmin || user.role === 'Super Admin' || user.id === 'admin-001');
+    const listIsAdmin = Boolean(currentUserInList.isAdmin || currentUserInList.role === 'Super Admin' || currentUserInList.id === 'admin-001');
+    
+    if (currentIsAdmin !== listIsAdmin) {
+      // Role changed! Update user state and activeTab to update view dynamically
+      const updatedUser = { 
+        ...currentUserInList, 
+        isAdmin: listIsAdmin,
+        greeting: listIsAdmin ? 'Welcome, System Administrator' : `Welcome back, ${currentUserInList.name?.split(' ')[0] || 'User'}`
+      };
+      setUser(updatedUser);
+      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
+      const targetTab = listIsAdmin ? 'users' : 'profile';
+      setActiveTab(targetTab);
+      sessionStorage.setItem('crm_active_tab_v2', targetTab);
+      triggerToast(`Your access level has been updated to ${listIsAdmin ? 'Administrator' : 'Employee'}. Page updated.`);
     }
   }, [registeredUsers, user, isAuthenticated]);
 
