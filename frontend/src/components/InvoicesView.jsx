@@ -427,25 +427,25 @@ export default function InvoicesView({ stats }) {
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
-              {/* WATERMARK BACKGROUND LOGO (Positioned at z-10 on top of background color overlays) */}
+              {/* WATERMARK BACKGROUND LOGO (Positioned at z-20 to float faintly over tables and background grids) */}
               <div 
-                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-10"
+                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-20"
                 style={{ opacity: 0.04 }}
               >
                 {companySettings.companyLogo ? (
-                  <img src={companySettings.companyLogo} className="w-[320px] h-[320px] object-contain rotate-12" alt="watermark" />
+                  <img src={companySettings.companyLogo} className="w-[380px] h-[380px] object-contain rotate-12" alt="watermark" />
                 ) : (
-                  <div className="w-[320px] h-[320px] flex items-center justify-center rotate-12">
+                  <div className="w-[380px] h-[380px] flex items-center justify-center rotate-12">
                     {defaultWatermarkSvg}
                   </div>
                 )}
               </div>
 
               {/* 1. Header Box (Thick borders matching Dolphin style) */}
-              <div className="relative z-0 space-y-4">
+              <div className="relative z-10 space-y-4">
                 <div className="border-2 border-slate-800 grid grid-cols-10">
                   {/* Left Side: Logo, Name & Address */}
-                  <div className="col-span-6 p-4 border-r-2 border-slate-800 flex items-start space-x-3.5">
+                  <div className="col-span-6 p-4 border-r-2 border-slate-800 flex items-start space-x-3.5 bg-white/80">
                     {companySettings.companyLogo ? (
                       <img src={companySettings.companyLogo} className="h-12 w-12 object-contain" alt="Logo" />
                     ) : (
@@ -466,7 +466,7 @@ export default function InvoicesView({ stats }) {
                   </div>
 
                   {/* Right Side: Bill Details (Ample row space, no overflow) */}
-                  <div className="col-span-4 grid grid-rows-2 text-[10px]">
+                  <div className="col-span-4 grid grid-rows-2 text-[10px] bg-white/80">
                     <div className="p-3 border-b-2 border-slate-800 flex justify-between items-center bg-slate-50/50">
                       <span className="font-extrabold text-slate-500 uppercase">Bill No:</span>
                       <span className="font-black text-slate-950 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formInvoiceId}</span>
@@ -479,7 +479,7 @@ export default function InvoicesView({ stats }) {
                 </div>
 
                 {/* 2. Bill To (Client details) */}
-                <div className="border-2 border-t-0 border-slate-800 p-4 mt-[-16px] space-y-1.5 text-[10px]">
+                <div className="border-2 border-t-0 border-slate-800 p-4 mt-[-16px] space-y-1.5 text-[10px] bg-white/80">
                   <h3 className="font-black text-slate-500 uppercase tracking-wider">Bill To :</h3>
                   <div className="space-y-0.5">
                     <p className="font-black text-slate-955 text-xs uppercase">{formClientName || 'Client Name'}</p>
@@ -492,8 +492,8 @@ export default function InvoicesView({ stats }) {
                   </div>
                 </div>
 
-                {/* 3. Main Itemized Box Table (Thick border-2, strict 6-columns alignment, no colSpan gaps) */}
-                <div className="border-2 border-slate-800 overflow-hidden bg-white mt-1">
+                {/* 3. Main Itemized Box Table (Thick border-2, strict columns alignment, 100% connected lines) */}
+                <div className="border-2 border-slate-800 overflow-hidden bg-white/80 mt-1">
                   <table className="w-full border-collapse text-left text-[11px]" style={{ tableLayout: 'fixed' }}>
                     <colgroup>
                       <col style={{ width: '55px' }} />
@@ -525,32 +525,30 @@ export default function InvoicesView({ stats }) {
                         <td className="px-3 py-3.5 text-right font-mono font-black text-slate-955" style={{ fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
                       
-                      {/* Empty padding rows for printing sheet spacing with matching vertical borders */}
+                      {/* Empty padding rows for printing sheet spacing with non-collapsing &nbsp; cells */}
                       <tr className="h-32">
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td></td>
+                        <td className="border-r-2 border-slate-800">&nbsp;</td>
+                        <td className="border-r-2 border-slate-800">&nbsp;</td>
+                        <td className="border-r-2 border-slate-800">&nbsp;</td>
+                        <td className="border-r-2 border-slate-800">&nbsp;</td>
+                        <td className="border-r-2 border-slate-800">&nbsp;</td>
+                        <td>&nbsp;</td>
                       </tr>
 
                       {/* Total row aligned 100% using single matching columns with vertical dividers */}
                       <tr className="bg-slate-50/50 font-black text-slate-850 font-mono text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800"></td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right uppercase font-sans font-black text-slate-550">Total :</td>
-                        <td className="px-3 py-2.5 border-r-2 border-slate-800"></td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800">&nbsp;</td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right uppercase font-sans font-black text-slate-500">Total :</td>
+                        <td className="px-3 py-2.5 border-r-2 border-slate-800">&nbsp;</td>
                         <td className="px-3 py-2.5 border-r-2 border-slate-800 text-center text-slate-950">{formQuantity}</td>
                         <td className="px-3 py-2.5 border-r-2 border-slate-800 text-right text-rose-600">₹{formDiscount.toLocaleString('en-IN')}.00</td>
                         <td className="px-3 py-2.5 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
 
-                      {/* Net Amount row containing exactly 6 columns for absolute border connection */}
+                      {/* Net Amount row with blank description box instead of GST text */}
                       <tr className="border-t-2 border-slate-800 bg-white font-extrabold">
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
-                        <td className="border-r-2 border-slate-800"></td>
+                        {/* Spanning 5 columns cleanly so that it aligns directly with the total value cell */}
+                        <td colSpan="5" className="px-3 py-3 border-r-2 border-slate-800">&nbsp;</td>
                         <td className="px-3 py-3 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
                           Net Amount
                         </td>
@@ -573,7 +571,7 @@ export default function InvoicesView({ stats }) {
 
               {/* FOOTER & TERMS */}
               <div className="relative z-10 pt-4 mt-6 border-t-2 border-slate-800 text-[10px]">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 bg-white/80 rounded-xl p-1">
                   {/* Terms box */}
                   <div className="space-y-1">
                     <p className="font-black text-slate-400 uppercase tracking-wider">Terms and Conditions</p>
