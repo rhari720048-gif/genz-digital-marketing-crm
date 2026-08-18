@@ -85,8 +85,28 @@ export default function MeetingsView({ stats, user, users = [] }) {
   const [editTime, setEditTime] = useState('');
   const [editLink, setEditLink] = useState('');
 
-  const [assignedUserEmail, setAssignedUserEmail] = useState(user?.email || '');
-  const [editAssignedUserEmail, setEditAssignedUserEmail] = useState('');
+  const [assignedEmails, setAssignedEmails] = useState([user?.email || '']);
+  const [editAssignedEmails, setEditAssignedEmails] = useState([]);
+
+  const toggleAssignedEmail = (email) => {
+    setAssignedEmails(prev => {
+      if (prev.includes(email)) {
+        return prev.filter(e => e !== email);
+      } else {
+        return [...prev, email];
+      }
+    });
+  };
+
+  const toggleEditAssignedEmail = (email) => {
+    setEditAssignedEmails(prev => {
+      if (prev.includes(email)) {
+        return prev.filter(e => e !== email);
+      } else {
+        return [...prev, email];
+      }
+    });
+  };
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -115,7 +135,12 @@ export default function MeetingsView({ stats, user, users = [] }) {
       formattedTime = `${hours.toString().padStart(2, '0')}:${m} ${ampm}`;
     }
 
-    const selectedUsr = users.find(u => u.email.toLowerCase() === assignedUserEmail.toLowerCase()) || user;
+    const emailsStr = assignedEmails.length > 0 ? assignedEmails.join(', ') : user.email;
+    const names = assignedEmails.map(email => {
+      const u = users.find(usr => usr.email.toLowerCase() === email.toLowerCase());
+      return u ? u.name : email;
+    });
+    const namesStr = names.length > 0 ? names.join(', ') : user.name;
 
     const newM = {
       id: Date.now(),
@@ -124,8 +149,8 @@ export default function MeetingsView({ stats, user, users = [] }) {
       date: formattedDate,
       time: formattedTime,
       link: finalLink,
-      assignedUserEmail: assignedUserEmail || user.email,
-      assignedUserName: selectedUsr?.name || user.name
+      assignedUserEmail: emailsStr,
+      assignedUserName: namesStr
     };
 
     setMeetings([newM, ...meetings]);
@@ -135,7 +160,7 @@ export default function MeetingsView({ stats, user, users = [] }) {
     setNewDate('');
     setNewTime('');
     setNewLink('');
-    setAssignedUserEmail(user?.email || '');
+    setAssignedEmails([user?.email || '']);
     showToast(`Meeting scheduled with ${newClient}!`);
   };
 
@@ -146,7 +171,12 @@ export default function MeetingsView({ stats, user, users = [] }) {
     setEditDate('');
     setEditTime('');
     setEditLink(m.link || '');
-    setEditAssignedUserEmail(m.assignedUserEmail || user?.email || '');
+    
+    const emails = m.assignedUserEmail 
+      ? m.assignedUserEmail.split(',').map(e => e.trim()) 
+      : [user?.email || ''];
+    setEditAssignedEmails(emails);
+    
     setIsEditModalOpen(true);
   };
 
@@ -169,7 +199,12 @@ export default function MeetingsView({ stats, user, users = [] }) {
       formattedTime = `${hours.toString().padStart(2, '0')}:${m} ${ampm}`;
     }
 
-    const selectedUsr = users.find(u => u.email.toLowerCase() === editAssignedUserEmail.toLowerCase()) || user;
+    const emailsStr = editAssignedEmails.length > 0 ? editAssignedEmails.join(', ') : user.email;
+    const names = editAssignedEmails.map(email => {
+      const u = users.find(usr => usr.email.toLowerCase() === email.toLowerCase());
+      return u ? u.name : email;
+    });
+    const namesStr = names.length > 0 ? names.join(', ') : user.name;
 
     const updatedM = {
       ...selectedMeeting,
@@ -178,8 +213,8 @@ export default function MeetingsView({ stats, user, users = [] }) {
       date: formattedDate,
       time: formattedTime,
       link: editLink.trim(),
-      assignedUserEmail: editAssignedUserEmail || user.email,
-      assignedUserName: selectedUsr?.name || user.name
+      assignedUserEmail: emailsStr,
+      assignedUserName: namesStr
     };
 
     setMeetings(meetings.map(m => m.id === selectedMeeting.id ? updatedM : m));
@@ -208,7 +243,8 @@ export default function MeetingsView({ stats, user, users = [] }) {
 
   const myMeetings = meetings.filter(m => {
     if (!m.assignedUserEmail) return true; // Fallback for legacy meetings
-    return m.assignedUserEmail.toLowerCase() === user.email.toLowerCase();
+    const emails = m.assignedUserEmail.toLowerCase().split(',').map(e => e.trim());
+    return emails.includes(user.email.toLowerCase());
   });
 
   const filteredMeetings = myMeetings.filter(m => {
@@ -345,20 +381,52 @@ export default function MeetingsView({ stats, user, users = [] }) {
             <form onSubmit={handleAddMeeting} className="p-5 space-y-3.5">
               
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Assign CRM User / Employee *</label>
-                <select
-                  value={assignedUserEmail}
-                  onChange={(e) => setAssignedUserEmail(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-royal-500 cursor-pointer"
-                >
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-black uppercase text-slate-400">Assign Users / Employees *</label>
+                  <div className="flex items-center space-x-2 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setAssignedEmails(users.map(u => u.email))}
+                      className="text-royal-600 hover:text-royal-700 font-extrabold cursor-pointer"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setAssignedEmails([user?.email || ''])}
+                      className="text-slate-500 hover:text-slate-600 font-extrabold cursor-pointer"
+                    >
+                      Clear / Reset
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="max-h-36 overflow-y-auto border border-slate-200 rounded-xl p-2.5 space-y-1.5 bg-slate-50/50">
                   {users.length === 0 ? (
-                    <option value={user.email}>{user.name} ({user.role})</option>
+                    <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={assignedEmails.includes(user.email)}
+                        onChange={() => toggleAssignedEmail(user.email)}
+                        className="rounded-sm border-slate-300 text-royal-600 focus:ring-royal-500 cursor-pointer"
+                      />
+                      <span>{user.name} ({user.role})</span>
+                    </label>
                   ) : (
                     users.map(u => (
-                      <option key={u.id} value={u.email}>{u.name} ({u.role})</option>
+                      <label key={u.id} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100/50 p-0.5 rounded-lg transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={assignedEmails.includes(u.email)}
+                          onChange={() => toggleAssignedEmail(u.email)}
+                          className="rounded-sm border-slate-300 text-royal-600 focus:ring-royal-500 cursor-pointer"
+                        />
+                        <span>{u.name} <span className="text-[10px] text-slate-400 font-bold">({u.role})</span></span>
+                      </label>
                     ))
                   )}
-                </select>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -467,20 +535,52 @@ export default function MeetingsView({ stats, user, users = [] }) {
             <form onSubmit={handleEditMeetingSubmit} className="p-5 space-y-3.5">
               
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Assign CRM User / Employee *</label>
-                <select
-                  value={editAssignedUserEmail}
-                  onChange={(e) => setEditAssignedUserEmail(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-royal-500 cursor-pointer"
-                >
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-black uppercase text-slate-400">Assign Users / Employees *</label>
+                  <div className="flex items-center space-x-2 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setEditAssignedEmails(users.map(u => u.email))}
+                      className="text-royal-600 hover:text-royal-700 font-extrabold cursor-pointer"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setEditAssignedEmails([user?.email || ''])}
+                      className="text-slate-500 hover:text-slate-600 font-extrabold cursor-pointer"
+                    >
+                      Clear / Reset
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="max-h-36 overflow-y-auto border border-slate-200 rounded-xl p-2.5 space-y-1.5 bg-slate-50/50">
                   {users.length === 0 ? (
-                    <option value={user.email}>{user.name} ({user.role})</option>
+                    <label className="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editAssignedEmails.includes(user.email)}
+                        onChange={() => toggleEditAssignedEmail(user.email)}
+                        className="rounded-sm border-slate-300 text-royal-600 focus:ring-royal-500 cursor-pointer"
+                      />
+                      <span>{user.name} ({user.role})</span>
+                    </label>
                   ) : (
                     users.map(u => (
-                      <option key={u.id} value={u.email}>{u.name} ({u.role})</option>
+                      <label key={u.id} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100/50 p-0.5 rounded-lg transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={editAssignedEmails.includes(u.email)}
+                          onChange={() => toggleEditAssignedEmail(u.email)}
+                          className="rounded-sm border-slate-300 text-royal-600 focus:ring-royal-500 cursor-pointer"
+                        />
+                        <span>{u.name} <span className="text-[10px] text-slate-400 font-bold">({u.role})</span></span>
+                      </label>
                     ))
                   )}
-                </select>
+                </div>
               </div>
 
               <div className="space-y-1">
