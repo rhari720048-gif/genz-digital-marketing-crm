@@ -82,8 +82,6 @@ const getStoredUser = () => {
   try {
     const rawSession = sessionStorage.getItem(USER_SESSION_KEY);
     if (rawSession) return JSON.parse(rawSession);
-    const rawLocal = localStorage.getItem(USER_SESSION_KEY);
-    if (rawLocal) return JSON.parse(rawLocal);
   } catch (e) {}
   return null;
 };
@@ -91,9 +89,8 @@ const getStoredUser = () => {
 const getStoredAuth = () => {
   try {
     const hasAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
-    const hasAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
     const stored = getStoredUser();
-    return Boolean((hasAuthSession || hasAuthLocal) && stored && stored.email);
+    return Boolean(hasAuthSession && stored && stored.email);
   } catch (e) {
     return false;
   }
@@ -125,6 +122,14 @@ export default function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => getStoredAuth());
 
+  // Purge legacy persistent localStorage auth data on mount so direct URL visits ALWAYS land on Login page
+  useEffect(() => {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(USER_SESSION_KEY);
+    } catch (e) {}
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem(USERS_LIST_STORAGE_KEY, JSON.stringify(registeredUsers));
@@ -151,7 +156,7 @@ export default function App() {
     if (!storedUser) return 'profile';
     const isSysAdmin = Boolean(storedUser.isAdmin || storedUser.role === 'Super Admin' || storedUser.id === 'admin-001');
     try {
-      const savedTab = sessionStorage.getItem('crm_active_tab_v2') || localStorage.getItem('crm_active_tab_v2');
+      const savedTab = sessionStorage.getItem('crm_active_tab_v2');
       if (savedTab) {
         if (!isSysAdmin && (savedTab === 'users' || savedTab === 'attendance-admin' || savedTab === 'analytics')) {
           return 'profile';
@@ -179,18 +184,15 @@ export default function App() {
       setActiveTab('profile');
       try {
         sessionStorage.setItem('crm_active_tab_v2', 'profile');
-        localStorage.setItem('crm_active_tab_v2', 'profile');
       } catch (e) {}
     } else if (isSysAdmin && (activeTab === 'profile' || activeTab === 'attendance')) {
       setActiveTab('users');
       try {
         sessionStorage.setItem('crm_active_tab_v2', 'users');
-        localStorage.setItem('crm_active_tab_v2', 'users');
       } catch (e) {}
     } else {
       try {
         sessionStorage.setItem('crm_active_tab_v2', activeTab);
-        localStorage.setItem('crm_active_tab_v2', activeTab);
       } catch (e) {}
     }
   }, [user, activeTab]);
@@ -198,12 +200,7 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     try {
-      if (sessionStorage.getItem(USER_SESSION_KEY)) {
-        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
-      }
-      if (localStorage.getItem(USER_SESSION_KEY)) {
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
-      }
+      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
     } catch (e) {}
   }, [user]);
 
@@ -485,7 +482,7 @@ export default function App() {
     }
   };
 
-  const handleLogin = (loggedUser, rememberMe = true) => {
+  const handleLogin = (loggedUser) => {
     if (!loggedUser) return;
     const isSysAdmin = Boolean(loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.id === 'admin-001');
     const updatedUser = {
@@ -500,15 +497,13 @@ export default function App() {
     setActiveTab(targetTab);
 
     try {
-      if (rememberMe) {
-        localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
-        localStorage.setItem('crm_active_tab_v2', targetTab);
-      } else {
-        sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
-        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
-        sessionStorage.setItem('crm_active_tab_v2', targetTab);
-      }
+      sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
+      sessionStorage.setItem('crm_active_tab_v2', targetTab);
+
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(USER_SESSION_KEY);
+      localStorage.removeItem('crm_active_tab_v2');
     } catch (e) {}
   };
 
@@ -516,12 +511,13 @@ export default function App() {
     setIsAuthenticated(false);
     setUser(null);
     try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      localStorage.removeItem(USER_SESSION_KEY);
-      localStorage.removeItem('crm_active_tab_v2');
       sessionStorage.removeItem(AUTH_STORAGE_KEY);
       sessionStorage.removeItem(USER_SESSION_KEY);
       sessionStorage.removeItem('crm_active_tab_v2');
+
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(USER_SESSION_KEY);
+      localStorage.removeItem('crm_active_tab_v2');
     } catch (e) {}
   };
 
