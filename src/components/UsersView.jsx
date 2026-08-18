@@ -779,6 +779,18 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Date of Joining
+                  </label>
+                  <input
+                    type="date"
+                    value={editingUser.joiningDate || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, joiningDate: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
                     Work Location
                   </label>
                   <input
