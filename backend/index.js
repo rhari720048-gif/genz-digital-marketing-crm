@@ -175,6 +175,21 @@ async function initDb() {
       )
     `);
 
+    // Alter meetings table to add assignedUserEmail and assignedUserName if missing
+    try {
+      await connection.query('SELECT assignedUserEmail FROM meetings LIMIT 1');
+    } catch (e) {
+      console.log('Adding assignedUserEmail column to meetings table...');
+      await connection.query('ALTER TABLE meetings ADD COLUMN assignedUserEmail TEXT');
+    }
+
+    try {
+      await connection.query('SELECT assignedUserName FROM meetings LIMIT 1');
+    } catch (e) {
+      console.log('Adding assignedUserName column to meetings table...');
+      await connection.query('ALTER TABLE meetings ADD COLUMN assignedUserName TEXT');
+    }
+
     // Create users table with all profile fields
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -374,9 +389,23 @@ app.post('/api/module/meetings', async (req, res) => {
     await pool.query('DELETE FROM meetings');
     for (const m of (data || [])) {
       await pool.query(
-        `INSERT INTO meetings (id, title, client, date, time, duration, type, link, status, notes, participants)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [m.id, m.title || '', m.client || '', m.date || '', m.time || '', m.duration || '', m.type || '', m.link || '', m.status || '', m.notes || '', JSON.stringify(m.participants || [])]
+        `INSERT INTO meetings (id, title, client, date, time, duration, type, link, status, notes, participants, assignedUserEmail, assignedUserName)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          m.id, 
+          m.title || '', 
+          m.client || '', 
+          m.date || '', 
+          m.time || '', 
+          m.duration || '', 
+          m.type || '', 
+          m.link || '', 
+          m.status || '', 
+          m.notes || '', 
+          JSON.stringify(m.participants || []),
+          m.assignedUserEmail || '',
+          m.assignedUserName || ''
+        ]
       );
     }
     res.json({ success: true });
@@ -778,48 +807,25 @@ app.get('/api/dashboard/stats', async (req, res) => {
       }
     });
 
-    // 2. Fetch other counts from crm_modules_data
-    let notesCount = 0;
+    // 2. Fetch other counts directly from dedicated database tables
+    const [[{ count: notesCount }]] = await pool.query('SELECT COUNT(*) as count FROM notes');
+    const [[{ count: documentsCount }]] = await pool.query('SELECT COUNT(*) as count FROM documents');
+    const [[{ count: usersCount }]] = await pool.query('SELECT COUNT(*) as count FROM users');
+
+    const [meetings] = await pool.query('SELECT * FROM meetings');
     let meetingsCount = 0;
-    let documentsCount = 0;
     let meetingsList = [];
 
-    const [notesRows] = await pool.query('SELECT data FROM crm_modules_data WHERE module_name = "notes"');
-    if (notesRows.length > 0) {
-      try {
-        const notesArr = JSON.parse(notesRows[0].data);
-        if (Array.isArray(notesArr)) notesCount = notesArr.length;
-      } catch (e) {}
-    }
-
-    const [docsRows] = await pool.query('SELECT data FROM crm_modules_data WHERE module_name = "documents"');
-    if (docsRows.length > 0) {
-      try {
-        const docsArr = JSON.parse(docsRows[0].data);
-        if (Array.isArray(docsArr)) documentsCount = docsArr.length;
-      } catch (e) {}
-    }
-
-    const [meetingsRows] = await pool.query('SELECT data FROM crm_modules_data WHERE module_name = "meetings"');
-    if (meetingsRows.length > 0) {
-      try {
-        const meetingsArr = JSON.parse(meetingsRows[0].data);
-        if (Array.isArray(meetingsArr)) {
-          // If userEmail is provided, filter meetings assigned to that user
-          const myMeetings = userEmail 
-            ? meetingsArr.filter(m => {
-                if (!m.assignedUserEmail) return true; // Legacy fallback
-                const emails = m.assignedUserEmail.toLowerCase().split(',').map(e => e.trim());
-                return emails.includes(userEmail);
-              })
-            : meetingsArr;
-          meetingsCount = myMeetings.length;
-          meetingsList = myMeetings;
-        }
-      } catch (e) {}
-    }
-
-    const [[{ count: usersCount }]] = await pool.query('SELECT COUNT(*) as count FROM users');
+    // If userEmail is provided, filter meetings assigned to that user
+    const myMeetings = userEmail 
+      ? meetings.filter(m => {
+          if (!m.assignedUserEmail) return true; // Legacy fallback
+          const emails = m.assignedUserEmail.toLowerCase().split(',').map(e => e.trim());
+          return emails.includes(userEmail);
+        })
+      : meetings;
+    meetingsCount = myMeetings.length;
+    meetingsList = myMeetings;
 
     // 3. Filter and sort meetings dynamically
     const parseDateTime = (dStr, tStr) => {

@@ -40,113 +40,12 @@ export default function DashboardView({ user }) {
   const fetchStats = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      // 1. Fetch database stats and direct module lists in parallel to make dashboard load instantly
-      const [res, mRes, nRes, dRes] = await Promise.all([
-        fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}&_t=${Date.now()}`)).catch(() => null),
-        fetch(getApiUrl(`/api/module/meetings?_t=${Date.now()}`)).catch(() => null),
-        fetch(getApiUrl(`/api/module/notes?_t=${Date.now()}`)).catch(() => null),
-        fetch(getApiUrl(`/api/module/documents?_t=${Date.now()}`)).catch(() => null)
-      ]);
-
-      let data = {
-        allLeads: 0,
-        followups: 0,
-        canceledLeads: 0,
-        clients: 0,
-        completedCustomers: 0,
-        notes: 0,
-        meetings: 0,
-        documents: 0,
-        users: 0,
-        upcomingMeetings: []
-      };
-      
-      if (res && res.ok) {
-        data = await res.json();
+      // 1. Fetch lightweight database stats from the backend
+      const res = await fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}&_t=${Date.now()}`));
+      if (res.ok) {
+        const data = await res.json();
+        setStats(data);
       }
-
-      // 2. Parse direct module lists
-      if (mRes && mRes.ok) {
-        try {
-          const meetingsList = await mRes.json();
-          if (Array.isArray(meetingsList)) {
-            // Filter meetings assigned to currently logged-in user (split comma-separated email list)
-            const myMeetings = meetingsList.filter(m => {
-              if (!m.assignedUserEmail) return true; // Legacy fallback
-              const emails = m.assignedUserEmail.toLowerCase().split(',').map(e => e.trim());
-              return emails.includes(user.email.toLowerCase());
-            });
-            data.meetings = myMeetings.length;
-            
-            // Filter and sort upcoming meetings
-            const parseDateTime = (dStr, tStr) => {
-              try {
-                if (!dStr) return new Date(8640000000000000);
-                let dateObj;
-                if (dStr.includes('/')) {
-                  const parts = dStr.split('/');
-                  dateObj = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-                } else {
-                  dateObj = new Date(dStr);
-                }
-
-                if (tStr) {
-                  const cleanTimeStr = tStr.replace(/\s*\(.*?\)/, '').trim();
-                  const timeMatch = cleanTimeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
-                  if (timeMatch) {
-                    let hours = parseInt(timeMatch[1], 10);
-                    const minutes = parseInt(timeMatch[2], 10);
-                    const ampm = timeMatch[3].toUpperCase();
-                    if (ampm === 'PM' && hours < 12) hours += 12;
-                    if (ampm === 'AM' && hours === 12) hours = 0;
-                    dateObj.setHours(hours, minutes, 0, 0);
-                  }
-                }
-                return dateObj;
-              } catch (e) {}
-              return new Date(8640000000000000);
-            };
-
-            const sortedMeetings = myMeetings.sort((a, b) => {
-              return parseDateTime(a.date, a.time) - parseDateTime(b.date, b.time);
-            });
-
-            const todayStart = new Date();
-            todayStart.setHours(0, 0, 0, 0);
-            
-            data.upcomingMeetings = sortedMeetings.filter(m => {
-              const mDate = parseDateTime(m.date, m.time);
-              return mDate.getTime() >= todayStart.getTime();
-            }).slice(0, 5);
-          }
-        } catch (err) {
-          console.error('Error syncing meetings count:', err);
-        }
-      }
-
-      if (nRes && nRes.ok) {
-        try {
-          const notesList = await nRes.json();
-          if (Array.isArray(notesList)) {
-            data.notes = notesList.length;
-          }
-        } catch (err) {
-          console.error('Error syncing notes count:', err);
-        }
-      }
-
-      if (dRes && dRes.ok) {
-        try {
-          const docsList = await dRes.json();
-          if (Array.isArray(docsList)) {
-            data.documents = docsList.length;
-          }
-        } catch (err) {
-          console.error('Error syncing documents count:', err);
-        }
-      }
-
-      setStats(data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
