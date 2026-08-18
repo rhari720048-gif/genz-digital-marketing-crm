@@ -922,8 +922,8 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       <div className="space-y-4">
 
         {/* Table Actions: Search and Filtering */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="relative w-full md:w-85">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="relative w-full lg:w-96">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
@@ -934,7 +934,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row flex-wrap sm:flex-nowrap items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
 
 
             {activeSubTab === 'all' && (
