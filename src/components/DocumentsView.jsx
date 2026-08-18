@@ -533,61 +533,85 @@ export default function DocumentsView({ user }) {
         </div>
       )}
 
-      {/* PREVIEW DOCUMENT MODAL */}
+      {/* PREVIEW DOCUMENT MODAL WITH LIVE PDF & IMAGE VIEWER */}
       {previewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/50 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-4xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
             
+            {/* Modal Header */}
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
-              <div className="flex items-center space-x-2 min-w-0 pr-2">
-                <FileText className="w-4 h-4 text-royal-400 shrink-0" />
-                <h3 className="text-sm font-black font-heading truncate">{previewDoc.title}</h3>
+              <div className="flex items-center space-x-2.5 min-w-0 pr-2">
+                <div className="p-1.5 rounded-lg bg-royal-600/40 text-royal-300">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black font-heading truncate text-white">{previewDoc.title}</h3>
+                  <p className="text-[10px] text-slate-400 font-mono truncate">{previewDoc.fileName}</p>
+                </div>
               </div>
               <button 
                 onClick={() => setPreviewDoc(null)} 
-                className="p-1 rounded-lg bg-white/10 text-white hover:bg-white/20 cursor-pointer shrink-0"
+                className="p-1.5 rounded-xl bg-white/10 text-white hover:bg-white/20 cursor-pointer shrink-0 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            {/* Modal Content */}
+            <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto flex-1 bg-slate-50">
               
-              {/* Document Metadata Box */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 grid grid-cols-3 gap-3 text-xs">
+              {/* Document Metadata Bar */}
+              <div className="p-3 rounded-2xl bg-white border border-slate-200/80 grid grid-cols-3 gap-3 text-xs shadow-2xs">
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-extrabold">File Size</p>
-                  <p className="font-mono text-slate-800 mt-0.5">{previewDoc.fileSize}</p>
+                  <p className="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">File Size</p>
+                  <p className="font-mono font-bold text-slate-800 mt-0.5">{previewDoc.fileSize}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-extrabold">Upload Date</p>
+                  <p className="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Upload Date</p>
                   <p className="font-mono text-slate-800 mt-0.5">{previewDoc.uploadDate}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-extrabold">Uploaded By</p>
-                  <p className="font-bold text-slate-800 mt-0.5">{previewDoc.uploadedBy}</p>
+                  <p className="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Uploaded By</p>
+                  <p className="font-bold text-royal-700 mt-0.5 truncate">{previewDoc.uploadedBy}</p>
                 </div>
               </div>
 
               {previewDoc.notes && (
-                <div className="p-3 rounded-xl bg-royal-50/60 border border-royal-100 text-xs text-royal-900">
-                  <strong>Notes:</strong> {previewDoc.notes}
+                <div className="p-3 rounded-xl bg-royal-50/70 border border-royal-100 text-xs text-royal-950 font-medium">
+                  <strong>Description:</strong> {previewDoc.notes}
                 </div>
               )}
 
-              {/* Preview Window Container */}
-              <div className="p-4 rounded-2xl bg-slate-100 border border-slate-200 min-h-60 flex flex-col items-center justify-center text-center space-y-3">
-                {previewDoc.fileType?.includes('image') || (previewDoc.url && previewDoc.url.match(/\.(jpeg|jpg|gif|png)$/i)) ? (
+              {/* LIVE EMBEDDED RENDERER CONTAINER */}
+              <div className="p-2 sm:p-3 rounded-2xl bg-slate-900 border border-slate-800 min-h-[450px] flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
+                {previewDoc.fileType?.includes('image') || (previewDoc.url && previewDoc.url.match(/^data:image\//i)) || (previewDoc.fileName && previewDoc.fileName.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i)) ? (
                   <img 
                     src={previewDoc.url} 
                     alt={previewDoc.title} 
-                    className="max-h-72 w-auto object-contain rounded-xl shadow-md border border-slate-200" 
+                    className="max-h-[500px] w-auto object-contain rounded-xl shadow-2xl border border-slate-700 mx-auto" 
                   />
+                ) : previewDoc.fileType?.includes('pdf') || (previewDoc.url && previewDoc.url.match(/^data:application\/pdf/i)) || (previewDoc.fileName && previewDoc.fileName.match(/\.pdf$/i)) || (previewDoc.url && previewDoc.url.endsWith('.pdf')) ? (
+                  <div className="w-full h-[520px] rounded-xl overflow-hidden bg-slate-800 flex flex-col">
+                    <iframe 
+                      src={previewDoc.url} 
+                      title={previewDoc.title}
+                      className="w-full h-full border-0 rounded-xl bg-white"
+                    />
+                  </div>
                 ) : (
-                  <div className="space-y-2">
-                    <FileText className="w-12 h-12 text-royal-600 mx-auto" />
-                    <p className="text-xs font-black text-slate-800">{previewDoc.fileName}</p>
-                    <p className="text-[11px] text-slate-500">Document preview ready. Click Download to open full document.</p>
+                  <div className="w-full h-[400px] bg-slate-800 rounded-xl flex flex-col items-center justify-center p-6 space-y-3 text-white">
+                    <FileText className="w-16 h-16 text-royal-400 mx-auto" />
+                    <p className="text-sm font-black font-heading text-white">{previewDoc.fileName}</p>
+                    <p className="text-xs text-slate-300 max-w-sm font-medium">
+                      Document file ready. Click below to download or view file directly in browser.
+                    </p>
+                    <button
+                      onClick={() => handleDownloadDocument(previewDoc)}
+                      className="px-5 py-2.5 rounded-xl bg-royal-600 hover:bg-royal-700 text-white font-bold text-xs flex items-center space-x-2 shadow-md cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download / Open File</span>
+                    </button>
                   </div>
                 )}
               </div>
@@ -595,13 +619,13 @@ export default function DocumentsView({ user }) {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+            <div className="p-3.5 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
               <button
                 onClick={() => handleDeleteDocument(previewDoc.id, previewDoc.title)}
-                className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center space-x-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center space-x-1.5 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete</span>
+                <span>Delete Document</span>
               </button>
 
               <div className="flex items-center space-x-2">
@@ -616,7 +640,7 @@ export default function DocumentsView({ user }) {
                   className="px-4 py-1.5 rounded-xl bg-royal-600 text-white font-bold text-xs hover:bg-royal-700 flex items-center space-x-1.5 cursor-pointer shadow-xs"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download Document</span>
+                  <span>Download File</span>
                 </button>
               </div>
             </div>
