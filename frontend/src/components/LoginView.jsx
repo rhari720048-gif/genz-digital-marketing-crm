@@ -53,7 +53,7 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
           onLogin({
             ...matchedUser,
             isAdmin: isSysAdmin
-          });
+          }, rememberMe);
         } else {
           setErrorMessage('Invalid Password. Please enter the correct password.');
         }

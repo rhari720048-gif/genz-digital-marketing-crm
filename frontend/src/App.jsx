@@ -80,12 +80,23 @@ const DEFAULT_USERS = [
 
 const getStoredUser = () => {
   try {
-    const raw = localStorage.getItem(USER_SESSION_KEY);
-    if (raw) {
-      return JSON.parse(raw);
-    }
+    const rawSession = sessionStorage.getItem(USER_SESSION_KEY);
+    if (rawSession) return JSON.parse(rawSession);
+    const rawLocal = localStorage.getItem(USER_SESSION_KEY);
+    if (rawLocal) return JSON.parse(rawLocal);
   } catch (e) {}
   return null;
+};
+
+const getStoredAuth = () => {
+  try {
+    const hasAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    const hasAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    const stored = getStoredUser();
+    return Boolean((hasAuthSession || hasAuthLocal) && stored && stored.email);
+  } catch (e) {
+    return false;
+  }
 };
 
 export default function App() {
@@ -112,15 +123,7 @@ export default function App() {
     return {};
   });
 
-  const storedUser = getStoredUser();
-
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    try {
-      return localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
-    } catch (e) {
-      return false;
-    }
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => getStoredAuth());
 
   useEffect(() => {
     try {
@@ -130,21 +133,25 @@ export default function App() {
 
   // User state cross-referenced with registeredUsers to preserve exact Admin/Employee roles on refresh
   const [user, setUser] = useState(() => {
+    const storedUser = getStoredUser();
     if (storedUser && storedUser.email) {
       const match = registeredUsers.find(u => (u.email || '').toLowerCase() === storedUser.email.toLowerCase());
       if (match) {
         const isSysAdmin = Boolean(match.isAdmin || match.role === 'Super Admin' || match.id === 'admin-001');
         return { ...match, isAdmin: isSysAdmin };
       }
-      return storedUser;
+      const isSysAdmin = Boolean(storedUser.isAdmin || storedUser.role === 'Super Admin' || storedUser.id === 'admin-001');
+      return { ...storedUser, isAdmin: isSysAdmin };
     }
-    return registeredUsers[0] || DEFAULT_USERS[0];
+    return null;
   });
 
   const [activeTab, setActiveTab] = useState(() => {
-    const isSysAdmin = Boolean(user?.isAdmin || user?.role === 'Super Admin' || user?.id === 'admin-001');
+    const storedUser = getStoredUser();
+    if (!storedUser) return 'profile';
+    const isSysAdmin = Boolean(storedUser.isAdmin || storedUser.role === 'Super Admin' || storedUser.id === 'admin-001');
     try {
-      const savedTab = localStorage.getItem('crm_active_tab_v2');
+      const savedTab = sessionStorage.getItem('crm_active_tab_v2') || localStorage.getItem('crm_active_tab_v2');
       if (savedTab) {
         if (!isSysAdmin && (savedTab === 'users' || savedTab === 'attendance-admin' || savedTab === 'analytics')) {
           return 'profile';
@@ -171,23 +178,32 @@ export default function App() {
     if (!isSysAdmin && (activeTab === 'users' || activeTab === 'attendance-admin' || activeTab === 'analytics')) {
       setActiveTab('profile');
       try {
+        sessionStorage.setItem('crm_active_tab_v2', 'profile');
         localStorage.setItem('crm_active_tab_v2', 'profile');
       } catch (e) {}
     } else if (isSysAdmin && (activeTab === 'profile' || activeTab === 'attendance')) {
       setActiveTab('users');
       try {
+        sessionStorage.setItem('crm_active_tab_v2', 'users');
         localStorage.setItem('crm_active_tab_v2', 'users');
       } catch (e) {}
     } else {
       try {
+        sessionStorage.setItem('crm_active_tab_v2', activeTab);
         localStorage.setItem('crm_active_tab_v2', activeTab);
       } catch (e) {}
     }
   }, [user, activeTab]);
 
   useEffect(() => {
+    if (!user) return;
     try {
-      localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
+      if (sessionStorage.getItem(USER_SESSION_KEY)) {
+        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
+      }
+      if (localStorage.getItem(USER_SESSION_KEY)) {
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
+      }
     } catch (e) {}
   }, [user]);
 
@@ -469,37 +485,43 @@ export default function App() {
     }
   };
 
-  const handleLogin = (loggedUser) => {
+  const handleLogin = (loggedUser, rememberMe = true) => {
+    if (!loggedUser) return;
+    const isSysAdmin = Boolean(loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.id === 'admin-001');
+    const updatedUser = {
+      ...loggedUser,
+      isAdmin: isSysAdmin,
+      greeting: isSysAdmin ? 'Welcome, System Administrator' : `Welcome back, ${loggedUser.name?.split(' ')[0] || 'User'}`
+    };
+    setUser(updatedUser);
     setIsAuthenticated(true);
-    try {
-      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-    } catch (e) {}
-    if (loggedUser) {
-      const isSysAdmin = Boolean(loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.id === 'admin-001');
-      const updatedUser = {
-        ...loggedUser,
-        isAdmin: isSysAdmin,
-        greeting: isSysAdmin ? 'Welcome, System Administrator' : `Welcome back, ${loggedUser.name?.split(' ')[0] || 'User'}`
-      };
-      setUser(updatedUser);
-      try {
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
-      } catch (e) {}
 
-      const targetTab = isSysAdmin ? 'users' : 'profile';
-      setActiveTab(targetTab);
-      try {
+    const targetTab = isSysAdmin ? 'users' : 'profile';
+    setActiveTab(targetTab);
+
+    try {
+      if (rememberMe) {
+        localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
         localStorage.setItem('crm_active_tab_v2', targetTab);
-      } catch (e) {}
-    }
+      } else {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
+        sessionStorage.setItem('crm_active_tab_v2', targetTab);
+      }
+    } catch (e) {}
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setUser(null);
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       localStorage.removeItem(USER_SESSION_KEY);
       localStorage.removeItem('crm_active_tab_v2');
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(USER_SESSION_KEY);
+      sessionStorage.removeItem('crm_active_tab_v2');
     } catch (e) {}
   };
 
