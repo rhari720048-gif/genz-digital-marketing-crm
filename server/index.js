@@ -45,13 +45,11 @@ app.get('/api/leads', (req, res) => {
 
 app.post('/api/leads', (req, res) => {
   const { name, company, email, phone, location, source, status, value, notes, requirement } = req.body;
-  if (!name) {
-    return res.status(400).json({ error: 'Name is required' });
-  }
+  const leadName = (name && name.trim()) || (company && company.trim()) || (phone && phone.trim()) || (email && email.trim()) || `Lead-${Math.floor(100 + Math.random() * 900)}`;
 
   const newLead = {
-    id: `ld_${Date.now()}`,
-    name,
+    id: `ld_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    name: leadName,
     company: company || 'Individual',
     email: email || '',
     phone: phone || '',

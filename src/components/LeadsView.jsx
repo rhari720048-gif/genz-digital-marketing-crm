@@ -151,19 +151,29 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
         return row[idx].trim().replace(/^["']|["']$/g, '');
       };
 
-      const name = cleanCell(nameIdx) || cleanCell(0);
-      if (!name) continue;
+      const rawName = cleanCell(nameIdx);
+      const company = cleanCell(companyIdx);
+      const email = cleanCell(emailIdx);
+      const phone = cleanCell(phoneIdx);
+      const location = cleanCell(locIdx);
+      const requirement = cleanCell(reqIdx);
+
+      // Fallback name if Name field is empty
+      const name = rawName || company || email || phone || `Lead-${i}`;
+
+      // Skip row only if entirely empty
+      if (!rawName && !company && !email && !phone && !location && !requirement) continue;
 
       const valRaw = cleanCell(valueIdx).replace(/[^0-9.]/g, '');
 
       parsedLeads.push({
         id: `ld_imp_${Date.now()}_${i}`,
         name: name,
-        company: cleanCell(companyIdx) || 'Individual',
-        email: cleanCell(emailIdx) || '',
-        phone: cleanCell(phoneIdx) || '',
-        location: cleanCell(locIdx) || 'Not Specified',
-        requirement: cleanCell(reqIdx) || 'Imported Lead',
+        company: company || 'Individual',
+        email: email || '',
+        phone: phone || '',
+        location: location || 'Not Specified',
+        requirement: requirement || 'Imported Lead',
         value: valRaw ? Number(valRaw) : 0,
         source: cleanCell(sourceIdx) || 'CSV Import',
         status: cleanCell(statusIdx) || 'Contacted',
@@ -324,12 +334,12 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
   // Add Lead Submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) return;
+    const leadName = formData.name.trim() || formData.company.trim() || formData.phone.trim() || formData.email.trim() || `Lead-${Math.floor(100 + Math.random() * 900)}`;
 
     setFormSubmitting(true);
     const newLeadObj = {
       id: `ld_${Date.now()}`,
-      name: formData.name,
+      name: leadName,
       company: formData.company || 'Individual',
       email: formData.email || '',
       phone: formData.phone || '',
@@ -1332,14 +1342,13 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Full Name *</label>
+                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Full Name (Optional)</label>
                       <input
                         type="text"
                         name="name"
-                        required
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="e.g. John Doe"
+                        placeholder="e.g. John Doe (Optional)"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-royal-500 bg-white font-semibold text-slate-800"
                       />
                     </div>
