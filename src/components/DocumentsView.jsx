@@ -194,8 +194,8 @@ export default function DocumentsView({ user }) {
         </button>
       </div>
 
-      {/* 3 STATS METRIC CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+      {/* 2 STATS METRIC CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
           <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Total Documents</p>
@@ -221,17 +221,6 @@ export default function DocumentsView({ user }) {
           <p className="text-[10px] text-slate-500 font-mono">
             {documents.length > 0 ? `Latest: ${documents[0].uploadDate}` : 'No uploads yet'}
           </p>
-        </div>
-
-        <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
-          <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Storage Encryption</p>
-          <div className="flex items-center justify-between">
-            <p className="text-xl sm:text-2xl font-black text-royal-600 font-mono">AES-256</p>
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-              <HardDrive className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-500 font-mono">Protected Storage</p>
         </div>
 
       </div>
