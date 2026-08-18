@@ -4,6 +4,19 @@
 
 
 @layer base {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     background-color: #f8fafc;
     color: #0f172a;

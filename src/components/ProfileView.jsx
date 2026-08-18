@@ -103,12 +103,16 @@ export default function ProfileView({ user }) {
                 {profileData.role}
               </p>
 
-              <div className="flex items-center justify-center sm:justify-start space-x-2 text-xs text-slate-500">
-                <Building className="w-3.5 h-3.5 text-royal-500" />
-                <span>{profileData.department}</span>
-                <span>•</span>
-                <Globe className="w-3.5 h-3.5 text-royal-500" />
-                <span>{profileData.location}</span>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-xs text-slate-500">
+                <span className="flex items-center space-x-1">
+                  <Building className="w-3.5 h-3.5 text-royal-500 shrink-0" />
+                  <span>{profileData.department}</span>
+                </span>
+                <span className="hidden sm:inline text-slate-300">•</span>
+                <span className="flex items-center space-x-1">
+                  <Globe className="w-3.5 h-3.5 text-royal-500 shrink-0" />
+                  <span>{profileData.location}</span>
+                </span>
               </div>
             </div>
           </div>

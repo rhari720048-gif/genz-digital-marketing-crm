@@ -466,7 +466,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-royal-500 selection:text-white">
+    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-royal-500 selection:text-white overflow-x-hidden w-full">
       
       <Header
         user={user}
@@ -486,7 +486,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row">
+      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden">
         
         <Sidebar
           activeTab={activeTab}
@@ -497,7 +497,7 @@ export default function App() {
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 p-3 sm:p-4 lg:p-5 min-w-0 bg-slate-50/50 pb-6">
+        <main className="flex-1 p-2.5 sm:p-4 lg:p-5 min-w-0 max-w-full bg-slate-50/50 pb-6 overflow-x-hidden">
           <ComingSoonView
             activeTab={activeTab}
             setActiveTab={setActiveTab}
