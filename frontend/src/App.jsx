@@ -189,6 +189,26 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [activeTab]);
 
+  // Dynamically measure header height to align sidebar and main area perfectly
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const headerEl = document.querySelector('header');
+      if (headerEl) {
+        document.documentElement.style.setProperty('--header-height', `${headerEl.offsetHeight}px`);
+      }
+    };
+    updateHeaderHeight();
+    
+    // Add small delay to account for rendering/reflows
+    const timer = setTimeout(updateHeaderHeight, 150);
+    
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateHeaderHeight);
+    };
+  }, [activeTab, user]);
+
   useEffect(() => {
     if (!user) return;
     try {
@@ -644,7 +664,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden lg:min-h-[calc(100vh-4rem)]">
+      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden lg:min-h-[calc(100vh-var(--header-height))]">
 
         <Sidebar
           activeTab={activeTab}
