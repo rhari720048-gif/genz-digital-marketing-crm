@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../apiConfig';
 import { 
   Target, 
   PhoneCall, 
@@ -253,7 +254,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
   const fetchLeads = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/leads');
+      const res = await fetch(getApiUrl('/api/leads'));
       if (res.ok) {
         const data = await res.json();
         const isDummy = data.some(l => l.id === 'ld_01' || l.id === 'ld_07');
@@ -352,7 +353,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     };
 
     try {
-      const res = await fetch('/api/leads', {
+      const res = await fetch(getApiUrl('/api/leads'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -415,7 +416,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     if (refetchStats) refetchStats();
 
     try {
-      await fetch(`/api/leads/${selectedLead.id}`, {
+      await fetch(getApiUrl(`/api/leads/${selectedLead.id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -452,7 +453,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     };
 
     try {
-      const res = await fetch(`/api/leads/${selectedLead.id}`, {
+      const res = await fetch(getApiUrl(`/api/leads/${selectedLead.id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -492,7 +493,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     showActionToast('Lead Record Deleted Successfully!', 'canceled');
 
     try {
-      await fetch(`/api/leads/${id}`, { method: 'DELETE' });
+      await fetch(getApiUrl(`/api/leads/${id}`), { method: 'DELETE' });
     } catch (err) {}
   };
 
@@ -611,7 +612,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     if (refetchStats) refetchStats();
 
     try {
-      await fetch(`/api/leads/${id}`, {
+      await fetch(getApiUrl(`/api/leads/${id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

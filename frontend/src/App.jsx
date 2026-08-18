@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiUrl } from './apiConfig';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ComingSoonView from './components/ComingSoonView';
@@ -286,7 +287,7 @@ export default function App() {
   });
 
   const refetchStats = () => {
-    fetch('/api/stats')
+    fetch(getApiUrl('/api/stats'))
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(() => {});

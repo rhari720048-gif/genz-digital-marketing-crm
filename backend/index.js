@@ -156,10 +156,8 @@ app.get('/api/stats', (req, res) => {
   res.json(stats);
 });
 
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`🚀 CRM Backend API Server running on http://localhost:${PORT}`);
-  });
-}
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 CRM Backend API Server running on port ${PORT}`);
+});
 
 export default app;
