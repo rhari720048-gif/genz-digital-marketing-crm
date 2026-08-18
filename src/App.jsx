@@ -42,6 +42,19 @@ const getStoredAttendance = () => {
   return initial;
 };
 
+const saveAttendance = (todayKey, attendanceData) => {
+  try {
+    localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify({ date: todayKey, ...attendanceData }));
+  } catch (e) {
+    console.error("Failed to save daily attendance:", e);
+  }
+};
+
+const formatTime = (date = new Date()) => {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+
 const DEFAULT_USERS = [
   {
     id: 'admin-001',
@@ -244,7 +257,16 @@ export default function App() {
   useEffect(() => {
     fetch('/api/user')
       .then(res => res.json())
-      .then(data => setUser(prev => ({ ...prev, ...data })))
+      .then(data => {
+        setUser(prev => ({
+          ...prev,
+          name: data.name || prev.name,
+          role: data.role || prev.role,
+          avatar: data.avatar || prev.avatar,
+          department: data.department || prev.department,
+          location: data.location || prev.location
+        }));
+      })
       .catch(() => {});
 
     refetchStats();
@@ -253,24 +275,69 @@ export default function App() {
   const handleToggleCheckIn = () => {
     const todayKey = getTodayDateKey();
     const nowStr = formatTime(new Date());
+    const emailKey = (user?.email || '').toLowerCase();
+    const todayDateKey = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const todayLabel = `Today • ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}`;
 
     if (!user.isCheckedIn) {
       const newAttendance = {
         isCheckedIn: true,
         checkInTime: nowStr,
         checkOutTime: null,
-        hasCheckedOutToday: false
+        hasCheckedOutToday: false,
+        checkInEpoch: Date.now()
       };
       saveAttendance(todayKey, newAttendance);
 
-      setUser(prev => ({
-        ...prev,
+      const userUpdate = {
         isCheckedIn: true,
         checkInTime: nowStr,
         checkOutTime: null,
         hasCheckedOutToday: false,
+        checkInEpoch: Date.now(),
         totalHoursToday: '0h 01m'
-      }));
+      };
+
+      setUser(prev => ({ ...prev, ...userUpdate }));
+
+      // Create date-wise log entry for userAttendanceRecords
+      if (emailKey) {
+        const currentLogs = userAttendanceRecords[emailKey] || [];
+        const existingTodayIdx = currentLogs.findIndex(g => g.dateKey === todayDateKey && !g.isClosed);
+        const newLog = {
+          id: Date.now(),
+          time: nowStr,
+          action: 'Office Check In',
+          location: 'GENZ Office',
+          purpose: 'Morning Shift Check In',
+          duration: '-',
+          status: 'Completed'
+        };
+
+        let updatedGroups = [];
+        if (existingTodayIdx !== -1) {
+          updatedGroups = [...currentLogs];
+          // avoid duplicate check-in log if already present
+          const hasCheckIn = updatedGroups[existingTodayIdx].logs.some(l => l.action === 'Office Check In');
+          if (!hasCheckIn) {
+            updatedGroups[existingTodayIdx] = {
+              ...updatedGroups[existingTodayIdx],
+              logs: [newLog, ...updatedGroups[existingTodayIdx].logs]
+            };
+          }
+        } else {
+          updatedGroups = [
+            {
+              dateKey: todayDateKey,
+              dateLabel: todayLabel,
+              isClosed: false,
+              logs: [newLog]
+            },
+            ...currentLogs
+          ];
+        }
+        handleUpdateUserAttendance(emailKey, updatedGroups, userUpdate);
+      }
 
       setAttendanceLogs(prev => [
         {
@@ -295,18 +362,64 @@ export default function App() {
       };
       saveAttendance(todayKey, newAttendance);
 
-      setUser(prev => ({
-        ...prev,
+      let shiftHoursStr = '8h 30m';
+      if (user.checkInEpoch) {
+        const ms = Date.now() - user.checkInEpoch;
+        const totalSec = Math.floor(ms / 1000);
+        const hrs = Math.floor(totalSec / 3600);
+        const mins = Math.floor((totalSec % 3600) / 60);
+        shiftHoursStr = `${hrs}h ${mins < 10 ? '0' : ''}${mins}m`;
+      }
+
+      const userUpdate = {
         isCheckedIn: false,
         checkOutTime: nowStr,
         hasCheckedOutToday: true,
-        totalHoursToday: '8h 30m'
-      }));
+        totalHoursToday: shiftHoursStr
+      };
+
+      setUser(prev => ({ ...prev, ...userUpdate }));
+
+      if (emailKey) {
+        const currentLogs = userAttendanceRecords[emailKey] || [];
+        const existingTodayIdx = currentLogs.findIndex(g => g.dateKey === todayDateKey && !g.isClosed);
+        const newLog = {
+          id: Date.now(),
+          time: nowStr,
+          action: 'Check Out',
+          location: 'GENZ Office',
+          purpose: 'Shift Completed',
+          notes: 'Shift Completed',
+          duration: '-',
+          status: 'Day Closed'
+        };
+
+        let updatedGroups = [];
+        if (existingTodayIdx !== -1) {
+          updatedGroups = [...currentLogs];
+          updatedGroups[existingTodayIdx] = {
+            ...updatedGroups[existingTodayIdx],
+            isClosed: true,
+            logs: [newLog, ...updatedGroups[existingTodayIdx].logs]
+          };
+        } else {
+          updatedGroups = [
+            {
+              dateKey: todayDateKey,
+              dateLabel: todayLabel,
+              isClosed: true,
+              logs: [newLog]
+            },
+            ...currentLogs
+          ];
+        }
+        handleUpdateUserAttendance(emailKey, updatedGroups, userUpdate);
+      }
 
       setAttendanceLogs(prev =>
         prev.map(l =>
           l.isToday
-            ? { ...l, checkOut: nowStr, hours: '8h 30m', status: 'Completed' }
+            ? { ...l, checkOut: nowStr, hours: shiftHoursStr, status: 'Completed' }
             : l
         )
       );

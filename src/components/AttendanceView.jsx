@@ -38,7 +38,11 @@ export default function AttendanceView({ user, userAttendanceLogs = [], onUpdate
   const [checkOutTime, setCheckOutTime] = useState(user?.checkOutTime || null);
   
   // Real-time calculation timestamps
-  const [checkInEpoch, setCheckInEpoch] = useState(() => user?.isCheckedIn ? Date.now() - (45 * 60 * 1000) : null);
+  const [checkInEpoch, setCheckInEpoch] = useState(() => {
+    if (user?.checkInEpoch) return user.checkInEpoch;
+    if (user?.isCheckedIn) return Date.now();
+    return null;
+  });
   const [officeOutEpoch, setOfficeOutEpoch] = useState(null);
   const [accumulatedOutsideMs, setAccumulatedOutsideMs] = useState(0);
 
@@ -83,10 +87,11 @@ export default function AttendanceView({ user, userAttendanceLogs = [], onUpdate
     } else if (user?.isCheckedIn) {
       setStatus('in_office');
       if (user.checkInTime) setCheckInTime(user.checkInTime);
+      if (user.checkInEpoch) setCheckInEpoch(user.checkInEpoch);
     } else {
       setStatus('not_checked_in');
     }
-  }, [user?.isCheckedIn, user?.hasCheckedOutToday, user?.checkInTime, user?.checkOutTime]);
+  }, [user?.isCheckedIn, user?.hasCheckedOutToday, user?.checkInTime, user?.checkOutTime, user?.checkInEpoch]);
 
   // Sync back to central state
   const syncToParent = (updatedHistory, userStatusUpdate = {}) => {
