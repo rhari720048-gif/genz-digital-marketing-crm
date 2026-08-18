@@ -10,6 +10,7 @@ import UsersView from './UsersView';
 import AdminAttendanceOversightView from './AdminAttendanceOversightView';
 import DocumentsView from './DocumentsView';
 import DashboardView from './DashboardView';
+import SettingsView from './SettingsView';
 
 export default function ComingSoonView({ 
   activeTab, 
@@ -167,25 +168,7 @@ export default function ComingSoonView({
 
   // 11. Admin Settings
   if (activeTab === 'settings') {
-    return (
-      <div className="space-y-6 font-sans">
-        <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-3xl text-white shadow-xl">
-          <h1 className="text-2xl font-black font-heading">System Settings & Security Policy</h1>
-          <p className="text-xs text-slate-300 mt-1">Configure global CRM options, roles, permissions, and security controls.</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-          <h3 className="font-extrabold text-sm text-slate-900 border-b border-slate-100 pb-2">Admin Security Policy</h3>
-          <div className="flex items-center justify-between text-xs p-3 bg-slate-50 rounded-xl border border-slate-200">
-            <div>
-              <p className="font-bold text-slate-900">Enforce HR Verified Credential Login</p>
-              <p className="text-[11px] text-slate-500">Only registered users created in Admin Panel can log into CRM.</p>
-            </div>
-            <span className="px-3 py-1 bg-emerald-500 text-white font-bold rounded-lg text-[10px]">ACTIVE</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <SettingsView user={user} />;
   }
 
   // Fallback to ProfileView or UsersView for Admin

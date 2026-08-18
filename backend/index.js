@@ -190,6 +190,25 @@ async function initDb() {
       await connection.query('ALTER TABLE meetings ADD COLUMN assignedUserName TEXT');
     }
 
+    // Create settings table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id VARCHAR(100) PRIMARY KEY,
+        data LONGTEXT
+      )
+    `);
+
+    // Seed default settings if not exists
+    const [settingsRows] = await connection.query('SELECT id FROM settings WHERE id = "global"');
+    if (settingsRows.length === 0) {
+      const defaultSettings = {
+        companyName: 'Genz Neuralx',
+        companyAddress: '123 Tech Corridor, Chennai Tech Park,\nChennai, Tamil Nadu - 600096',
+        companyLogo: ''
+      };
+      await connection.query('INSERT INTO settings (id, data) VALUES (?, ?)', ['global', JSON.stringify(defaultSettings)]);
+    }
+
     // Create users table with all profile fields
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -436,6 +455,40 @@ app.post('/api/module/documents', async (req, res) => {
         [d.id, d.title || '', d.notes || '', d.fileName || '', d.fileType || '', d.fileSize || '', d.fileData || '', d.uploadedBy || '', d.uploadedAt || '']
       );
     }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET settings from TiDB table
+app.get('/api/module/settings', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT data FROM settings WHERE id = "global"');
+    if (rows.length > 0) {
+      res.json(JSON.parse(rows[0].data));
+    } else {
+      res.json({
+        companyName: 'Genz Neuralx',
+        companyAddress: '123 Tech Corridor, Chennai Tech Park,\nChennai, Tamil Nadu - 600096',
+        companyLogo: ''
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST settings to TiDB table
+app.post('/api/module/settings', async (req, res) => {
+  try {
+    const { data } = req.body;
+    const dataStr = JSON.stringify(data || {});
+    await pool.query(
+      `INSERT INTO settings (id, data) VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE data = ?`,
+      ['global', dataStr, dataStr]
+    );
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

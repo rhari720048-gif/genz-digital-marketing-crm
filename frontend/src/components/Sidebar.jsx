@@ -93,6 +93,11 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       id: 'documents',
       label: '8. Documents',
       icon: FolderKanban
+    },
+    {
+      id: 'settings',
+      label: '9. Settings',
+      icon: ShieldCheck
     }
   ];
 
