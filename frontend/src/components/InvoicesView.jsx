@@ -427,10 +427,10 @@ export default function InvoicesView({ stats }) {
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
-              {/* WATERMARK BACKGROUND LOGO */}
+              {/* WATERMARK BACKGROUND LOGO (Positioned at z-10 on top of background color overlays) */}
               <div 
-                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-0"
-                style={{ opacity: 0.05 }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-10"
+                style={{ opacity: 0.04 }}
               >
                 {companySettings.companyLogo ? (
                   <img src={companySettings.companyLogo} className="w-[320px] h-[320px] object-contain rotate-12" alt="watermark" />
@@ -442,7 +442,7 @@ export default function InvoicesView({ stats }) {
               </div>
 
               {/* 1. Header Box (Thick borders matching Dolphin style) */}
-              <div className="relative z-10 space-y-4">
+              <div className="relative z-0 space-y-4">
                 <div className="border-2 border-slate-800 grid grid-cols-10">
                   {/* Left Side: Logo, Name & Address */}
                   <div className="col-span-6 p-4 border-r-2 border-slate-800 flex items-start space-x-3.5">
@@ -492,7 +492,7 @@ export default function InvoicesView({ stats }) {
                   </div>
                 </div>
 
-                {/* 3. Main Itemized Box Table (Thick border-2, strict columns alignment, 100% connected lines) */}
+                {/* 3. Main Itemized Box Table (Thick border-2, strict 6-columns alignment, no colSpan gaps) */}
                 <div className="border-2 border-slate-800 overflow-hidden bg-white mt-1">
                   <table className="w-full border-collapse text-left text-[11px]" style={{ tableLayout: 'fixed' }}>
                     <colgroup>
@@ -522,7 +522,7 @@ export default function InvoicesView({ stats }) {
                         <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
                         <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
                         <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-950" style={{ fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-955" style={{ fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
                       
                       {/* Empty padding rows for printing sheet spacing with matching vertical borders */}
@@ -545,10 +545,13 @@ export default function InvoicesView({ stats }) {
                         <td className="px-3 py-2.5 text-right text-slate-950">₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
 
-                      {/* Net Amount row with blank description box instead of GST text */}
+                      {/* Net Amount row containing exactly 6 columns for absolute border connection */}
                       <tr className="border-t-2 border-slate-800 bg-white font-extrabold">
-                        {/* Spanning 5 columns cleanly so that it aligns directly with the total value cell */}
-                        <td colSpan="5" className="px-3 py-3 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="border-r-2 border-slate-800"></td>
+                        <td className="px-3 py-3 border-r-2 border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
                           Net Amount
                         </td>
                         <td className="px-3 py-3 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
