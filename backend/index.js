@@ -87,6 +87,80 @@ async function initDb() {
       )
     `);
 
+    // Create quotations table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS quotations (
+        id VARCHAR(100) PRIMARY KEY,
+        clientName VARCHAR(255),
+        company VARCHAR(255),
+        email VARCHAR(255),
+        date VARCHAR(100),
+        amount VARCHAR(100),
+        status VARCHAR(100),
+        items TEXT
+      )
+    `);
+
+    // Create invoices table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS invoices (
+        id VARCHAR(100) PRIMARY KEY,
+        clientName VARCHAR(255),
+        invoiceNumber VARCHAR(100),
+        amount VARCHAR(100),
+        date VARCHAR(100),
+        dueDate VARCHAR(100),
+        status VARCHAR(100),
+        email VARCHAR(255),
+        payments TEXT
+      )
+    `);
+
+    // Create notes table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS notes (
+        id VARCHAR(100) PRIMARY KEY,
+        title VARCHAR(255),
+        content TEXT,
+        pinned BOOLEAN,
+        date VARCHAR(100),
+        author VARCHAR(255),
+        color VARCHAR(100)
+      )
+    `);
+
+    // Create meetings table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS meetings (
+        id VARCHAR(100) PRIMARY KEY,
+        title VARCHAR(255),
+        client VARCHAR(255),
+        date VARCHAR(100),
+        time VARCHAR(100),
+        duration VARCHAR(100),
+        type VARCHAR(100),
+        link VARCHAR(500),
+        status VARCHAR(100),
+        notes TEXT,
+        participants TEXT
+      )
+    `);
+
+    // Create documents table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id VARCHAR(100) PRIMARY KEY,
+        title VARCHAR(255),
+        notes TEXT,
+        fileName VARCHAR(255),
+        fileType VARCHAR(100),
+        fileSize VARCHAR(100),
+        fileData LONGTEXT,
+        uploadedBy VARCHAR(255),
+        uploadedAt VARCHAR(100)
+      )
+    `);
+
     // Create users table with all profile fields
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -167,6 +241,162 @@ let stats = {
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', database: 'connected', message: 'CRM Backend API Server Running' });
+});
+
+// GET quotations from TiDB table
+app.get('/api/module/quotations', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM quotations');
+    const parsed = rows.map(r => ({
+      ...r,
+      items: r.items ? JSON.parse(r.items) : []
+    }));
+    res.json(parsed);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST quotations to TiDB table
+app.post('/api/module/quotations', async (req, res) => {
+  try {
+    const { data } = req.body;
+    await pool.query('DELETE FROM quotations');
+    for (const q of (data || [])) {
+      await pool.query(
+        `INSERT INTO quotations (id, clientName, company, email, date, amount, status, items)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [q.id, q.clientName || '', q.company || '', q.email || '', q.date || '', q.amount || '', q.status || '', JSON.stringify(q.items || [])]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET invoices from TiDB table
+app.get('/api/module/invoices', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM invoices');
+    const parsed = rows.map(r => ({
+      ...r,
+      payments: r.payments ? JSON.parse(r.payments) : []
+    }));
+    res.json(parsed);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST invoices to TiDB table
+app.post('/api/module/invoices', async (req, res) => {
+  try {
+    const { data } = req.body;
+    await pool.query('DELETE FROM invoices');
+    for (const i of (data || [])) {
+      await pool.query(
+        `INSERT INTO invoices (id, clientName, invoiceNumber, amount, date, dueDate, status, email, payments)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [i.id, i.clientName || '', i.invoiceNumber || '', i.amount || '', i.date || '', i.dueDate || '', i.status || '', i.email || '', JSON.stringify(i.payments || [])]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET notes from TiDB table
+app.get('/api/module/notes', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM notes');
+    const parsed = rows.map(r => ({
+      ...r,
+      pinned: Boolean(r.pinned)
+    }));
+    res.json(parsed);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST notes to TiDB table
+app.post('/api/module/notes', async (req, res) => {
+  try {
+    const { data } = req.body;
+    await pool.query('DELETE FROM notes');
+    for (const n of (data || [])) {
+      await pool.query(
+        `INSERT INTO notes (id, title, content, pinned, date, author, color)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [n.id, n.title || '', n.content || '', Boolean(n.pinned), n.date || '', n.author || '', n.color || '']
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET meetings from TiDB table
+app.get('/api/module/meetings', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM meetings');
+    const parsed = rows.map(r => ({
+      ...r,
+      participants: r.participants ? JSON.parse(r.participants) : []
+    }));
+    res.json(parsed);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST meetings to TiDB table
+app.post('/api/module/meetings', async (req, res) => {
+  try {
+    const { data } = req.body;
+    await pool.query('DELETE FROM meetings');
+    for (const m of (data || [])) {
+      await pool.query(
+        `INSERT INTO meetings (id, title, client, date, time, duration, type, link, status, notes, participants)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [m.id, m.title || '', m.client || '', m.date || '', m.time || '', m.duration || '', m.type || '', m.link || '', m.status || '', m.notes || '', JSON.stringify(m.participants || [])]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET documents from TiDB table
+app.get('/api/module/documents', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM documents');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST documents to TiDB table
+app.post('/api/module/documents', async (req, res) => {
+  try {
+    const { data } = req.body;
+    await pool.query('DELETE FROM documents');
+    for (const d of (data || [])) {
+      await pool.query(
+        `INSERT INTO documents (id, title, notes, fileName, fileType, fileSize, fileData, uploadedBy, uploadedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [d.id, d.title || '', d.notes || '', d.fileName || '', d.fileType || '', d.fileSize || '', d.fileData || '', d.uploadedBy || '', d.uploadedAt || '']
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // GET generic module data dynamically from TiDB
