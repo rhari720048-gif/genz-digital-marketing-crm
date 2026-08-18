@@ -70,8 +70,9 @@ export default function ProfileView({ user }) {
       {/* HEADER BANNER */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-            My Profile
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight flex items-center space-x-2.5">
+            <User className="w-6 h-6 text-royal-600 shrink-0" />
+            <span>My Profile</span>
           </h1>
         </div>
       </div>

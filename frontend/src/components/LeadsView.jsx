@@ -831,29 +831,35 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     switch (activeSubTab) {
       case 'followups':
         return {
-          title: 'Follow-ups'
+          title: 'Follow-ups',
+          icon: PhoneCall
         };
       case 'canceled':
         return {
-          title: 'Canceled Leads'
+          title: 'Canceled Leads',
+          icon: XCircle
         };
       case 'client':
         return {
-          title: 'Clients'
+          title: 'Clients',
+          icon: Briefcase
         };
       case 'completed':
         return {
-          title: 'Completed Customers'
+          title: 'Completed Customers',
+          icon: CheckCircle2
         };
       case 'all':
       default:
         return {
-          title: 'All Leads'
+          title: 'All Leads',
+          icon: Target
         };
     }
   };
 
   const headerDetails = getPageHeaderDetails();
+  const HeaderIcon = headerDetails.icon || Target;
 
   return (
     <div className="animate-fadeIn w-full mx-auto space-y-5 font-sans pb-8">
@@ -873,8 +879,9 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {/* 1. PAGE HEADER & QUICK STATS */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1">
-            {headerDetails.title}
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1 flex items-center space-x-2.5">
+            <HeaderIcon className="w-6 h-6 text-royal-600 shrink-0" />
+            <span>{headerDetails.title}</span>
           </h1>
         </div>
 
@@ -1089,14 +1096,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               <span className="font-mono font-semibold text-indigo-900">{formatDateDDMMYYYY(lead.convertedClientAt)}</span>
                             </div>
 
-                            {/* 3. Customer */}
-                            <div className="flex items-center justify-between text-[11px] bg-sky-50/60 px-2.5 py-1 rounded-lg border border-sky-100">
-                              <span className="font-bold text-sky-700 flex items-center space-x-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-                                <span>Customer Converted</span>
-                              </span>
-                              <span className="font-mono font-semibold text-sky-900">{formatDateDDMMYYYY(lead.convertedCustomerAt)}</span>
-                            </div>
+
 
                             {/* 4. Completed */}
                             <div className="flex items-center justify-between text-[11px] bg-emerald-100/80 px-2.5 py-1 rounded-lg border border-emerald-300 shadow-2xs">
