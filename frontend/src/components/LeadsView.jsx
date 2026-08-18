@@ -296,6 +296,13 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
 
   useEffect(() => {
     fetchLeads();
+    
+    // Poll backend every 10 seconds to sync leads and status updates between user and admin screens
+    const interval = setInterval(() => {
+      fetchLeads();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleInputChange = (e) => {

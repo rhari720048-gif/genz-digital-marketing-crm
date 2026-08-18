@@ -794,13 +794,37 @@ app.put('/api/leads/:id', async (req, res) => {
     await pool.query(
       `UPDATE leads SET name = ?, company = ?, email = ?, phone = ?, location = ?, source = ?, status = ?, value = ?, notes = ?, requirement = ?
        WHERE id = ?`,
-      [name, company, email, phone, location, source, status, leadVal, notes, requirement, id]
+      [
+        name || 'Lead', 
+        company || 'Individual', 
+        email || '', 
+        phone || '', 
+        location || '', 
+        source || 'Google Search', 
+        status || 'Contacted', 
+        leadVal, 
+        notes || '', 
+        requirement || '', 
+        id
+      ]
     );
 
-    res.json({ id, name, company, email, phone, location, source, status, value: leadVal, notes, requirement });
+    res.json({ 
+      id, 
+      name: name || 'Lead', 
+      company: company || 'Individual', 
+      email: email || '', 
+      phone: phone || '', 
+      location: location || '', 
+      source: source || 'Google Search', 
+      status: status || 'Contacted', 
+      value: leadVal, 
+      notes: notes || '', 
+      requirement: requirement || '' 
+    });
   } catch (error) {
     console.error('Error updating lead:', error);
-    res.status(500).json({ error: 'Database error updating lead' });
+    res.status(500).json({ error: `Database error updating lead: ${error.message}` });
   }
 });
 
