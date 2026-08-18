@@ -110,6 +110,19 @@ export default function App() {
       .catch(err => console.error('Failed to sync users from database:', err));
   }, [isAuthenticated]);
 
+  // Sync attendance records from TiDB database when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetch(getApiUrl('/api/attendance'))
+      .then(res => res.json())
+      .then(data => {
+        if (data && typeof data === 'object') {
+          setUserAttendanceRecords(data);
+        }
+      })
+      .catch(err => console.error('Failed to sync attendance logs from database:', err));
+  }, [isAuthenticated]);
+
   // User state cross-referenced with registeredUsers to preserve exact Admin/Employee roles on refresh
   const [user, setUser] = useState(() => {
     const storedUser = getStoredUser();
@@ -221,9 +234,14 @@ export default function App() {
 
     setUserAttendanceRecords(prev => {
       const updated = { ...prev, [emailKey]: logs };
-      try {
-        localStorage.setItem('crm_user_attendance_records_v4', JSON.stringify(updated));
-      } catch (e) {}
+      
+      // Save/persist to database
+      fetch(getApiUrl('/api/attendance'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailKey, logs })
+      }).catch(err => console.error('Error persisting attendance to DB:', err));
+
       return updated;
     });
 

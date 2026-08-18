@@ -71,6 +71,14 @@ async function initDb() {
       )
     `);
 
+    // Create attendance_records table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS attendance_records (
+        email VARCHAR(255) PRIMARY KEY,
+        logs TEXT NOT NULL
+      )
+    `);
+
     // Create users table with all profile fields
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -151,6 +159,48 @@ let stats = {
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', database: 'connected', message: 'CRM Backend API Server Running' });
+});
+
+// GET all user attendance records
+app.get('/api/attendance', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM attendance_records');
+    const result = {};
+    rows.forEach(r => {
+      try {
+        result[r.email.toLowerCase()] = JSON.parse(r.logs);
+      } catch (e) {
+        result[r.email.toLowerCase()] = [];
+      }
+    });
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching attendance:', error);
+    res.status(500).json({ error: 'Database error fetching attendance' });
+  }
+});
+
+// POST to save/update attendance logs for a user
+app.post('/api/attendance', async (req, res) => {
+  try {
+    const { email, logs } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    const emailKey = email.toLowerCase().trim();
+    const logsStr = JSON.stringify(logs || []);
+
+    await pool.query(
+      `INSERT INTO attendance_records (email, logs) VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE logs = ?`,
+      [emailKey, logsStr, logsStr]
+    );
+
+    res.json({ success: true, email: emailKey });
+  } catch (error) {
+    console.error('Error saving attendance:', error);
+    res.status(500).json({ error: 'Database error saving attendance' });
+  }
 });
 
 // Debug endpoint to check users currently seeded in database
