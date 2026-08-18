@@ -130,11 +130,18 @@ export default function App() {
     } catch (e) {}
   }, []);
 
+  // Sync registered users from TiDB database when authenticated
   useEffect(() => {
-    try {
-      localStorage.setItem(USERS_LIST_STORAGE_KEY, JSON.stringify(registeredUsers));
-    } catch (e) {}
-  }, [registeredUsers]);
+    if (!isAuthenticated) return;
+    fetch(getApiUrl('/api/users'))
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setRegisteredUsers(data);
+        }
+      })
+      .catch(err => console.error('Failed to sync users from database:', err));
+  }, [isAuthenticated]);
 
   // User state cross-referenced with registeredUsers to preserve exact Admin/Employee roles on refresh
   const [user, setUser] = useState(() => {
@@ -269,55 +276,91 @@ export default function App() {
     }
   };
 
-  const handleAddUser = (newUser) => {
-    const userWithStatus = { ...newUser, status: 'Active' };
-    setRegisteredUsers(prev => [userWithStatus, ...prev]);
-  };
-
-  const handleUpdateUser = (updatedUser) => {
-    setRegisteredUsers(prev => 
-      prev.map(u => (u.id === updatedUser.id || u.empId === updatedUser.empId) ? { ...u, ...updatedUser } : u)
-    );
-    if (user && (user.id === updatedUser.id || user.empId === updatedUser.empId || user.email.toLowerCase() === updatedUser.email.toLowerCase())) {
-      const isSysAdmin = Boolean(updatedUser.isAdmin || updatedUser.role === 'Super Admin' || updatedUser.id === 'admin-001');
-      const finalUser = { ...updatedUser, isAdmin: isSysAdmin };
-      setUser(finalUser);
-      try {
-        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(finalUser));
-      } catch (e) {}
+  const handleAddUser = async (newUser) => {
+    try {
+      const res = await fetch(getApiUrl('/api/users'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser)
+      });
+      const data = await res.json();
+      if (data && data.id) {
+        setRegisteredUsers(prev => [data, ...prev]);
+      }
+    } catch (err) {
+      console.error('Failed to add user to TiDB:', err);
     }
   };
 
-  const handleToggleUserStatus = (userId) => {
-    setRegisteredUsers(prev => 
-      prev.map(u => {
-        if (u.id === userId || u.empId === userId) {
-          const newStatus = u.status === 'Inactive' ? 'Active' : 'Inactive';
-          triggerToast(`User ${u.name} set to ${newStatus}`);
-          const updated = { ...u, status: newStatus };
-          
-          if (user && (user.id === userId || user.empId === userId || user.email.toLowerCase() === u.email.toLowerCase())) {
-            if (newStatus === 'Inactive') {
-              // Trigger auto-logout
-              setTimeout(() => handleLogout(), 100);
-            }
-          }
-          return updated;
-        }
-        return u;
-      })
-    );
+  const handleUpdateUser = async (updatedUser) => {
+    try {
+      const res = await fetch(getApiUrl(`/api/users/${updatedUser.id}`), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser)
+      });
+      const data = await res.json();
+      
+      setRegisteredUsers(prev => 
+        prev.map(u => (u.id === data.id) ? data : u)
+      );
+      
+      if (user && (user.id === data.id || user.email.toLowerCase() === data.email.toLowerCase())) {
+        const isSysAdmin = Boolean(data.isAdmin || data.role === 'Super Admin' || data.id === 'admin-001');
+        const finalUser = { ...data, isAdmin: isSysAdmin };
+        setUser(finalUser);
+        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(finalUser));
+      }
+    } catch (err) {
+      console.error('Failed to update user in TiDB:', err);
+    }
   };
 
-  const handleDeleteUser = (userId) => {
-    setRegisteredUsers(prev => {
-      const filtered = prev.filter(u => u.id !== userId && u.empId !== userId);
-      const wasCurrentUserDeleted = prev.some(u => (u.id === userId || u.empId === userId) && user && (user.id === u.id || user.empId === u.empId || user.email.toLowerCase() === u.email.toLowerCase()));
-      if (wasCurrentUserDeleted) {
+  const handleToggleUserStatus = async (userId) => {
+    const matched = registeredUsers.find(u => u.id === userId || u.empId === userId);
+    if (!matched) return;
+    const newStatus = matched.status === 'Inactive' ? 'Active' : 'Inactive';
+    const updatedObj = { ...matched, status: newStatus };
+    
+    try {
+      const res = await fetch(getApiUrl(`/api/users/${matched.id}`), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedObj)
+      });
+      const data = await res.json();
+      
+      setRegisteredUsers(prev => prev.map(u => u.id === data.id ? data : u));
+      triggerToast(`User ${data.name} set to ${data.status}`);
+      
+      if (user && (user.id === data.id || user.email.toLowerCase() === data.email.toLowerCase())) {
+        if (data.status === 'Inactive') {
+          setTimeout(() => handleLogout(), 100);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to toggle user status in TiDB:', err);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    const matched = registeredUsers.find(u => u.id === userId || u.empId === userId);
+    if (!matched) return;
+    
+    try {
+      await fetch(getApiUrl(`/api/users/${matched.id}`), {
+        method: 'DELETE'
+      });
+      
+      setRegisteredUsers(prev => prev.filter(u => u.id !== matched.id));
+      triggerToast(`User deleted successfully`);
+      
+      if (user && (user.id === matched.id || user.email.toLowerCase() === matched.email.toLowerCase())) {
         setTimeout(() => handleLogout(), 100);
       }
-      return filtered;
-    });
+    } catch (err) {
+      console.error('Failed to delete user from TiDB:', err);
+    }
   };
 
   const handleLoginAsUser = (targetUser) => {

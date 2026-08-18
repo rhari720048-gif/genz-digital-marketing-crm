@@ -7,6 +7,7 @@ import {
   Lock,
   Mail
 } from 'lucide-react';
+import { getApiUrl } from '../apiConfig';
 
 export default function LoginView({ onLogin, registeredUsers = [] }) {
   const [email, setEmail] = useState('');
@@ -16,76 +17,44 @@ export default function LoginView({ onLogin, registeredUsers = [] }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (!email.trim()) {
+    const cleanEmail = email.trim();
+    const cleanPass = password.trim();
+
+    if (!cleanEmail) {
       setErrorMessage('Please enter your email address or user ID');
       return;
     }
-    if (!password.trim()) {
+    if (!cleanPass) {
       setErrorMessage('Please enter your password');
       return;
     }
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      const cleanEmail = email.trim().toLowerCase();
-      const cleanPass = password.trim();
-
-      // Dynamic Login Check from registeredUsers by email, empId, username, or admin handle
-      const matchedUser = registeredUsers.find(u => {
-        const userEmail = (u.email || '').trim().toLowerCase();
-        const userEmpId = (u.empId || '').trim().toLowerCase();
-        const userHandle = userEmail.split('@')[0];
-        const isSysAdminUser = Boolean(u.isAdmin || u.role === 'Super Admin' || u.role === 'Admin' || u.id === 'admin-001');
-
-        return (
-          userEmail === cleanEmail ||
-          userEmpId === cleanEmail ||
-          (userHandle && userHandle === cleanEmail) ||
-          (cleanEmail === 'admin' && isSysAdminUser)
-        );
+    try {
+      const response = await fetch(getApiUrl('/api/auth/login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password: cleanPass })
       });
 
-      if (matchedUser) {
-        if (matchedUser.status === 'Inactive' || matchedUser.isInactive) {
-          setErrorMessage(`Account for "${matchedUser.name}" has been DEACTIVATED by Administrator. Login is disabled.`);
-          return;
-        }
+      const data = await response.json();
+      setIsLoading(false);
 
-        const expectedPassword = String(matchedUser.password || '').trim();
-        const enteredPassword = String(password || '').trim();
-        const isPasswordCorrect = (
-          !expectedPassword ||
-          enteredPassword === expectedPassword ||
-          enteredPassword.toLowerCase() === expectedPassword.toLowerCase() ||
-          enteredPassword === 'admin123' ||
-          enteredPassword === '123456'
-        );
-
-        if (isPasswordCorrect) {
-          const isSysAdmin = Boolean(
-            matchedUser.isAdmin || 
-            matchedUser.role === 'Super Admin' || 
-            matchedUser.role === 'Admin' || 
-            matchedUser.role === 'System Administrator' || 
-            matchedUser.id === 'admin-001'
-          );
-          onLogin({
-            ...matchedUser,
-            isAdmin: isSysAdmin
-          }, rememberMe);
-        } else {
-          setErrorMessage('Invalid Password. Please enter the correct password.');
-        }
+      if (response.ok && data.success) {
+        onLogin(data.user, rememberMe);
       } else {
-        setErrorMessage('Invalid Email/Username or Password. Please check credentials or contact Admin.');
+        setErrorMessage(data.error || 'Invalid credentials or connection issue');
       }
-    }, 400);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Login connection error:', error);
+      setErrorMessage('Unable to connect to the login server. Please try again.');
+    }
   };
 
   return (
