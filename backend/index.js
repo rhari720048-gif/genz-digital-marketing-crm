@@ -22,23 +22,27 @@ let userState = {
 };
 
 let attendanceLogs = [
-  { id: 1, date: 'Today, Aug 11', checkIn: '09:15 AM', checkOut: 'In Progress', hours: 'Calculating...', status: 'Active' },
-  { id: 2, date: 'Yesterday, Aug 10', checkIn: '09:00 AM', checkOut: '06:30 PM', hours: '9h 30m', status: 'Completed' },
-  { id: 3, date: 'Aug 09, 2026', checkIn: '09:05 AM', checkOut: '06:15 PM', hours: '9h 10m', status: 'Completed' },
-  { id: 4, date: 'Aug 08, 2026', checkIn: '08:55 AM', checkOut: '05:45 PM', hours: '8h 50m', status: 'Completed' },
+  { id: 1, date: 'Today', checkIn: '09:15 AM', checkOut: 'In Progress', hours: 'Calculating...', status: 'Active' },
+  { id: 2, date: 'Yesterday', checkIn: '09:00 AM', checkOut: '06:30 PM', hours: '9h 30m', status: 'Completed' },
+  { id: 3, date: '09 Aug 2026', checkIn: '09:05 AM', checkOut: '06:15 PM', hours: '9h 10m', status: 'Completed' },
+  { id: 4, date: '08 Aug 2026', checkIn: '08:55 AM', checkOut: '05:45 PM', hours: '8h 50m', status: 'Completed' },
 ];
 
 let leadsList = [];
 
 let stats = {
   leads: { count: 5, change: '+14% this week', active: 1 },
-  quotations: { count: 34, pendingValue: '$142,500', approved: 26 },
-  invoices: { count: 89, totalRevenue: '$384,200', unpaid: 5 },
+  quotations: { count: 34, pendingValue: '₹1,42,500', approved: 26 },
+  invoices: { count: 89, totalRevenue: '₹3,84,200', unpaid: 5 },
   userNotes: { count: 56, pinned: 12 },
   meetings: { today: 4, upcoming: 12 }
 };
 
 // API Routes
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'CRM Backend API Server Running' });
+});
+
 app.get('/api/leads', (req, res) => {
   res.json(leadsList);
 });
@@ -78,7 +82,7 @@ app.put('/api/leads/:id', (req, res) => {
   leadsList[index] = {
     ...leadsList[index],
     ...req.body,
-    id // preserve original ID
+    id
   };
 
   res.json(leadsList[index]);
@@ -115,7 +119,7 @@ app.post('/api/attendance/toggle', (req, res) => {
     userState.checkInTime = nowStr;
     attendanceLogs.unshift({
       id: Date.now(),
-      date: 'Today, Aug 11',
+      date: 'Today',
       checkIn: nowStr,
       checkOut: 'In Progress',
       hours: 'Counting...',
@@ -152,6 +156,10 @@ app.get('/api/stats', (req, res) => {
   res.json(stats);
 });
 
-app.listen(PORT, () => {
-  console.log(`GENZ NEURAL-X CRM Backend running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 CRM Backend API Server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
