@@ -83,8 +83,13 @@ export default function ComingSoonView({
     return <DocumentsView user={user} />;
   }
 
-  // 8. All Users Management Page
+  const isSysAdmin = user?.isAdmin || user?.role === 'Super Admin' || user?.email === 'admin@genzneuralx.io';
+
+  // 8. All Users Management Page (ADMIN ONLY)
   if (activeTab === 'users') {
+    if (!isSysAdmin) {
+      return <ProfileView user={user} />;
+    }
     return (
       <UsersView
         users={registeredUsers || []}
@@ -97,8 +102,11 @@ export default function ComingSoonView({
     );
   }
 
-  // 9. Admin System Analytics
+  // 9. Admin System Analytics (ADMIN ONLY)
   if (activeTab === 'analytics') {
+    if (!isSysAdmin) {
+      return <ProfileView user={user} />;
+    }
     return (
       <div className="space-y-6 font-sans">
         <div className="bg-white p-6 rounded-3xl text-slate-900 border border-slate-200/80 shadow-xs">
@@ -129,8 +137,19 @@ export default function ComingSoonView({
     );
   }
 
-  // 10. Admin Attendance Oversight
+  // 10. Admin Attendance Oversight (ADMIN ONLY)
   if (activeTab === 'attendance-admin') {
+    if (!isSysAdmin) {
+      return (
+        <AttendanceView
+          user={user}
+          attendanceLogs={attendanceLogs}
+          userAttendanceLogs={(userAttendanceRecords && user?.email) ? (userAttendanceRecords[user.email.toLowerCase()] || []) : []}
+          onUpdateUserAttendance={(logs, statusUpdate) => onUpdateUserAttendance && onUpdateUserAttendance(user?.email, logs, statusUpdate)}
+          onToggleCheckIn={onToggleCheckIn}
+        />
+      );
+    }
     return (
       <AdminAttendanceOversightView
         users={registeredUsers || []}

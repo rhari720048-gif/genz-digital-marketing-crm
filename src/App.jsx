@@ -128,10 +128,20 @@ export default function App() {
   }, [registeredUsers]);
 
   const [activeTab, setActiveTab] = useState(() => {
-    if (storedUser?.isAdmin || storedUser?.role === 'Super Admin') {
-      return 'users';
-    }
-    return 'profile';
+    const isSysAdmin = storedUser?.isAdmin || storedUser?.role === 'Super Admin' || storedUser?.email === 'admin@genzneuralx.io';
+    try {
+      const savedTab = localStorage.getItem('crm_active_tab_v2');
+      if (savedTab) {
+        if (!isSysAdmin && (savedTab === 'users' || savedTab === 'attendance-admin' || savedTab === 'analytics')) {
+          return 'profile';
+        }
+        if (isSysAdmin && (savedTab === 'profile' || savedTab === 'attendance')) {
+          return 'users';
+        }
+        return savedTab;
+      }
+    } catch (e) {}
+    return isSysAdmin ? 'users' : 'profile';
   });
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -143,8 +153,29 @@ export default function App() {
   // User state
   const [user, setUser] = useState(() => {
     if (storedUser) return storedUser;
-    return registeredUsers[0] || DEFAULT_USERS[0];
+    return DEFAULT_USERS[0];
   });
+
+  // Role-based activeTab guard effect
+  useEffect(() => {
+    if (!user) return;
+    const isSysAdmin = user.isAdmin || user.role === 'Super Admin' || user.email === 'admin@genzneuralx.io';
+    if (!isSysAdmin && (activeTab === 'users' || activeTab === 'attendance-admin' || activeTab === 'analytics')) {
+      setActiveTab('profile');
+      try {
+        localStorage.setItem('crm_active_tab_v2', 'profile');
+      } catch (e) {}
+    } else if (isSysAdmin && (activeTab === 'profile' || activeTab === 'attendance')) {
+      setActiveTab('users');
+      try {
+        localStorage.setItem('crm_active_tab_v2', 'users');
+      } catch (e) {}
+    } else {
+      try {
+        localStorage.setItem('crm_active_tab_v2', activeTab);
+      } catch (e) {}
+    }
+  }, [user, activeTab]);
 
   useEffect(() => {
     try {
@@ -436,18 +467,22 @@ export default function App() {
       localStorage.setItem(AUTH_STORAGE_KEY, 'true');
     } catch (e) {}
     if (loggedUser) {
-      const isSysAdmin = loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.email?.includes('admin');
+      const isSysAdmin = loggedUser.isAdmin || loggedUser.role === 'Super Admin' || loggedUser.email === 'admin@genzneuralx.io';
       const updatedUser = {
         ...loggedUser,
         isAdmin: isSysAdmin,
         greeting: isSysAdmin ? 'Welcome, System Administrator' : `Welcome back, ${loggedUser.name?.split(' ')[0] || 'User'}`
       };
       setUser(updatedUser);
-      if (isSysAdmin) {
-        setActiveTab('users');
-      } else {
-        setActiveTab('profile');
-      }
+      try {
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(updatedUser));
+      } catch (e) {}
+
+      const targetTab = isSysAdmin ? 'users' : 'profile';
+      setActiveTab(targetTab);
+      try {
+        localStorage.setItem('crm_active_tab_v2', targetTab);
+      } catch (e) {}
     }
   };
 
@@ -455,6 +490,8 @@ export default function App() {
     setIsAuthenticated(false);
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(USER_SESSION_KEY);
+      localStorage.removeItem('crm_active_tab_v2');
     } catch (e) {}
   };
 
