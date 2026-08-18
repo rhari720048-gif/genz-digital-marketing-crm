@@ -639,7 +639,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden">
+      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden lg:min-h-[calc(100vh-4rem)]">
         
         <Sidebar
           activeTab={activeTab}
