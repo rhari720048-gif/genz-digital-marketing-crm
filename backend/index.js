@@ -47,7 +47,7 @@ async function initDb() {
     }
 
     try {
-      await connection.query('SELECT dateAdded FROM leads LIMIT 1');
+      await connection.query('SELECT nextFollowupAt FROM leads LIMIT 1');
     } catch (e) {
       console.log('⚠️ leads table schema out of sync or missing. Dropping to recreate...');
       await connection.query('DROP TABLE IF EXISTS leads');
@@ -67,7 +67,13 @@ async function initDb() {
         value DECIMAL(15, 2) DEFAULT 0.00,
         notes TEXT,
         requirement TEXT,
-        dateAdded VARCHAR(100)
+        dateAdded VARCHAR(100),
+        nextFollowupAt VARCHAR(100),
+        followupDate VARCHAR(100),
+        followupGoal TEXT,
+        convertedClientAt VARCHAR(100),
+        convertedCustomerAt VARCHAR(100),
+        completedAt VARCHAR(100)
       )
     `);
 
@@ -755,15 +761,52 @@ app.post('/api/leads', async (req, res) => {
     const id = `ld_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
     const dateAdded = new Date().toISOString().split('T')[0];
     const leadVal = Number(value) || 0;
+    const { nextFollowupAt, followupDate, followupGoal, convertedClientAt, convertedCustomerAt, completedAt } = req.body;
 
     await pool.query(
-      `INSERT INTO leads (id, name, company, email, phone, location, source, status, value, notes, requirement, dateAdded)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, leadName, company || 'Individual', email || '', phone || '', location || '', source || 'Google Search', status || 'Contacted', leadVal, notes || '', requirement || '', dateAdded]
+      `INSERT INTO leads (id, name, company, email, phone, location, source, status, value, notes, requirement, dateAdded, nextFollowupAt, followupDate, followupGoal, convertedClientAt, convertedCustomerAt, completedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id, 
+        leadName, 
+        company || 'Individual', 
+        email || '', 
+        phone || '', 
+        location || '', 
+        source || 'Google Search', 
+        status || 'Contacted', 
+        leadVal, 
+        notes || '', 
+        requirement || '', 
+        dateAdded,
+        nextFollowupAt || '',
+        followupDate || '',
+        followupGoal || '',
+        convertedClientAt || '',
+        convertedCustomerAt || '',
+        completedAt || ''
+      ]
     );
 
     res.json({
-      id, name: leadName, company: company || 'Individual', email: email || '', phone: phone || '', location: location || '', source: source || 'Google Search', status: status || 'Contacted', value: leadVal, notes: notes || '', requirement: requirement || '', dateAdded
+      id, 
+      name: leadName, 
+      company: company || 'Individual', 
+      email: email || '', 
+      phone: phone || '', 
+      location: location || '', 
+      source: source || 'Google Search', 
+      status: status || 'Contacted', 
+      value: leadVal, 
+      notes: notes || '', 
+      requirement: requirement || '', 
+      dateAdded,
+      nextFollowupAt: nextFollowupAt || '',
+      followupDate: followupDate || '',
+      followupGoal: followupGoal || '',
+      convertedClientAt: convertedClientAt || '',
+      convertedCustomerAt: convertedCustomerAt || '',
+      completedAt: completedAt || ''
     });
   } catch (error) {
     console.error('Error creating lead:', error);
@@ -775,7 +818,7 @@ app.post('/api/leads', async (req, res) => {
 app.put('/api/leads/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, company, email, phone, location, source, status, value, notes, requirement } = req.body;
+    const { name, company, email, phone, location, source, status, value, notes, requirement, nextFollowupAt, followupDate, followupGoal, convertedClientAt, convertedCustomerAt, completedAt } = req.body;
     const leadVal = Number(value) || 0;
 
     // Check if exists
@@ -783,16 +826,35 @@ app.put('/api/leads/:id', async (req, res) => {
     if (exists.length === 0) {
       const dateAdded = new Date().toISOString().split('T')[0];
       await pool.query(
-        `INSERT INTO leads (id, name, company, email, phone, location, source, status, value, notes, requirement, dateAdded)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, name || 'Lead', company || 'Individual', email || '', phone || '', location || '', source || 'Google Search', status || 'Contacted', leadVal, notes || '', requirement || '', dateAdded]
+        `INSERT INTO leads (id, name, company, email, phone, location, source, status, value, notes, requirement, dateAdded, nextFollowupAt, followupDate, followupGoal, convertedClientAt, convertedCustomerAt, completedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id, 
+          name || 'Lead', 
+          company || 'Individual', 
+          email || '', 
+          phone || '', 
+          location || '', 
+          source || 'Google Search', 
+          status || 'Contacted', 
+          leadVal, 
+          notes || '', 
+          requirement || '', 
+          dateAdded,
+          nextFollowupAt || '',
+          followupDate || '',
+          followupGoal || '',
+          convertedClientAt || '',
+          convertedCustomerAt || '',
+          completedAt || ''
+        ]
       );
-      return res.json({ id, name, company, email, phone, location, source, status, value: leadVal, notes, requirement, dateAdded });
+      return res.json({ id, name, company, email, phone, location, source, status, value: leadVal, notes, requirement, dateAdded, nextFollowupAt, followupDate, followupGoal, convertedClientAt, convertedCustomerAt, completedAt });
     }
 
     // Update existing
     await pool.query(
-      `UPDATE leads SET name = ?, company = ?, email = ?, phone = ?, location = ?, source = ?, status = ?, value = ?, notes = ?, requirement = ?
+      `UPDATE leads SET name = ?, company = ?, email = ?, phone = ?, location = ?, source = ?, status = ?, value = ?, notes = ?, requirement = ?, nextFollowupAt = ?, followupDate = ?, followupGoal = ?, convertedClientAt = ?, convertedCustomerAt = ?, completedAt = ?
        WHERE id = ?`,
       [
         name || 'Lead', 
@@ -805,6 +867,12 @@ app.put('/api/leads/:id', async (req, res) => {
         leadVal, 
         notes || '', 
         requirement || '', 
+        nextFollowupAt || '',
+        followupDate || '',
+        followupGoal || '',
+        convertedClientAt || '',
+        convertedCustomerAt || '',
+        completedAt || '',
         id
       ]
     );
@@ -820,7 +888,13 @@ app.put('/api/leads/:id', async (req, res) => {
       status: status || 'Contacted', 
       value: leadVal, 
       notes: notes || '', 
-      requirement: requirement || '' 
+      requirement: requirement || '',
+      nextFollowupAt: nextFollowupAt || '',
+      followupDate: followupDate || '',
+      followupGoal: followupGoal || '',
+      convertedClientAt: convertedClientAt || '',
+      convertedCustomerAt: convertedCustomerAt || '',
+      completedAt: completedAt || ''
     });
   } catch (error) {
     console.error('Error updating lead:', error);

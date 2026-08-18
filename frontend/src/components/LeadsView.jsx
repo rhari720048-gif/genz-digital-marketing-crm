@@ -302,7 +302,23 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       fetchLeads();
     }, 10000);
     
-    return () => clearInterval(interval);
+    // Instant tab synchronization via storage listener
+    const handleStorageChange = (e) => {
+      if (e.key === 'crm_leads') {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setLeads(parsed);
+          }
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const handleInputChange = (e) => {
