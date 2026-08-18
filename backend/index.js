@@ -38,6 +38,21 @@ async function initDb() {
     const connection = await pool.getConnection();
     console.log('✅ Successfully connected to TiDB Cloud Database');
     
+    // Check if table schemas are out of sync/legacy and recreate them if needed
+    try {
+      await connection.query('SELECT password FROM users LIMIT 1');
+    } catch (e) {
+      console.log('⚠️ users table schema out of sync or missing. Dropping to recreate...');
+      await connection.query('DROP TABLE IF EXISTS users');
+    }
+
+    try {
+      await connection.query('SELECT dateAdded FROM leads LIMIT 1');
+    } catch (e) {
+      console.log('⚠️ leads table schema out of sync or missing. Dropping to recreate...');
+      await connection.query('DROP TABLE IF EXISTS leads');
+    }
+
     // Create leads table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS leads (
@@ -138,6 +153,21 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', database: 'connected', message: 'CRM Backend API Server Running' });
 });
 
+// Debug endpoint to check users currently seeded in database
+app.get('/api/debug/users', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT id, name, email, password, role, isAdmin, status FROM users');
+    res.json({
+      success: true,
+      count: rows.length,
+      envEmail: process.env.DEFAULT_ADMIN_EMAIL || 'info@genzneuralx.com',
+      users: rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // AUTH Login API (Queries TiDB Database)
 app.post('/api/auth/login', async (req, res) => {
   try {
@@ -150,7 +180,31 @@ app.post('/api/auth/login', async (req, res) => {
     const cleanPass = password.trim();
 
     // Query database for all users to match dynamically
-    const [users] = await pool.query('SELECT * FROM users');
+    let [users] = await pool.query('SELECT * FROM users');
+    
+    // Self-healing fallback: Seed admin user dynamically on login request if database users table is empty
+    if (users.length === 0) {
+      const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'info@genzneuralx.com';
+      const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+      
+      await pool.query(`
+        INSERT INTO users (id, name, email, password, role, empId, status, isAdmin)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        'admin-001',
+        'System Administrator',
+        defaultAdminEmail,
+        defaultAdminPassword,
+        'Super Admin',
+        'GNX-2026-0001',
+        'Active',
+        true
+      ]);
+      console.log(`🌱 Dynamically seeded fallback admin user (${defaultAdminEmail})`);
+      // Refetch
+      const [refetched] = await pool.query('SELECT * FROM users');
+      users = refetched;
+    }
     
     const matchedUser = users.find(u => {
       const userEmail = (u.email || '').trim().toLowerCase();
