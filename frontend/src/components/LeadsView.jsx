@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../apiConfig';
-import { 
-  Target, 
-  PhoneCall, 
-  XCircle, 
-  Briefcase, 
-  Users, 
-  Sparkles, 
-  BellRing, 
+import {
+  Target,
+  PhoneCall,
+  XCircle,
+  Briefcase,
+  Users,
+  Sparkles,
+  BellRing,
   CheckCircle2,
   ListFilter,
   TrendingUp,
@@ -296,7 +296,12 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
 
   useEffect(() => {
     fetchLeads();
-    
+
+    // Poll backend every 10 seconds to sync leads and status updates between user and admin screens
+    const interval = setInterval(() => {
+      fetchLeads();
+    }, 10000);
+
     // Instant tab synchronization via storage listener
     const handleStorageChange = (e) => {
       if (e.key === 'crm_leads') {
@@ -305,12 +310,13 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
           if (Array.isArray(parsed)) {
             setLeads(parsed);
           }
-        } catch (err) {}
+        } catch (err) { }
       }
     };
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
+      clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
@@ -511,7 +517,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
 
     try {
       await fetch(getApiUrl(`/api/leads/${id}`), { method: 'DELETE' });
-    } catch (err) {}
+    } catch (err) { }
   };
 
   // Initiate Call
@@ -707,7 +713,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
   // Category & Index based 001 ID Formatter (LED-001, FOL-001, CAN-001, CLI-001, COM-001)
   const getCategoryFormattedId = (lead, index, subTab) => {
     if (!lead) return 'LED-001';
-    
+
     let itemIndex = index;
     if (itemIndex === undefined || itemIndex < 0) {
       const currentCategoryList = getSubTabFilteredLeads();
@@ -741,10 +747,10 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     const companyMatch = (lead.company || '').toLowerCase().includes(searchQuery.toLowerCase());
     const emailMatch = (lead.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     const reqMatch = (lead.requirement || '').toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesSearch = nameMatch || companyMatch || emailMatch || reqMatch;
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -836,7 +842,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
 
   return (
     <div className="animate-fadeIn w-full mx-auto space-y-5 font-sans pb-8">
-      
+
       {/* Floating Action Toast Notification Banner */}
       {toastNotice && (
         <div className="fixed top-20 right-6 z-[100] animate-bounce transition-all duration-300">
@@ -1021,7 +1027,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                             <span className="flex items-center space-x-1.5 text-slate-600">
                               <Phone className="w-3.5 h-3.5 text-slate-300 shrink-0" />
                               <span className="font-mono">{lead.phone}</span>
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_call`, () => handleStartCall(lead))}
                                 className="p-1 rounded bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors ml-1.5 inline-flex items-center shadow-2xs border border-emerald-100"
                                 title="Call Lead"
@@ -1097,7 +1103,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                               <span className="font-mono">{formatDateDDMMYYYY(lead.nextFollowupAt || lead.followupDate) || 'Pending'}</span>
                             </div>
-                            
+
                             {lead.followupGoal && (
                               <div className="flex items-start space-x-1.5 text-[11px] text-slate-700 bg-slate-50 p-2 rounded-xl border border-slate-200/60 font-semibold" title={lead.followupGoal}>
                                 <FileText className="w-3.5 h-3.5 text-royal-600 shrink-0 mt-0.5" />
@@ -1113,9 +1119,9 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                       )}
                       <td className="px-6 py-4.5">
                         <div className="flex items-center justify-center space-x-1">
-                          
+
                           {/* View Details - Available on all tabs */}
-                          <button 
+                          <button
                             onClick={() => triggerActionWithLoading(`${lead.id}_view`, () => handleViewLead(lead))}
                             className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:bg-royal-50 hover:text-royal-600 transition-colors border border-slate-200/40"
                             title="View Details"
@@ -1132,7 +1138,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                             /* Canceled Leads table: View, Convert to Follow-up, Convert to Client, Delete */
                             <>
                               {/* 1. Convert to Follow-up */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_followup`, () => handleConvertStatus(lead.id, 'Negotiation'))}
                                 className="p-1.5 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 transition-colors border border-amber-200/30"
                                 title="Re-activate as Follow-up"
@@ -1145,7 +1151,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* 2. Convert to Client */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_client`, () => handleConvertStatus(lead.id, 'Closed Won'))}
                                 className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors border border-indigo-200/30"
                                 title="Re-activate as Client"
@@ -1158,7 +1164,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* 3. Delete Lead */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_delete`, () => handleDeleteLead(lead.id))}
                                 className="p-1.5 rounded-lg bg-rose-50/50 text-rose-500 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-200/35"
                                 title="Delete Lead"
@@ -1174,7 +1180,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                             /* Clients table: View, Edit, Cancel Lead, Mark Completed Customer (moves data to Completed Customers page!), Delete */
                             <>
                               {/* Edit */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_edit`, () => handleEditLead(lead))}
                                 className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:bg-royal-50 hover:text-royal-600 transition-colors border border-slate-200/40"
                                 title="Edit Client"
@@ -1187,7 +1193,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* Cancel Lead */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_cancel`, () => handleConvertStatus(lead.id, 'Closed Lost'))}
                                 className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-200/35"
                                 title="Cancel Lead"
@@ -1200,7 +1206,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* Complete Customer - Moves data directly to Completed Customers page! */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_complete`, () => handleConvertStatus(lead.id, 'Completed'))}
                                 className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors border border-emerald-200/30"
                                 title="Mark as Completed Customer"
@@ -1213,7 +1219,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* Delete Client */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_delete`, () => handleDeleteLead(lead.id))}
                                 className="p-1.5 rounded-lg bg-rose-50/50 text-rose-500 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-200/35"
                                 title="Delete Client"
@@ -1229,7 +1235,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                             /* Completed Customers table: View, Delete, Completed text badge */
                             <>
                               {/* Delete Record */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_delete`, () => handleDeleteLead(lead.id))}
                                 className="p-1.5 rounded-lg bg-rose-50/50 text-rose-500 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-200/35"
                                 title="Delete Record"
@@ -1251,7 +1257,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                             /* All Leads & Follow-ups table: View -> Edit -> Cancel -> Follow-up -> Client -> Delete */
                             <>
                               {/* Edit Lead */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_edit`, () => handleEditLead(lead))}
                                 className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:bg-royal-50 hover:text-royal-600 transition-colors border border-slate-200/40"
                                 title="Edit Lead"
@@ -1264,7 +1270,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* 1. Cancel */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_cancel`, () => handleConvertStatus(lead.id, 'Closed Lost'))}
                                 className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-200/35"
                                 title="Convert to Cancel"
@@ -1277,7 +1283,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* 2. Follow-up */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_followup`, () => handleConvertStatus(lead.id, 'Negotiation'))}
                                 className="p-1.5 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 transition-colors border border-amber-200/30"
                                 title="Convert to Follow-up"
@@ -1290,7 +1296,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* 3. Client */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_client`, () => handleConvertStatus(lead.id, 'Closed Won'))}
                                 className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors border border-indigo-200/30"
                                 title="Convert to Client"
@@ -1303,7 +1309,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                               </button>
 
                               {/* Delete Lead */}
-                              <button 
+                              <button
                                 onClick={() => triggerActionWithLoading(`${lead.id}_delete`, () => handleDeleteLead(lead.id))}
                                 className="p-1.5 rounded-lg bg-rose-50/50 text-rose-500 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-200/35"
                                 title="Delete Lead"
@@ -1332,7 +1338,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden relative animate-fadeInScale">
-            
+
             <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <PlusCircle className="w-5 h-5 text-royal-400" />
@@ -1357,7 +1363,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                 </div>
               ) : (
                 <form onSubmit={handleFormSubmit} className="space-y-4">
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div className="space-y-1">
                       <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Full Name (Optional)</label>
@@ -1516,7 +1522,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {isViewModalOpen && selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden relative animate-fadeInScale">
-            
+
             <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <Target className="w-5 h-5 text-royal-400" />
@@ -1561,7 +1567,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                
+
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5">
                   <span className="text-[9px] font-bold uppercase text-slate-400">Contact Information</span>
                   <div className="space-y-1">
@@ -1569,7 +1575,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                       <div className="flex items-center space-x-1.5 text-slate-700">
                         <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span className="font-mono font-semibold">{selectedLead.phone}</span>
-                        <button 
+                        <button
                           onClick={() => {
                             setIsViewModalOpen(false);
                             handleStartCall(selectedLead);
@@ -1649,7 +1655,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {isEditModalOpen && selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden relative animate-fadeInScale">
-            
+
             <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <Edit className="w-5 h-5 text-royal-400" />
@@ -1677,7 +1683,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
                 </div>
               ) : (
                 <form onSubmit={handleEditFormSubmit} className="space-y-4">
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div className="space-y-1">
                       <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Full Name *</label>
@@ -1872,7 +1878,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {isFollowupModalOpen && selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden relative animate-fadeInScale">
-            
+
             <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <CalendarDays className="w-5 h-5 text-royal-400" />
@@ -1979,10 +1985,10 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {activeCall && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white text-slate-900 rounded-3xl max-w-xs w-full border border-slate-200 shadow-2xl p-5 text-center space-y-3.5 relative overflow-hidden animate-fadeInScale">
-            
+
             {/* Soft Ambient Glow */}
             <div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl"></div>
-            
+
             {/* Call State Header */}
             <div className="space-y-0.5">
               <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/80 uppercase tracking-widest font-mono animate-pulse">
@@ -2025,7 +2031,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
             ) : (
               <div className="space-y-2 pt-3 border-t border-slate-100 animate-fadeIn">
                 <p className="text-[11px] text-slate-500 font-bold">Select call outcome to categorize lead:</p>
-                
+
                 <div className="grid grid-cols-1 gap-2 text-xs">
                   {/* Convert to Follow-up */}
                   <button
@@ -2073,7 +2079,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {isImportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden">
-            
+
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
@@ -2094,7 +2100,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
               ) : (
                 <div className="space-y-4">
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Upload a <strong>.CSV</strong> or <strong>.XLSX</strong> file to import leads in bulk. The columns should include: 
+                    Upload a <strong>.CSV</strong> or <strong>.XLSX</strong> file to import leads in bulk. The columns should include:
                     <span className="font-mono text-royal-700 font-bold block mt-1">Name, Company, Email, Phone, Requirement, Value, Source</span>
                   </p>
 
@@ -2144,15 +2150,14 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
       {actionSuccessModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-sm w-full border border-slate-200 shadow-2xl overflow-hidden relative animate-fadeInScale">
-            
+
             <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Sparkles className={`w-4 h-4 ${
-                  actionSuccessModal.color === 'indigo' ? 'text-indigo-400' :
-                  actionSuccessModal.color === 'emerald' ? 'text-emerald-400' :
-                  actionSuccessModal.color === 'rose' ? 'text-rose-400' :
-                  'text-amber-400'
-                }`} />
+                <Sparkles className={`w-4 h-4 ${actionSuccessModal.color === 'indigo' ? 'text-indigo-400' :
+                    actionSuccessModal.color === 'emerald' ? 'text-emerald-400' :
+                      actionSuccessModal.color === 'rose' ? 'text-rose-400' :
+                        'text-amber-400'
+                  }`} />
                 <h3 className="text-sm font-black font-heading tracking-wide">Status Converted</h3>
               </div>
               <button
@@ -2163,18 +2168,16 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
               </button>
             </div>
 
-            <div className={`p-7 text-center space-y-3 ${
-              actionSuccessModal.color === 'indigo' ? 'bg-indigo-50/40' :
-              actionSuccessModal.color === 'emerald' ? 'bg-emerald-50/40' :
-              actionSuccessModal.color === 'rose' ? 'bg-rose-50/40' :
-              'bg-amber-50/40'
-            }`}>
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg mx-auto animate-bounce ${
-                actionSuccessModal.color === 'indigo' ? 'bg-indigo-600 text-white shadow-indigo-600/30' :
-                actionSuccessModal.color === 'emerald' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
-                actionSuccessModal.color === 'rose' ? 'bg-rose-500 text-white shadow-rose-500/30' :
-                'bg-amber-500 text-white shadow-amber-500/30'
+            <div className={`p-7 text-center space-y-3 ${actionSuccessModal.color === 'indigo' ? 'bg-indigo-50/40' :
+                actionSuccessModal.color === 'emerald' ? 'bg-emerald-50/40' :
+                  actionSuccessModal.color === 'rose' ? 'bg-rose-50/40' :
+                    'bg-amber-50/40'
               }`}>
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg mx-auto animate-bounce ${actionSuccessModal.color === 'indigo' ? 'bg-indigo-600 text-white shadow-indigo-600/30' :
+                  actionSuccessModal.color === 'emerald' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+                    actionSuccessModal.color === 'rose' ? 'bg-rose-500 text-white shadow-rose-500/30' :
+                      'bg-amber-500 text-white shadow-amber-500/30'
+                }`}>
                 {actionSuccessModal.iconType === 'Briefcase' ? (
                   <Briefcase className="w-7 h-7" />
                 ) : actionSuccessModal.iconType === 'UserCheck' ? (

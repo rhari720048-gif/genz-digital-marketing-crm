@@ -39,7 +39,7 @@ const getStoredAttendance = () => {
   };
   try {
     localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(initial));
-  } catch (e) {}
+  } catch (e) { }
   return initial;
 };
 
@@ -62,7 +62,7 @@ const getStoredUser = () => {
   try {
     const rawSession = sessionStorage.getItem(USER_SESSION_KEY);
     if (rawSession) return JSON.parse(rawSession);
-  } catch (e) {}
+  } catch (e) { }
   return null;
 };
 
@@ -83,7 +83,7 @@ export default function App() {
     try {
       const saved = localStorage.getItem('crm_user_attendance_records_v4');
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     return {};
   });
 
@@ -94,7 +94,7 @@ export default function App() {
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       localStorage.removeItem(USER_SESSION_KEY);
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
   // Sync registered users from TiDB database when authenticated
@@ -153,7 +153,7 @@ export default function App() {
         }
         return savedTab;
       }
-    } catch (e) {}
+    } catch (e) { }
     return isSysAdmin ? 'users' : 'profile';
   });
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
@@ -171,37 +171,42 @@ export default function App() {
       setActiveTab('profile');
       try {
         sessionStorage.setItem('crm_active_tab_v2', 'profile');
-      } catch (e) {}
+      } catch (e) { }
     } else if (isSysAdmin && (activeTab === 'profile' || activeTab === 'attendance')) {
       setActiveTab('users');
       try {
         sessionStorage.setItem('crm_active_tab_v2', 'users');
-      } catch (e) {}
+      } catch (e) { }
     } else {
       try {
         sessionStorage.setItem('crm_active_tab_v2', activeTab);
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [user, activeTab]);
+
+  // Scroll to top on active tab switch to prevent layout jumping
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab]);
 
   useEffect(() => {
     if (!user) return;
     try {
       sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
-    } catch (e) {}
+    } catch (e) { }
   }, [user]);
 
   // Auto-logout user if they are deactivated (Inactive) or deleted from registeredUsers list, and dynamically sync role changes
   useEffect(() => {
     if (!isAuthenticated || !user || registeredUsers.length === 0) return;
     const currentUserInList = registeredUsers.find(u => (u.email || '').toLowerCase() === user.email.toLowerCase());
-    
+
     if (!currentUserInList) {
       handleLogout();
       alert('Your account has been deleted by the administrator. Logging out.');
       return;
     }
-    
+
     if (currentUserInList.status === 'Inactive') {
       handleLogout();
       alert('Your account has been deactivated by the administrator. Logging out.');
@@ -211,11 +216,11 @@ export default function App() {
     // Role changes: Admin access granted or removed
     const currentIsAdmin = Boolean(user.isAdmin || user.role === 'Super Admin' || user.id === 'admin-001');
     const listIsAdmin = Boolean(currentUserInList.isAdmin || currentUserInList.role === 'Super Admin' || currentUserInList.id === 'admin-001');
-    
+
     if (currentIsAdmin !== listIsAdmin) {
       // Role changed! Update user state and activeTab to update view dynamically
-      const updatedUser = { 
-        ...currentUserInList, 
+      const updatedUser = {
+        ...currentUserInList,
         isAdmin: listIsAdmin,
         greeting: listIsAdmin ? 'Welcome, System Administrator' : `Welcome back, ${currentUserInList.name?.split(' ')[0] || 'User'}`
       };
@@ -234,7 +239,7 @@ export default function App() {
 
     setUserAttendanceRecords(prev => {
       const updated = { ...prev, [emailKey]: logs };
-      
+
       // Save/persist to database
       fetch(getApiUrl('/api/attendance'), {
         method: 'POST',
@@ -285,11 +290,11 @@ export default function App() {
         body: JSON.stringify(updatedUser)
       });
       const data = await res.json();
-      
-      setRegisteredUsers(prev => 
+
+      setRegisteredUsers(prev =>
         prev.map(u => (u.id === data.id) ? data : u)
       );
-      
+
       if (user && (user.id === data.id || user.email.toLowerCase() === data.email.toLowerCase())) {
         const isSysAdmin = Boolean(data.isAdmin || data.role === 'Super Admin' || data.id === 'admin-001');
         const finalUser = { ...data, isAdmin: isSysAdmin };
@@ -306,7 +311,7 @@ export default function App() {
     if (!matched) return;
     const newStatus = matched.status === 'Inactive' ? 'Active' : 'Inactive';
     const updatedObj = { ...matched, status: newStatus };
-    
+
     try {
       const res = await fetch(getApiUrl(`/api/users/${matched.id}`), {
         method: 'PUT',
@@ -314,10 +319,10 @@ export default function App() {
         body: JSON.stringify(updatedObj)
       });
       const data = await res.json();
-      
+
       setRegisteredUsers(prev => prev.map(u => u.id === data.id ? data : u));
       triggerToast(`User ${data.name} set to ${data.status}`);
-      
+
       if (user && (user.id === data.id || user.email.toLowerCase() === data.email.toLowerCase())) {
         if (data.status === 'Inactive') {
           setTimeout(() => handleLogout(), 100);
@@ -331,15 +336,15 @@ export default function App() {
   const handleDeleteUser = async (userId) => {
     const matched = registeredUsers.find(u => u.id === userId || u.empId === userId);
     if (!matched) return;
-    
+
     try {
       await fetch(getApiUrl(`/api/users/${matched.id}`), {
         method: 'DELETE'
       });
-      
+
       setRegisteredUsers(prev => prev.filter(u => u.id !== matched.id));
       triggerToast(`User deleted successfully`);
-      
+
       if (user && (user.id === matched.id || user.email.toLowerCase() === matched.email.toLowerCase())) {
         setTimeout(() => handleLogout(), 100);
       }
@@ -391,7 +396,7 @@ export default function App() {
     fetch(getApiUrl('/api/stats'))
       .then(res => res.json())
       .then(data => setStats(data))
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -407,7 +412,7 @@ export default function App() {
           const merged = { ...prev, ...latestInList };
           try {
             localStorage.setItem(USER_SESSION_KEY, JSON.stringify(merged));
-          } catch (e) {}
+          } catch (e) { }
           return merged;
         });
       }
@@ -592,7 +597,7 @@ export default function App() {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       localStorage.removeItem(USER_SESSION_KEY);
       localStorage.removeItem('crm_active_tab_v2');
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const handleLogout = () => {
@@ -606,7 +611,7 @@ export default function App() {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       localStorage.removeItem(USER_SESSION_KEY);
       localStorage.removeItem('crm_active_tab_v2');
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const triggerToast = (msg) => {
@@ -620,7 +625,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-royal-500 selection:text-white overflow-x-hidden w-full">
-      
+
       <Header
         user={user}
         onToggleCheckIn={handleToggleCheckIn}
@@ -640,7 +645,7 @@ export default function App() {
       )}
 
       <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-w-0 overflow-x-hidden lg:min-h-[calc(100vh-4rem)]">
-        
+
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -650,7 +655,7 @@ export default function App() {
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 p-2.5 sm:p-4 lg:pt-0 lg:px-5 lg:pb-6 min-w-0 max-w-full bg-slate-50/50 overflow-x-hidden">
+        <main className="flex-1 p-2.5 sm:p-4 lg:p-5 min-w-0 max-w-full bg-slate-50/50 pb-6 overflow-x-hidden">
           <ComingSoonView
             activeTab={activeTab}
             setActiveTab={setActiveTab}
