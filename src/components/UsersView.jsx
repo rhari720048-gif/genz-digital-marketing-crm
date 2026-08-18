@@ -557,11 +557,12 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     Date of Joining
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     name="joiningDate"
+                    placeholder="e.g. 15 March 2024"
                     value={formData.joiningDate}
                     onChange={handleInputChange}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-royal-500 font-medium text-xs"
                   />
                 </div>
 
@@ -782,10 +783,11 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     Date of Joining
                   </label>
                   <input
-                    type="date"
+                    type="text"
+                    placeholder="e.g. 15 March 2024"
                     value={editingUser.joiningDate || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, joiningDate: e.target.value })}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold text-xs"
                   />
                 </div>
 
