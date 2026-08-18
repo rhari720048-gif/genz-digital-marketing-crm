@@ -59,7 +59,10 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
     });
   };
 
-  const filteredUsers = users.filter(u => {
+  // Filter out Admin users so only employees are shown
+  const employeeUsers = users.filter(u => !(u.isAdmin || u.role === 'Super Admin' || u.email === 'admin@genzneuralx.io'));
+
+  const filteredUsers = employeeUsers.filter(u => {
     const matchesSearch = 
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -70,7 +73,7 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
     return matchesSearch && matchesDept;
   });
 
-  const departmentsList = Array.from(new Set(users.map(u => u.department).filter(Boolean)));
+  const departmentsList = Array.from(new Set(employeeUsers.map(u => u.department).filter(Boolean)));
 
   // Detailed Employee Attendance & Client Visit History Screen
   if (selectedUser) {
@@ -267,7 +270,7 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase">Total Employees</p>
-              <p className="text-sm font-black font-mono text-slate-900">{users.length}</p>
+              <p className="text-sm font-black font-mono text-slate-900">{employeeUsers.length}</p>
             </div>
           </div>
         </div>
