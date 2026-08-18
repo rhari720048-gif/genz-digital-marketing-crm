@@ -39,7 +39,7 @@ export default function DocumentsView({ user }) {
 
   // Sync documents from TiDB database on mount
   useEffect(() => {
-    fetch(getApiUrl('/api/module/documents'))
+    fetch(getApiUrl(`/api/module/documents?_t=${Date.now()}`))
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

@@ -61,7 +61,7 @@ export default function MeetingsView({ stats, user, users = [] }) {
 
   // Sync meetings from TiDB database on mount
   useEffect(() => {
-    fetch(getApiUrl('/api/module/meetings'))
+    fetch(getApiUrl(`/api/module/meetings?_t=${Date.now()}`))
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

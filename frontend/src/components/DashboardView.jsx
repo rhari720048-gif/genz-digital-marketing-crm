@@ -42,10 +42,10 @@ export default function DashboardView({ user }) {
     try {
       // 1. Fetch database stats and direct module lists in parallel to make dashboard load instantly
       const [res, mRes, nRes, dRes] = await Promise.all([
-        fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}`)).catch(() => null),
-        fetch(getApiUrl('/api/module/meetings')).catch(() => null),
-        fetch(getApiUrl('/api/module/notes')).catch(() => null),
-        fetch(getApiUrl('/api/module/documents')).catch(() => null)
+        fetch(getApiUrl(`/api/dashboard/stats?email=${encodeURIComponent(user?.email || '')}&_t=${Date.now()}`)).catch(() => null),
+        fetch(getApiUrl(`/api/module/meetings?_t=${Date.now()}`)).catch(() => null),
+        fetch(getApiUrl(`/api/module/notes?_t=${Date.now()}`)).catch(() => null),
+        fetch(getApiUrl(`/api/module/documents?_t=${Date.now()}`)).catch(() => null)
       ]);
 
       let data = {

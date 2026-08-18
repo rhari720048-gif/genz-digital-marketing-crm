@@ -33,7 +33,7 @@ export default function NotesView({ stats, user }) {
 
   // Sync notes from TiDB database on mount
   useEffect(() => {
-    fetch(getApiUrl('/api/module/notes'))
+    fetch(getApiUrl(`/api/module/notes?_t=${Date.now()}`))
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
