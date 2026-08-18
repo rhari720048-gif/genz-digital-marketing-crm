@@ -270,8 +270,10 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     {/* 3. Department & Manager */}
                     <td className="px-4 py-3.5">
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-900">{u.department}</span>
-                        <span className="text-[11px] text-slate-500 font-medium">Mgr: {u.manager || 'Vikram Sharma'}</span>
+                        <span className="text-xs font-bold text-slate-900">{u.department || 'N/A'}</span>
+                        {u.manager && u.manager.trim() !== '' && (
+                          <span className="text-[11px] text-slate-500 font-medium">Mgr: {u.manager}</span>
+                        )}
                       </div>
                     </td>
 
@@ -519,10 +521,10 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                   />
                 </div>
 
-                {/* 7. Department (Typeable text input!) */}
+                {/* 7. Department (Optional) */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Department (Typeable)
+                    Department (Optional)
                   </label>
                   <input
                     type="text"
@@ -534,10 +536,10 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                   />
                 </div>
 
-                {/* 8. Reporting Manager */}
+                {/* 8. Reporting Manager (Optional) */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Reporting Manager
+                    Reporting Manager (Optional)
                   </label>
                   <input
                     type="text"
@@ -753,7 +755,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Department (Typeable)
+                    Department (Optional)
                   </label>
                   <input
                     type="text"
@@ -765,7 +767,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
                 <div>
                   <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">
-                    Reporting Manager
+                    Reporting Manager (Optional)
                   </label>
                   <input
                     type="text"
@@ -893,15 +895,19 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                 <p className="font-mono font-black text-emerald-900 mt-0.5">{viewingUser.password || '••••••••'}</p>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Department</span>
-                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.department}</p>
-              </div>
+              {viewingUser.department && viewingUser.department.trim() !== '' && (
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Department</span>
+                  <p className="font-bold text-slate-900 mt-0.5">{viewingUser.department}</p>
+                </div>
+              )}
 
-              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Reporting Manager</span>
-                <p className="font-bold text-slate-900 mt-0.5">{viewingUser.manager || 'Vikram Sharma'}</p>
-              </div>
+              {viewingUser.manager && viewingUser.manager.trim() !== '' && (
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Reporting Manager</span>
+                  <p className="font-bold text-slate-900 mt-0.5">{viewingUser.manager}</p>
+                </div>
+              )}
 
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Work Location</span>

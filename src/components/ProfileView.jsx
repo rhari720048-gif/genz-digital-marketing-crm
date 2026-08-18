@@ -39,9 +39,9 @@ export default function ProfileView({ user }) {
     mobile: user?.mobile || '+91 98765 43210',
     email: user?.email || 'alex.m@genzneuralx.io',
     address: user?.address || 'Suite 402, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
-    department: user?.department || 'Marketing Strategy & Leads',
+    department: user?.department || '',
     joiningDate: user?.joiningDate || '15 March 2024',
-    manager: user?.manager || 'Vikram Sharma (VP of Growth)',
+    manager: user?.manager || '',
     location: user?.location || 'Chennai Tech Park / Hybrid',
     emergencyContact: user?.emergencyContact || '+91 98765 12345 (Family)',
     bloodGroup: user?.bloodGroup || 'O+ Positive',
@@ -93,11 +93,15 @@ export default function ProfileView({ user }) {
               </p>
 
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-xs text-slate-500">
-                <span className="flex items-center space-x-1">
-                  <Building className="w-3.5 h-3.5 text-royal-500 shrink-0" />
-                  <span>{profileData.department}</span>
-                </span>
-                <span className="hidden sm:inline text-slate-300">•</span>
+                {profileData.department && profileData.department.trim() !== '' && (
+                  <>
+                    <span className="flex items-center space-x-1">
+                      <Building className="w-3.5 h-3.5 text-royal-500 shrink-0" />
+                      <span>{profileData.department}</span>
+                    </span>
+                    <span className="hidden sm:inline text-slate-300">•</span>
+                  </>
+                )}
                 <span className="flex items-center space-x-1">
                   <Globe className="w-3.5 h-3.5 text-royal-500 shrink-0" />
                   <span>{profileData.location}</span>
@@ -241,23 +245,27 @@ export default function ProfileView({ user }) {
               <p className="text-xs font-black text-slate-800 mt-0.5">{profileData.role}</p>
             </div>
 
-            {/* Department */}
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center space-x-3">
-              <Building className="w-4 h-4 text-royal-600 shrink-0" />
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Department</p>
-                <p className="text-xs font-black text-slate-800 mt-0.5">{profileData.department}</p>
+            {/* Department (Optional - rendered only if typed/provided) */}
+            {profileData.department && profileData.department.trim() !== '' && (
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center space-x-3">
+                <Building className="w-4 h-4 text-royal-600 shrink-0" />
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Department</p>
+                  <p className="text-xs font-black text-slate-800 mt-0.5">{profileData.department}</p>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Manager */}
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center space-x-3">
-              <UserCheck className="w-4 h-4 text-royal-600 shrink-0" />
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Reporting Manager</p>
-                <p className="text-xs font-black text-slate-800 mt-0.5">{profileData.manager}</p>
+            {/* Reporting Manager (Optional - rendered only if typed/provided) */}
+            {profileData.manager && profileData.manager.trim() !== '' && (
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center space-x-3">
+                <UserCheck className="w-4 h-4 text-royal-600 shrink-0" />
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Reporting Manager</p>
+                  <p className="text-xs font-black text-slate-800 mt-0.5">{profileData.manager}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Date of Joining & Work Location */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
