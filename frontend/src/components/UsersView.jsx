@@ -164,11 +164,15 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
 
       {/* HEADER BANNER */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight flex items-center space-x-2.5">
-            <Users className="w-6 h-6 text-royal-600 shrink-0" />
-            <span>All Users</span>
-          </h1>
+        <div className="flex items-center space-x-3.5">
+          <div className="p-3 rounded-2xl bg-royal-600 text-white shadow-md shadow-royal-600/20 shrink-0">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
+              All Users
+            </h1>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2.5">

@@ -140,11 +140,15 @@ export default function DashboardView({ user }) {
       
       {/* 1. HEADER HERO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight flex items-center space-x-2">
-            <LayoutDashboard className="w-6 h-6 text-royal-600 shrink-0" />
-            <span>Dashboard</span>
-          </h1>
+        <div className="flex items-center space-x-3.5">
+          <div className="p-3 rounded-2xl bg-royal-600 text-white shadow-md shadow-royal-600/20 shrink-0">
+            <LayoutDashboard className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
+              Dashboard
+            </h1>
+          </div>
         </div>
 
         <button
