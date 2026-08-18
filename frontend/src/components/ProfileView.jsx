@@ -66,6 +66,15 @@ export default function ProfileView({ user }) {
 
   return (
     <div className="animate-fadeIn w-full mx-auto space-y-5 font-sans pb-8">
+
+      {/* HEADER BANNER */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
+            My Profile
+          </h1>
+        </div>
+      </div>
       
       {/* 1. DIGITAL PASSPORT HEADER */}
       <div className="relative rounded-3xl bg-white p-6 sm:p-8 text-slate-900 shadow-xs border border-slate-200/80">

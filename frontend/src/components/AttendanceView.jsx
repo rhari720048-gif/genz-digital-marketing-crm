@@ -364,7 +364,7 @@ export default function AttendanceView({ user, userAttendanceLogs = [], onUpdate
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1">
-            My Attendance & Date-Wise Activity History
+            My Attendance
           </h1>
         </div>
 
@@ -457,7 +457,7 @@ export default function AttendanceView({ user, userAttendanceLogs = [], onUpdate
         {/* Total Out Visits */}
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Out Visits</p>
-          <p className="text-lg sm:text-xl font-black text-royal-600 font-mono">{totalOutsideVisits} Visits</p>
+          <p className="text-lg sm:text-xl font-black text-royal-600 font-heading">{totalOutsideVisits} Visits</p>
           <p className="text-[10px] text-royal-600 font-bold">Recorded Visits</p>
         </div>
 

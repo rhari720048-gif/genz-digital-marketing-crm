@@ -289,11 +289,8 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900">
         <div>
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-            User Attendance & Client Field Visit Oversight
+            User Attendance
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Click any employee row to inspect their date-wise Check In, Client Out/In visits, and Check Out logs.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
@@ -303,7 +300,7 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase">Total Employees</p>
-              <p className="text-sm font-black font-mono text-slate-900">{employeeUsers.length}</p>
+              <p className="text-sm font-black font-heading text-slate-900">{employeeUsers.length}</p>
             </div>
           </div>
         </div>

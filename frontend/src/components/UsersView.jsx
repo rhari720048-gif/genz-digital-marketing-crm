@@ -166,11 +166,8 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900">
         <div>
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-            Team & Employee Management
+            All Users
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Manage users, view complete profile details, edit credentials, and enable/disable login access.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">

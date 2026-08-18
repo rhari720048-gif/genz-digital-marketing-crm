@@ -133,11 +133,8 @@ export default function InvoicesView({ stats }) {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-            Invoice & Commercial Billing
+            Invoices
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Manage client invoices, payment collections, and overdue accounts.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
@@ -147,7 +144,7 @@ export default function InvoicesView({ stats }) {
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase">Collected Revenue</p>
-              <p className="text-sm font-black font-mono text-emerald-600">₹{totalCollected.toLocaleString('en-IN')}</p>
+              <p className="text-sm font-black font-heading text-emerald-600">₹{totalCollected.toLocaleString('en-IN')}</p>
             </div>
           </div>
 
@@ -157,7 +154,7 @@ export default function InvoicesView({ stats }) {
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase">Outstanding Due</p>
-              <p className="text-sm font-black font-mono text-amber-600">₹{totalPending.toLocaleString('en-IN')}</p>
+              <p className="text-sm font-black font-heading text-amber-600">₹{totalPending.toLocaleString('en-IN')}</p>
             </div>
           </div>
         </div>

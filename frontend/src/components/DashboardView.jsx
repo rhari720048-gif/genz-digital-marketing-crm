@@ -141,19 +141,10 @@ export default function DashboardView({ user }) {
       {/* 1. HEADER HERO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-royal-50 text-royal-700 border border-royal-200 font-mono flex items-center space-x-1">
-              <Sparkles className="w-3 h-3 text-royal-600 animate-pulse" />
-              <span>Real-Time Database Sync</span>
-            </span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1.5 flex items-center space-x-2">
+          <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight flex items-center space-x-2">
             <LayoutDashboard className="w-6 h-6 text-royal-600 shrink-0" />
-            <span>Operations Control Center</span>
+            <span>Dashboard</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5 font-medium">
-            Monitor real-time pipeline status, employee counts, and upcoming customer meetings.
-          </p>
         </div>
 
         <button
@@ -187,7 +178,7 @@ export default function DashboardView({ user }) {
 
                   <div className="space-y-1">
                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider font-sans">{card.title}</span>
-                    <p className="text-2xl font-black font-mono text-slate-900 tracking-tight">{card.value}</p>
+                    <p className="text-2xl font-black font-heading text-slate-900 tracking-tight">{card.value}</p>
                     <p className="text-[10px] text-slate-500 font-semibold">{card.description}</p>
                   </div>
 
@@ -199,18 +190,18 @@ export default function DashboardView({ user }) {
             })}
           </div>
 
-          {/* 3. DOUBLE PANEL LAYOUT */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* 3. DYNAMIC PANEL LAYOUT */}
+          <div className="w-full">
             
-            {/* Left Column: Scheduled Upcoming Meetings */}
-            <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-[360px]">
+            {/* Scheduled Upcoming Meetings (Full Width) */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between min-h-[280px]">
               <div>
                 <h3 className="text-sm font-black font-heading text-slate-900 border-b border-slate-100 pb-2.5 flex items-center space-x-2">
                   <Calendar className="w-4 h-4 text-royal-600 shrink-0" />
                   <span>Upcoming Scheduled Meetings</span>
                 </h3>
 
-                <div className="mt-3.5 space-y-2.5 overflow-y-auto max-h-[250px] pr-1">
+                <div className="mt-3.5 space-y-2.5 overflow-y-auto max-h-[300px] pr-1">
                   {stats.upcomingMeetings.length === 0 ? (
                     <div className="p-8 text-center text-slate-400 space-y-2">
                       <Calendar className="w-8 h-8 text-slate-300 mx-auto" />
@@ -245,53 +236,6 @@ export default function DashboardView({ user }) {
                     ))
                   )}
                 </div>
-              </div>
-            </div>
-
-            {/* Right Column: Dynamic Welcome Banner / User Status Panel */}
-            <div className="bg-gradient-to-br from-royal-900 to-slate-900 p-6 rounded-3xl text-white shadow-xl flex flex-col justify-between h-[360px] relative overflow-hidden">
-              {/* Decorative Subtle Grid overlay */}
-              <div className="absolute inset-0 bg-neural-grid opacity-15 pointer-events-none" />
-
-              <div>
-                <span className="px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-white/20 text-white font-mono">
-                  {isAdmin ? 'ADMINISTRATIVE PRIVILEGES' : 'EMPLOYEE DASHBOARD'}
-                </span>
-                
-                <h2 className="text-2xl font-black font-heading text-white tracking-tight mt-3">
-                  Welcome back, <strong className="text-royal-300">{user?.name ? user.name.split(' ')[0] : 'Hari'}</strong>
-                </h2>
-                
-                <p className="text-xs text-slate-300 mt-1.5 leading-normal max-w-sm font-medium">
-                  {isAdmin 
-                    ? 'Manage registered team members, configure database schemas, view automated attendance logs, and oversee the CRM sales pipeline.' 
-                    : 'Track your daily check-in records, follow up with assigned leads, submit proposals/quotations, and log meeting schedules.'
-                  }
-                </p>
-              </div>
-
-              {/* Status details pill card at bottom */}
-              <div className="relative z-10 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
-                    <UserCheck className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-300">Designation / Role</p>
-                    <p className="text-[11px] font-mono text-royal-300 font-bold mt-0.5">{user?.role || 'Executive'}</p>
-                  </div>
-                </div>
-
-                {!isAdmin && (
-                  <div className="text-right flex flex-col items-end space-y-0.5">
-                    <span className="text-[10px] text-slate-300 font-bold">Shift Status</span>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase font-mono ${
-                      user?.isCheckedIn ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-950'
-                    }`}>
-                      {user?.isCheckedIn ? 'ON SHIFT' : 'OFF SHIFT'}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
 

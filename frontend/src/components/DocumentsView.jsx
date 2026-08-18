@@ -205,11 +205,8 @@ export default function DocumentsView({ user }) {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-              User Document Repository
+              Documents
             </h1>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Upload and manage your official user documents, files, and records.
-            </p>
           </div>
         </div>
 
@@ -228,7 +225,7 @@ export default function DocumentsView({ user }) {
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
           <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Total Documents</p>
           <div className="flex items-center justify-between">
-            <p className="text-xl sm:text-2xl font-black text-slate-900 font-mono">{documents.length}</p>
+            <p className="text-xl sm:text-2xl font-black text-slate-900 font-heading">{documents.length}</p>
             <div className="p-2 rounded-xl bg-royal-50 text-royal-600">
               <FileText className="w-4 h-4" />
             </div>
@@ -239,14 +236,14 @@ export default function DocumentsView({ user }) {
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-1">
           <p className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Recent Uploads</p>
           <div className="flex items-center justify-between">
-            <p className="text-xl sm:text-2xl font-black text-emerald-600 font-mono">
+            <p className="text-xl sm:text-2xl font-black text-emerald-600 font-heading">
               {documents.length > 0 ? 'Active' : 'None'}
             </p>
             <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-[10px] text-slate-500 font-mono">
+          <p className="text-[10px] text-slate-500 font-heading">
             {documents.length > 0 ? `Latest: ${documents[0].uploadDate}` : 'No uploads yet'}
           </p>
         </div>

@@ -163,11 +163,8 @@ export default function QuotationsView({ stats, refetchStats }) {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-            Quotations & Proposals Management
+            Quotations
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Create, track, and send PDF commercial quotations to prospects.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
@@ -177,7 +174,7 @@ export default function QuotationsView({ stats, refetchStats }) {
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase">Total Quotes</p>
-              <p className="text-sm font-black font-mono text-slate-900">{quotations.length}</p>
+              <p className="text-sm font-black font-heading text-slate-900">{quotations.length}</p>
             </div>
           </div>
 
@@ -187,7 +184,7 @@ export default function QuotationsView({ stats, refetchStats }) {
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase">Approved Value</p>
-              <p className="text-sm font-black font-mono text-emerald-600">${approvedQuotesVal.toLocaleString()}</p>
+              <p className="text-sm font-black font-heading text-emerald-600">${approvedQuotesVal.toLocaleString()}</p>
             </div>
           </div>
         </div>

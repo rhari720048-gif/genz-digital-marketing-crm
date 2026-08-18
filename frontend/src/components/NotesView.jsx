@@ -137,11 +137,8 @@ export default function NotesView({ stats, user }) {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">
-            User Notes & Strategic Workspace
+            User Notes
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Save call reminders, client briefs, and marketing strategy notes.
-          </p>
         </div>
 
         <button

@@ -831,29 +831,24 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
     switch (activeSubTab) {
       case 'followups':
         return {
-          title: 'Follow-ups Scheduler & Actions',
-          subtitle: 'Active prospects waiting for callbacks or scheduled follow-up meetings.'
+          title: 'Follow-ups'
         };
       case 'canceled':
         return {
-          title: 'Canceled / Churned Leads',
-          subtitle: 'Disqualified prospects or lost proposals. Analyze churn data for target campaigns.'
+          title: 'Canceled Leads'
         };
       case 'client':
         return {
-          title: 'Converted Enterprise Clients',
-          subtitle: 'Won deals currently under signed service contracts and invoice setup.'
+          title: 'Clients'
         };
       case 'completed':
         return {
-          title: 'Completed Enterprise Customers & Audit Reports',
-          subtitle: 'Full lifecycle records of fully onboarded and fulfilled customer accounts with audit timestamps.'
+          title: 'Completed Customers'
         };
       case 'all':
       default:
         return {
-          title: 'Leads & Customer Pipeline',
-          subtitle: 'View, search, and manage all incoming leads inside your sales pipeline.'
+          title: 'All Leads'
         };
     }
   };
@@ -881,9 +876,6 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
           <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight mt-1">
             {headerDetails.title}
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {headerDetails.subtitle}
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2.5 sm:gap-3">
@@ -893,7 +885,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Total Leads</p>
-              <p className="text-sm font-black font-mono text-royal-950 mt-0.5">{totalLeadsCount}</p>
+              <p className="text-sm font-black font-heading text-royal-950 mt-0.5">{totalLeadsCount}</p>
             </div>
           </div>
 
@@ -903,7 +895,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Follow-ups</p>
-              <p className="text-sm font-black font-mono text-royal-950 mt-0.5">{pendingFollowupsCount}</p>
+              <p className="text-sm font-black font-heading text-royal-950 mt-0.5">{pendingFollowupsCount}</p>
             </div>
           </div>
 
@@ -913,7 +905,7 @@ export default function LeadsView({ stats, refetchStats, activeSubTab = 'all', s
             </div>
             <div>
               <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Converted</p>
-              <p className="text-sm font-black font-mono text-royal-950 mt-0.5">{convertedClientsCount}</p>
+              <p className="text-sm font-black font-heading text-royal-950 mt-0.5">{convertedClientsCount}</p>
             </div>
           </div>
         </div>
