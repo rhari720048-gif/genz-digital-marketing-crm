@@ -71,19 +71,8 @@ export default function ProfileView({ user }) {
       <div className="relative rounded-3xl bg-white p-6 sm:p-8 text-slate-900 shadow-xs border border-slate-200/80">
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           
-          {/* Avatar & User Details */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
-            <div className="relative">
-              <img
-                src={profileData.avatar}
-                alt={profileData.name}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover ring-4 ring-royal-500/20 shadow-md bg-slate-100"
-              />
-              <span className="absolute -bottom-1.5 -right-1.5 p-1 bg-emerald-500 text-white rounded-xl shadow-md border-2 border-white">
-                <BadgeCheck className="w-4 h-4" />
-              </span>
-            </div>
-
+          {/* User Details */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 text-center sm:text-left">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <span className="px-3 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-royal-50 text-royal-700 border border-royal-200 font-mono">

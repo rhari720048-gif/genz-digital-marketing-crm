@@ -249,20 +249,13 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
                     
                     {/* 1. Employee & Contact */}
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center space-x-3">
-                        <img 
-                          src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} 
-                          alt={u.name} 
-                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-royal-500/20 shadow-2xs shrink-0" 
-                        />
-                        <div>
-                          <div className="flex items-center space-x-1.5">
-                            <span className="font-extrabold text-slate-900">{u.name}</span>
-                            <BadgeCheck className="w-3.5 h-3.5 text-royal-600 shrink-0" />
-                          </div>
-                          <span className="text-[11px] text-slate-500 font-mono block">{u.mobile || '+91 98765 43210'}</span>
-                          <span className="text-[10px] text-slate-400 truncate max-w-[140px] block" title={u.address}>{u.address || 'Suite 402, Neural Tower'}</span>
+                      <div>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-extrabold text-slate-900">{u.name}</span>
+                          <BadgeCheck className="w-3.5 h-3.5 text-royal-600 shrink-0" />
                         </div>
+                        <span className="text-[11px] text-slate-500 font-mono block">{u.mobile || '+91 98765 43210'}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[140px] block" title={u.address}>{u.address || 'Suite 402, Neural Tower'}</span>
                       </div>
                     </td>
 
@@ -867,12 +860,9 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 animate-fadeIn space-y-5 my-8">
             
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center space-x-3">
-                <img src={viewingUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} alt={viewingUser.name} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-royal-500/40" />
-                <div>
-                  <h3 className="text-lg font-black font-heading text-slate-900">{viewingUser.name}</h3>
-                  <p className="text-xs text-royal-600 font-bold">{viewingUser.role}</p>
-                </div>
+              <div>
+                <h3 className="text-lg font-black font-heading text-slate-900">{viewingUser.name}</h3>
+                <p className="text-xs text-royal-600 font-bold">{viewingUser.role}</p>
               </div>
               <button
                 onClick={() => setViewingUser(null)}
