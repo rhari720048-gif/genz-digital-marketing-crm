@@ -175,9 +175,25 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
         <div className="space-y-4 overflow-y-auto pr-0.5">
           
           {/* Mobile Drawer Header (< lg screens) */}
-          <div className="flex items-center justify-between lg:hidden pb-2 mb-2 border-b border-slate-200">
-            <span className="text-xs font-black font-heading text-royal-700 uppercase tracking-wider">GEN-Z MARKETING CRM</span>
-            <button onClick={onCloseMobile} className="p-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <div className="flex items-center justify-between lg:hidden pb-3 mb-2 border-b border-slate-200">
+            <div className="flex flex-col items-start justify-center cursor-pointer">
+              <img 
+                src="/genz-logo.png" 
+                alt="GEN-Z Marketing CRM" 
+                className="h-7 w-auto object-contain shrink-0"
+                style={{ height: '28px', maxHeight: '30px' }}
+              />
+              <div className="-mt-0.5 leading-none font-heading font-extrabold tracking-tight">
+                <span className="text-xs font-extrabold text-royal-600">
+                  Marketing CRM
+                </span>
+              </div>
+            </div>
+            <button 
+              onClick={onCloseMobile} 
+              className="p-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all active:scale-95 cursor-pointer"
+              aria-label="Close Navigation Drawer"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
