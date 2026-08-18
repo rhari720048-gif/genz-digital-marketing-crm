@@ -9,6 +9,7 @@ import MeetingsView from './MeetingsView';
 import UsersView from './UsersView';
 import AdminAttendanceOversightView from './AdminAttendanceOversightView';
 import DocumentsView from './DocumentsView';
+import DashboardView from './DashboardView';
 
 export default function ComingSoonView({ 
   activeTab, 
@@ -27,6 +28,11 @@ export default function ComingSoonView({
   onDeleteUser,
   onLoginAsUser
 }) {
+  // 0. Dashboard Page
+  if (activeTab === 'dashboard') {
+    return <DashboardView user={user} />;
+  }
+
   // 1. My Profile Page
   if (activeTab === 'profile') {
     return <ProfileView user={user} />;

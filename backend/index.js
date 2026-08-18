@@ -742,6 +742,95 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+// GET dashboard stats from TiDB
+app.get('/api/dashboard/stats', async (req, res) => {
+  try {
+    // 1. Fetch leads status counts
+    const [leads] = await pool.query('SELECT status FROM leads');
+    let allLeads = 0;
+    let followups = 0;
+    let canceledLeads = 0;
+    let clients = 0;
+    let completedCustomers = 0;
+
+    leads.forEach(l => {
+      const s = l.status;
+      if (!s || s === 'Contacted' || s === 'New') {
+        allLeads++;
+      } else if (s === 'Negotiation' || s === 'Proposal Sent') {
+        followups++;
+      } else if (s === 'Closed Lost') {
+        canceledLeads++;
+      } else if (s === 'Closed Won' || s === 'Client') {
+        clients++;
+      } else if (s === 'Completed') {
+        completedCustomers++;
+      }
+    });
+
+    // 2. Fetch other counts
+    const [[{ count: notesCount }]] = await pool.query('SELECT COUNT(*) as count FROM notes');
+    const [[{ count: meetingsCount }]] = await pool.query('SELECT COUNT(*) as count FROM meetings');
+    const [[{ count: documentsCount }]] = await pool.query('SELECT COUNT(*) as count FROM documents');
+    const [[{ count: usersCount }]] = await pool.query('SELECT COUNT(*) as count FROM users');
+
+    // 3. Fetch all meetings to sort and find upcoming ones
+    const [meetings] = await pool.query('SELECT * FROM meetings WHERE status = "Scheduled" OR status IS NULL OR status = ""');
+    
+    // Sort meetings in JS: parse date (DD/MM/YYYY) and time (hh:mm AM/PM)
+    const parseDateTime = (dStr, tStr) => {
+      try {
+        if (!dStr) return new Date(8640000000000000); // Far future if invalid
+        const parts = dStr.split('/');
+        if (parts.length === 3) {
+          const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
+          if (tStr) {
+            const timeMatch = tStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (timeMatch) {
+              let hours = parseInt(timeMatch[1]);
+              const minutes = parseInt(timeMatch[2]);
+              const ampm = timeMatch[3].toUpperCase();
+              if (ampm === 'PM' && hours < 12) hours += 12;
+              if (ampm === 'AM' && hours === 12) hours = 0;
+              dateObj.setHours(hours, minutes, 0, 0);
+            }
+          }
+          return dateObj;
+        }
+      } catch (e) {}
+      return new Date(8640000000000000);
+    };
+
+    const sortedMeetings = meetings.sort((a, b) => {
+      return parseDateTime(a.date, a.time) - parseDateTime(b.date, b.time);
+    });
+
+    // Only return upcoming meetings (ignore past meetings)
+    const now = new Date();
+    const upcomingMeetings = sortedMeetings.filter(m => {
+      const mDate = parseDateTime(m.date, m.time);
+      // Include today's meetings and future ones
+      return mDate.getTime() >= now.getTime() - (60 * 60 * 1000); // Keep for 1 hour after start
+    }).slice(0, 5); // Limit to top 5 upcoming meetings
+
+    res.json({
+      allLeads,
+      followups,
+      canceledLeads,
+      clients,
+      completedCustomers,
+      notes: notesCount,
+      meetings: meetingsCount,
+      documents: documentsCount,
+      users: usersCount,
+      upcomingMeetings
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    res.status(500).json({ error: `Database error fetching stats: ${error.message}` });
+  }
+});
+
 // GET all leads from TiDB
 app.get('/api/leads', async (req, res) => {
   try {

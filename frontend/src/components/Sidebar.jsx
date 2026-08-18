@@ -43,6 +43,11 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
 
   const adminMenuItems = [
     {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard
+    },
+    {
       id: 'users',
       label: '1. All Users',
       icon: Users
@@ -92,6 +97,11 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
   ];
 
   const employeeMenuItems = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard
+    },
     {
       id: 'profile',
       label: '1. My Profile',

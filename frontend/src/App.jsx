@@ -140,21 +140,18 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState(() => {
     const storedUser = getStoredUser();
-    if (!storedUser) return 'profile';
+    if (!storedUser) return 'dashboard';
     const isSysAdmin = Boolean(storedUser.isAdmin || storedUser.role === 'Super Admin' || storedUser.id === 'admin-001');
     try {
       const savedTab = sessionStorage.getItem('crm_active_tab_v2');
       if (savedTab) {
         if (!isSysAdmin && (savedTab === 'users' || savedTab === 'attendance-admin' || savedTab === 'analytics')) {
-          return 'profile';
-        }
-        if (isSysAdmin && (savedTab === 'profile' || savedTab === 'attendance')) {
-          return 'users';
+          return 'dashboard';
         }
         return savedTab;
       }
     } catch (e) { }
-    return isSysAdmin ? 'users' : 'profile';
+    return 'dashboard';
   });
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -168,14 +165,9 @@ export default function App() {
     if (!user) return;
     const isSysAdmin = Boolean(user.isAdmin || user.role === 'Super Admin' || user.id === 'admin-001');
     if (!isSysAdmin && (activeTab === 'users' || activeTab === 'attendance-admin' || activeTab === 'analytics')) {
-      setActiveTab('profile');
+      setActiveTab('dashboard');
       try {
-        sessionStorage.setItem('crm_active_tab_v2', 'profile');
-      } catch (e) { }
-    } else if (isSysAdmin && (activeTab === 'profile' || activeTab === 'attendance')) {
-      setActiveTab('users');
-      try {
-        sessionStorage.setItem('crm_active_tab_v2', 'users');
+        sessionStorage.setItem('crm_active_tab_v2', 'dashboard');
       } catch (e) { }
     } else {
       try {
