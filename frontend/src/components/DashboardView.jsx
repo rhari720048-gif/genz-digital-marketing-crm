@@ -40,11 +40,104 @@ export default function DashboardView({ user }) {
   const fetchStats = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
+      // 1. Fetch database stats
       const res = await fetch(getApiUrl('/api/dashboard/stats'));
+      let data = {
+        allLeads: 0,
+        followups: 0,
+        canceledLeads: 0,
+        clients: 0,
+        completedCustomers: 0,
+        notes: 0,
+        meetings: 0,
+        documents: 0,
+        users: 0,
+        upcomingMeetings: []
+      };
+      
       if (res.ok) {
-        const data = await res.json();
-        setStats(data);
+        data = await res.json();
       }
+
+      // 2. Fetch direct module lists to bypass Render backend code deployment caching/delay
+      try {
+        const mRes = await fetch(getApiUrl('/api/module/meetings'));
+        if (mRes.ok) {
+          const meetingsList = await mRes.json();
+          if (Array.isArray(meetingsList)) {
+            data.meetings = meetingsList.length;
+            
+            // Filter and sort upcoming meetings
+            const parseDateTime = (dStr, tStr) => {
+              try {
+                if (!dStr) return new Date(8640000000000000);
+                let dateObj;
+                if (dStr.includes('/')) {
+                  const parts = dStr.split('/');
+                  dateObj = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+                } else {
+                  dateObj = new Date(dStr);
+                }
+
+                if (tStr) {
+                  const cleanTimeStr = tStr.replace(/\s*\(.*?\)/, '').trim();
+                  const timeMatch = cleanTimeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                  if (timeMatch) {
+                    let hours = parseInt(timeMatch[1], 10);
+                    const minutes = parseInt(timeMatch[2], 10);
+                    const ampm = timeMatch[3].toUpperCase();
+                    if (ampm === 'PM' && hours < 12) hours += 12;
+                    if (ampm === 'AM' && hours === 12) hours = 0;
+                    dateObj.setHours(hours, minutes, 0, 0);
+                  }
+                }
+                return dateObj;
+              } catch (e) {}
+              return new Date(8640000000000000);
+            };
+
+            const sortedMeetings = meetingsList.sort((a, b) => {
+              return parseDateTime(a.date, a.time) - parseDateTime(b.date, b.time);
+            });
+
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+            
+            data.upcomingMeetings = sortedMeetings.filter(m => {
+              const mDate = parseDateTime(m.date, m.time);
+              return mDate.getTime() >= todayStart.getTime();
+            }).slice(0, 5);
+          }
+        }
+      } catch (err) {
+        console.error('Error syncing meetings count:', err);
+      }
+
+      try {
+        const nRes = await fetch(getApiUrl('/api/module/notes'));
+        if (nRes.ok) {
+          const notesList = await nRes.json();
+          if (Array.isArray(notesList)) {
+            data.notes = notesList.length;
+          }
+        }
+      } catch (err) {
+        console.error('Error syncing notes count:', err);
+      }
+
+      try {
+        const dRes = await fetch(getApiUrl('/api/module/documents'));
+        if (dRes.ok) {
+          const docsList = await dRes.json();
+          if (Array.isArray(docsList)) {
+            data.documents = docsList.length;
+          }
+        }
+      } catch (err) {
+        console.error('Error syncing documents count:', err);
+      }
+
+      setStats(data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
