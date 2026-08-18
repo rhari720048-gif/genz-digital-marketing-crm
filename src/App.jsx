@@ -127,8 +127,21 @@ export default function App() {
     } catch (e) {}
   }, [registeredUsers]);
 
+  // User state cross-referenced with registeredUsers to preserve exact Admin/Employee roles on refresh
+  const [user, setUser] = useState(() => {
+    if (storedUser && storedUser.email) {
+      const match = registeredUsers.find(u => (u.email || '').toLowerCase() === storedUser.email.toLowerCase());
+      if (match) {
+        const isSysAdmin = Boolean(match.isAdmin || match.role === 'Super Admin' || match.id === 'admin-001');
+        return { ...match, isAdmin: isSysAdmin };
+      }
+      return storedUser;
+    }
+    return registeredUsers[0] || DEFAULT_USERS[0];
+  });
+
   const [activeTab, setActiveTab] = useState(() => {
-    const isSysAdmin = Boolean(storedUser?.isAdmin || storedUser?.role === 'Super Admin' || storedUser?.id === 'admin-001');
+    const isSysAdmin = Boolean(user?.isAdmin || user?.role === 'Super Admin' || user?.id === 'admin-001');
     try {
       const savedTab = localStorage.getItem('crm_active_tab_v2');
       if (savedTab) {
@@ -149,12 +162,6 @@ export default function App() {
 
   // Initialize attendance state from localStorage
   const initialAttendance = getStoredAttendance();
-
-  // User state
-  const [user, setUser] = useState(() => {
-    if (storedUser) return storedUser;
-    return DEFAULT_USERS[0];
-  });
 
   // Role-based activeTab guard effect
   useEffect(() => {
