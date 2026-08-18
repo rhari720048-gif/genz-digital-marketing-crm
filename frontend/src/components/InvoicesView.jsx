@@ -78,7 +78,6 @@ export default function InvoicesView({ stats }) {
   const [formInvoiceId, setFormInvoiceId] = useState('');
   const [formClientName, setFormClientName] = useState('');
   const [formClientPhone, setFormClientPhone] = useState('');
-  const [formClientEmail, setFormClientEmail] = useState('');
   
   // Table item details
   const [formService, setFormService] = useState('Website Development');
@@ -164,7 +163,7 @@ export default function InvoicesView({ stats }) {
       id: formInvoiceId.trim(),
       clientName: formClientName.trim(),
       clientPhone: formClientPhone.trim(),
-      email: formClientEmail.trim() || 'client@example.com',
+      email: 'client@example.com',
       service: formService.trim(),
       quantity: Number(formQuantity) || 1,
       sellingPrice: Number(formSellingPrice) || 0,
@@ -187,7 +186,6 @@ export default function InvoicesView({ stats }) {
     setFormInvoiceId(`IV-${Date.now().toString().slice(-4)}`);
     setFormClientName('');
     setFormClientPhone('');
-    setFormClientEmail('');
   };
 
   // PDF download handler
@@ -304,17 +302,6 @@ export default function InvoicesView({ stats }) {
               </div>
 
               <div className="space-y-1 col-span-2">
-                <label className="text-[9px] font-black uppercase text-slate-400">Client Email (Optional)</label>
-                <input
-                  type="email"
-                  placeholder="client@mail.com"
-                  value={formClientEmail}
-                  onChange={(e) => setFormClientEmail(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 font-semibold bg-white text-slate-800"
-                />
-              </div>
-
-              <div className="space-y-1 col-span-2">
                 <label className="text-[9px] font-black uppercase text-slate-400">Service / Particulars *</label>
                 <input
                   required
@@ -410,6 +397,20 @@ export default function InvoicesView({ stats }) {
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
+              {/* WATERMARK BACKGROUND LOGO (Overlay with z-20, straight layout with 0 rotation) */}
+              <div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-20"
+                style={{ opacity: 0.15 }}
+              >
+                {companySettings.companyLogo ? (
+                  <img src={companySettings.companyLogo} className="w-[380px] h-[380px] object-contain" alt="watermark" />
+                ) : (
+                  <div className="w-[380px] h-[380px] flex items-center justify-center">
+                    {defaultWatermarkSvg}
+                  </div>
+                )}
+              </div>
+
               {/* UNIFIED SINGLE TABLE FORMAT: Clean outer border, styled inner cells */}
               <div className="w-full mt-2 relative">
                 
@@ -627,7 +628,6 @@ export default function InvoicesView({ stats }) {
                           setFormInvoiceId(inv.id);
                           setFormClientName(inv.clientName);
                           setFormClientPhone(inv.clientPhone || '');
-                          setFormClientEmail(inv.email);
                           setFormService(inv.service || 'Website Development');
                           setFormQuantity(inv.quantity || 1);
                           setFormSellingPrice(inv.sellingPrice || 0);
