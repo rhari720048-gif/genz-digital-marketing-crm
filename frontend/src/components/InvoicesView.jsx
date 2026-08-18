@@ -222,7 +222,7 @@ export default function InvoicesView({ stats }) {
 
   // Vector Default logo path for watermark (clean, large size)
   const defaultWatermarkSvg = (
-    <svg className="w-[320px] h-[320px] text-royal-600/5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+    <svg className="w-[320px] h-[320px] text-royal-600/15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
     </svg>
   );
@@ -427,10 +427,10 @@ export default function InvoicesView({ stats }) {
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
-              {/* WATERMARK BACKGROUND LOGO (Positioned at z-20 to float faintly over tables and background grids) */}
+              {/* WATERMARK BACKGROUND LOGO (Overlay with z-20 and increased opacity of 0.15 for maximum readability) */}
               <div 
                 className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-20"
-                style={{ opacity: 0.04 }}
+                style={{ opacity: 0.15 }}
               >
                 {companySettings.companyLogo ? (
                   <img src={companySettings.companyLogo} className="w-[380px] h-[380px] object-contain rotate-12" alt="watermark" />
@@ -465,11 +465,11 @@ export default function InvoicesView({ stats }) {
                     </div>
                   </div>
 
-                  {/* Right Side: Bill Details (Ample row space, no overflow) */}
+                  {/* Right Side: Bill Details */}
                   <div className="col-span-4 grid grid-rows-2 text-[10px] bg-white/80">
                     <div className="p-3 border-b-2 border-slate-800 flex justify-between items-center bg-slate-50/50">
                       <span className="font-extrabold text-slate-500 uppercase">Bill No:</span>
-                      <span className="font-black text-slate-950 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formInvoiceId}</span>
+                      <span className="font-black text-slate-955 text-right" style={{ fontFamily: "'Space Mono', monospace" }}>{formInvoiceId}</span>
                     </div>
                     <div className="p-3 flex justify-between items-center bg-slate-50/50">
                       <span className="font-extrabold text-slate-500 uppercase">Date:</span>
@@ -492,7 +492,7 @@ export default function InvoicesView({ stats }) {
                   </div>
                 </div>
 
-                {/* 3. Main Itemized Box Table (Thick border-2, strict columns alignment, 100% connected lines) */}
+                {/* 3. Main Itemized Box Table (Vertical borders connect perfectly by drawing heights directly on row cells) */}
                 <div className="border-2 border-slate-800 overflow-hidden bg-white/80 mt-1">
                   <table className="w-full border-collapse text-left text-[11px]" style={{ tableLayout: 'fixed' }}>
                     <colgroup>
@@ -514,25 +514,16 @@ export default function InvoicesView({ stats }) {
                       </tr>
                     </thead>
                     <tbody className="divide-y-2 border-slate-800 font-semibold text-slate-700">
+                      {/* Fixed height of 320px on the item cells ensures borders draw perfectly all the way down, leaving no gaps! */}
                       <tr className="align-top">
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>1</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800">
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono" style={{ height: '320px', fontFamily: "'Space Mono', monospace" }}>1</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800" style={{ height: '320px' }}>
                           <p className="font-bold text-slate-955 uppercase">{formService}</p>
                         </td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
-                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600" style={{ fontFamily: "'Space Mono', monospace" }}>₹{formDiscount.toLocaleString('en-IN')}.00</td>
-                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-955" style={{ fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
-                      </tr>
-                      
-                      {/* Empty padding rows for printing sheet spacing with non-collapsing &nbsp; cells */}
-                      <tr className="h-32">
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td className="border-r-2 border-slate-800">&nbsp;</td>
-                        <td>&nbsp;</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-slate-900" style={{ height: '320px', fontFamily: "'Space Mono', monospace" }}>₹{formSellingPrice.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-center font-mono text-slate-900" style={{ height: '320px', fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
+                        <td className="px-3 py-3.5 border-r-2 border-slate-800 text-right font-mono text-rose-600" style={{ height: '320px', fontFamily: "'Space Mono', monospace" }}>₹{formDiscount.toLocaleString('en-IN')}.00</td>
+                        <td className="px-3 py-3.5 text-right font-mono font-black text-slate-955" style={{ height: '320px', fontFamily: "'Space Mono', monospace" }}>₹{calculatedTotal.toLocaleString('en-IN')}.00</td>
                       </tr>
 
                       {/* Total row aligned 100% using single matching columns with vertical dividers */}
