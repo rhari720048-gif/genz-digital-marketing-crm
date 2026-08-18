@@ -267,7 +267,7 @@ export default function MeetingsView({ stats, user }) {
                 </p>
                 <p className="text-xs text-royal-600 font-mono mt-1 font-bold flex items-center space-x-1">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{m.date} • {m.time} ({m.duration})</span>
+                  <span>{m.date} • {m.time}</span>
                 </p>
                 {m.link && (
                   <a 
