@@ -410,23 +410,30 @@ export default function InvoicesView({ stats }) {
               style={{ fontFamily: "'Outfit', sans-serif", colorScheme: 'light' }}
             >
               
-              {/* WATERMARK BACKGROUND LOGO (Overlay with z-20, straight layout with 0 rotation) */}
-              <div 
-                className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-20"
-                style={{ opacity: 0.15 }}
-              >
-                {companySettings.companyLogo ? (
-                  <img src={companySettings.companyLogo} className="w-[380px] h-[380px] object-contain" alt="watermark" />
-                ) : (
-                  <div className="w-[380px] h-[380px] flex items-center justify-center">
-                    {defaultWatermarkSvg}
-                  </div>
-                )}
-              </div>
+              {/* UNIFIED SINGLE TABLE FORMAT: Clean outer border, styled inner cells */}
+              <div className="w-full mt-2 relative">
+                
+                {/* WATERMARK BACKGROUND LOGO (Positioned relative to this table container to be EXACTLY centered in the table!) */}
+                <div 
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-20"
+                  style={{ opacity: 0.15 }}
+                >
+                  {companySettings.companyLogo ? (
+                    <img src={companySettings.companyLogo} className="w-[380px] h-[380px] object-contain animate-fadeIn" alt="watermark" />
+                  ) : (
+                    <div className="w-[380px] h-[380px] flex items-center justify-center">
+                      {defaultWatermarkSvg}
+                    </div>
+                  )}
+                </div>
 
-              {/* UNIFIED SINGLE TABLE FORMAT: Clean normal thickness borders using border-collapse */}
-              <div className="w-full mt-2">
-                <table className="w-full border-collapse border-2 border-slate-800 text-left text-[11px] bg-white/80 relative z-10" style={{ tableLayout: 'fixed' }}>
+                <table 
+                  className="w-full border-collapse text-left text-[11px] bg-white/80 relative z-10" 
+                  style={{ 
+                    tableLayout: 'fixed', 
+                    border: '2px solid #1e293b' 
+                  }}
+                >
                   <colgroup>
                     <col style={{ width: '55px' }} />
                     <col />
@@ -440,7 +447,7 @@ export default function InvoicesView({ stats }) {
                     {/* Row 1: Header (Logo + Brand + Details) */}
                     <tr>
                       {/* Left Header Panel */}
-                      <td colSpan="4" className="p-4 border border-slate-800 align-top">
+                      <td colSpan="4" className="p-4 align-top" style={{ border: '1.5px solid #1e293b' }}>
                         <div className="flex items-start space-x-3.5">
                           {companySettings.companyLogo ? (
                             <img src={companySettings.companyLogo} className="h-12 w-12 object-contain" alt="Logo" />
@@ -462,9 +469,9 @@ export default function InvoicesView({ stats }) {
                       </td>
 
                       {/* Right Header Panel (Bill No & Date) */}
-                      <td colSpan="2" className="p-0 border border-slate-800 align-top">
+                      <td colSpan="2" className="p-0 align-top" style={{ border: '1.5px solid #1e293b' }}>
                         <div className="h-full flex flex-col justify-stretch">
-                          <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-50/50 flex-1">
+                          <div className="p-3 border-b flex justify-between items-center bg-slate-50/50 flex-1" style={{ borderColor: '#1e293b' }}>
                             <span className="font-extrabold text-[10px] text-slate-500 uppercase">Bill No:</span>
                             <span className="font-black text-slate-955 text-right text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>{formInvoiceId}</span>
                           </div>
@@ -478,7 +485,7 @@ export default function InvoicesView({ stats }) {
 
                     {/* Row 2: Client Card */}
                     <tr>
-                      <td colSpan="6" className="p-4 border border-slate-800 align-top">
+                      <td colSpan="6" className="p-4 align-top" style={{ border: '1.5px solid #1e293b' }}>
                         <p className="font-black text-slate-955 text-xs uppercase">{formClientName || 'Client Name'}</p>
                         {formClientPhone && (
                           <p className="text-slate-900 font-extrabold mt-1" style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px' }}>Phone No : {formClientPhone}</p>
@@ -488,58 +495,58 @@ export default function InvoicesView({ stats }) {
 
                     {/* Row 3: Table Column Titles */}
                     <tr className="bg-slate-50 text-[10px] font-black uppercase text-slate-500 font-mono">
-                      <td className="px-3 py-2.5 border border-slate-800 text-center">S.No</td>
-                      <td className="px-3 py-2.5 border border-slate-800">Service</td>
-                      <td className="px-3 py-2.5 border border-slate-800 text-right">Rate (<span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹</span>)</td>
-                      <td className="px-3 py-2.5 border border-slate-800 text-center">Qty</td>
-                      <td className="px-3 py-2.5 border border-slate-800 text-right">Discount</td>
-                      <td className="px-3 py-2.5 border border-slate-800 text-right font-sans">Amount</td>
+                      <td className="px-3 py-2.5 text-center" style={{ border: '1.5px solid #1e293b' }}>S.No</td>
+                      <td className="px-3 py-2.5" style={{ border: '1.5px solid #1e293b' }}>Service</td>
+                      <td className="px-3 py-2.5 text-right" style={{ border: '1.5px solid #1e293b' }}>Rate (<span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹</span>)</td>
+                      <td className="px-3 py-2.5 text-center" style={{ border: '1.5px solid #1e293b' }}>Qty</td>
+                      <td className="px-3 py-2.5 text-right" style={{ border: '1.5px solid #1e293b' }}>Discount</td>
+                      <td className="px-3 py-2.5 text-right font-sans" style={{ border: '1.5px solid #1e293b' }}>Amount</td>
                     </tr>
 
                     {/* Row 4: Main Item Details */}
                     <tr className="align-top font-semibold text-slate-700">
-                      <td className="px-3 py-3.5 border border-slate-800 text-center font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>1</td>
-                      <td className="px-3 py-3.5 border border-slate-800">
+                      <td className="px-3 py-3.5 text-center font-mono" style={{ border: '1.5px solid #1e293b', fontFamily: "'Space Mono', monospace" }}>1</td>
+                      <td className="px-3 py-3.5" style={{ border: '1.5px solid #1e293b' }}>
                         <p className="font-bold text-slate-955 uppercase">{formService}</p>
                       </td>
-                      <td className="px-3 py-3.5 border border-slate-800 text-right font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{formSellingPrice.toLocaleString('en-IN')}.00</td>
-                      <td className="px-3 py-3.5 border border-slate-800 text-center font-mono text-slate-900" style={{ fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
-                      <td className="px-3 py-3.5 border border-slate-800 text-right font-mono text-rose-600" style={{ fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{formDiscount.toLocaleString('en-IN')}.00</td>
-                      <td className="px-3 py-3.5 border border-slate-800 text-right font-mono font-black text-slate-955" style={{ fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                      <td className="px-3 py-3.5 text-right font-mono text-slate-900" style={{ border: '1.5px solid #1e293b', fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{formSellingPrice.toLocaleString('en-IN')}.00</td>
+                      <td className="px-3 py-3.5 text-center font-mono text-slate-900" style={{ border: '1.5px solid #1e293b', fontFamily: "'Space Mono', monospace" }}>{formQuantity}</td>
+                      <td className="px-3 py-3.5 text-right font-mono text-rose-600" style={{ border: '1.5px solid #1e293b', fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{formDiscount.toLocaleString('en-IN')}.00</td>
+                      <td className="px-3 py-3.5 text-right font-mono font-black text-slate-955" style={{ border: '1.5px solid #1e293b', fontFamily: "'Space Mono', monospace" }}><span style={{ fontSize: '12px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00</td>
                     </tr>
                     
                     {/* Row 5: Dolphin Publications spacer rows (non-collapsing using explicit tr inline heights and cells with &nbsp;) */}
                     <tr style={{ height: '140px' }}>
-                      <td className="border border-slate-800">&nbsp;</td>
-                      <td className="border border-slate-800">&nbsp;</td>
-                      <td className="border border-slate-800">&nbsp;</td>
-                      <td className="border border-slate-800">&nbsp;</td>
-                      <td className="border border-slate-800">&nbsp;</td>
-                      <td className="border border-slate-800">&nbsp;</td>
+                      <td style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
+                      <td style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
+                      <td style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
+                      <td style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
+                      <td style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
+                      <td style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
                     </tr>
 
                     {/* Row 6: Total Calculation Row */}
                     <tr className="bg-slate-50/50 font-black text-slate-855 font-mono text-[10px]" style={{ fontFamily: "'Space Mono', monospace" }}>
-                      <td colSpan="3" className="px-3 py-2.5 border border-slate-800 text-right uppercase font-sans font-black text-slate-500">Total :</td>
-                      <td className="px-3 py-2.5 border border-slate-800 text-center text-slate-950">{formQuantity}</td>
-                      <td className="px-3 py-2.5 border-slate-800 text-right text-rose-600"><span style={{ fontSize: '11px', fontWeight: 'bold' }}>₹</span>{formDiscount.toLocaleString('en-IN')}.00</td>
-                      <td className="px-3 py-2.5 border border-slate-800 text-right text-slate-955"><span style={{ fontSize: '11px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00</td>
+                      <td colSpan="3" className="px-3 py-2.5 text-right uppercase font-sans font-black text-slate-500" style={{ border: '1.5px solid #1e293b' }}>Total :</td>
+                      <td className="px-3 py-2.5 text-center text-slate-955" style={{ border: '1.5px solid #1e293b' }}>{formQuantity}</td>
+                      <td className="px-3 py-2.5 text-right text-rose-600" style={{ border: '1.5px solid #1e293b' }}><span style={{ fontSize: '11px', fontWeight: 'bold' }}>₹</span>{formDiscount.toLocaleString('en-IN')}.00</td>
+                      <td className="px-3 py-2.5 text-right text-slate-955" style={{ border: '1.5px solid #1e293b' }}><span style={{ fontSize: '11px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00</td>
                     </tr>
 
                     {/* Row 7: Net Amount Row (Spanning 4 columns to perfectly match columns in the 6-column grid) */}
                     <tr className="bg-white font-extrabold">
-                      <td colSpan="4" className="px-3 py-3 border border-slate-800">&nbsp;</td>
-                      <td className="px-3 py-3 border border-slate-800 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20">
+                      <td colSpan="4" style={{ border: '1.5px solid #1e293b' }}>&nbsp;</td>
+                      <td className="px-3 py-3 text-right text-[10px] font-black uppercase text-slate-700 bg-slate-50/20" style={{ border: '1.5px solid #1e293b' }}>
                         Net Amount
                       </td>
-                      <td className="px-3 py-3 border border-slate-800 text-right font-mono font-black text-royal-700 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
+                      <td className="px-3 py-3 text-right font-mono font-black text-royal-700 text-sm" style={{ border: '1.5px solid #1e293b', fontFamily: "'Space Mono', monospace" }}>
                         <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹</span>{calculatedTotal.toLocaleString('en-IN')}.00
                       </td>
                     </tr>
 
                     {/* Row 8: Amount in Words Row */}
                     <tr className="bg-slate-50/20 font-mono text-[10px]">
-                      <td colSpan="6" className="p-3 border border-slate-800">
+                      <td colSpan="6" className="p-3" style={{ border: '1.5px solid #1e293b' }}>
                         <span className="font-extrabold text-slate-500 uppercase font-sans">Amount (Words) : </span>
                         <span className="font-black text-slate-955 uppercase">
                           {convertNumberToWords(calculatedTotal)}
@@ -547,9 +554,9 @@ export default function InvoicesView({ stats }) {
                       </td>
                     </tr>
 
-                    {/* Row 9: Terms & Signature Block Row (Nested to ensure outer table borders never separate) */}
+                    {/* Row 9: Terms & Signature Block Row */}
                     <tr>
-                      <td colSpan="6" className="p-4 border border-slate-800 bg-white/80">
+                      <td colSpan="6" className="p-4 bg-white/80" style={{ border: '1.5px solid #1e293b' }}>
                         <div className="grid grid-cols-2 gap-4 text-[10px]">
                           {/* Terms box */}
                           <div className="space-y-1">
