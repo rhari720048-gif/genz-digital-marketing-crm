@@ -56,27 +56,7 @@ const formatTime = (date = new Date()) => {
 };
 
 
-const DEFAULT_USERS = [
-  {
-    id: 'admin-001',
-    name: 'System Administrator',
-    email: 'admin@genzneuralx.io',
-    password: 'admin123',
-    mobile: '+91 98765 00000',
-    empId: 'GNX-ADMIN-01',
-    role: 'Super Admin',
-    department: 'Executive Administration',
-    joiningDate: '01 Jan 2024',
-    manager: 'Board of Directors',
-    location: 'Headquarters, OMR Chennai',
-    address: 'Executive Suite 01, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
-    emergencyContact: '+91 98765 00001 (HQ Desk)',
-    bloodGroup: 'O+ Positive',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=250',
-    status: 'Active',
-    isAdmin: true
-  }
-];
+const DEFAULT_USERS = [];
 
 const getStoredUser = () => {
   try {
@@ -97,20 +77,7 @@ const getStoredAuth = () => {
 };
 
 export default function App() {
-  const [registeredUsers, setRegisteredUsers] = useState(() => {
-    try {
-      const saved = localStorage.getItem(USERS_LIST_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Clean out legacy dummy accounts if present
-        const cleaned = parsed.filter(u => u.email !== 'alex.m@genzneuralx.io' && u.email !== 'sarah.c@genzneuralx.io' && u.email !== 'david.m@genzneuralx.io');
-        if (cleaned.length > 0) return cleaned;
-      }
-      return DEFAULT_USERS;
-    } catch (e) {
-      return DEFAULT_USERS;
-    }
-  });
+  const [registeredUsers, setRegisteredUsers] = useState([]);
 
   const [userAttendanceRecords, setUserAttendanceRecords] = useState(() => {
     try {

@@ -79,8 +79,11 @@ async function initDb() {
       )
     `);
     
-    // Seed default admin (info@genzneuralx.com / admin123) if not exists
-    const [adminRows] = await connection.query('SELECT id FROM users WHERE email = ?', ['info@genzneuralx.com']);
+    // Seed default admin from environment variables if not exists
+    const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'info@genzneuralx.com';
+    const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+
+    const [adminRows] = await connection.query('SELECT id FROM users WHERE email = ?', [defaultAdminEmail]);
     if (adminRows.length === 0) {
       await connection.query(`
         INSERT INTO users (id, name, email, password, role, empId, status, isAdmin)
@@ -88,14 +91,14 @@ async function initDb() {
       `, [
         'admin-001',
         'System Administrator',
-        'info@genzneuralx.com',
-        'admin123',
+        defaultAdminEmail,
+        defaultAdminPassword,
         'Super Admin',
         'GNX-2026-0001',
         'Active',
         true
       ]);
-      console.log('🌱 Seeded default admin user into TiDB users table');
+      console.log(`🌱 Seeded default admin user (${defaultAdminEmail}) into TiDB users table`);
     }
     
     console.log('✅ TiDB database tables initialized');
@@ -106,26 +109,21 @@ async function initDb() {
 }
 initDb();
 
-// In-memory data store for CRM session (Attendance logs kept in-memory for live demo/backup)
+// In-memory data store for CRM session (cleaned of hardcoded mock info)
 let userState = {
-  id: 'usr_01',
-  name: 'Alex Morgan',
-  role: 'Head of Growth Marketing',
-  email: 'alex.m@genzneuralx.io',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+  id: '',
+  name: '',
+  role: '',
+  email: '',
+  avatar: '',
   isCheckedIn: false,
   checkInTime: null,
-  totalHoursToday: '3h 45m',
-  department: 'Marketing Strategy & Leads',
-  location: 'Chennai Tech Park / Hybrid'
+  totalHoursToday: '',
+  department: '',
+  location: ''
 };
 
-let attendanceLogs = [
-  { id: 1, date: 'Today', checkIn: '09:15 AM', checkOut: 'In Progress', hours: 'Calculating...', status: 'Active' },
-  { id: 2, date: 'Yesterday', checkIn: '09:00 AM', checkOut: '06:30 PM', hours: '9h 30m', status: 'Completed' },
-  { id: 3, date: '09 Aug 2026', checkIn: '09:05 AM', checkOut: '06:15 PM', hours: '9h 10m', status: 'Completed' },
-  { id: 4, date: '08 Aug 2026', checkIn: '08:55 AM', checkOut: '05:45 PM', hours: '8h 50m', status: 'Completed' },
-];
+let attendanceLogs = [];
 
 let stats = {
   leads: { count: 0, change: '+14% this week', active: 0 },
