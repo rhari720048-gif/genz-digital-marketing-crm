@@ -74,6 +74,25 @@ const DEFAULT_USERS = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=250',
     status: 'Active',
     isAdmin: true
+  },
+  {
+    id: 'admin-002',
+    name: 'MUTHURASU',
+    email: 'info@genzneuralx.com',
+    password: 'admin',
+    mobile: '+91 98765 99999',
+    empId: 'GENZ-FOUNDER',
+    role: 'Super Admin',
+    department: 'Executive Administration',
+    joiningDate: '01 Jan 2024',
+    manager: 'Board of Directors',
+    location: 'Headquarters, OMR Chennai',
+    address: 'Executive Suite 01, Neural Tower, OMR Tech Corridor, Chennai, TN - 600096',
+    emergencyContact: '+91 98765 00001 (HQ Desk)',
+    bloodGroup: 'O+ Positive',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=250',
+    status: 'Active',
+    isAdmin: true
   }
 ];
 
@@ -95,6 +114,11 @@ export default function App() {
         const parsed = JSON.parse(saved);
         // Clean out legacy dummy accounts if present
         const cleaned = parsed.filter(u => u.email !== 'alex.m@genzneuralx.io' && u.email !== 'sarah.c@genzneuralx.io' && u.email !== 'david.m@genzneuralx.io');
+        DEFAULT_USERS.forEach(defUser => {
+          if (!cleaned.some(u => (u.email || '').toLowerCase() === defUser.email.toLowerCase())) {
+            cleaned.push(defUser);
+          }
+        });
         if (cleaned.length > 0) return cleaned;
       }
       return DEFAULT_USERS;
