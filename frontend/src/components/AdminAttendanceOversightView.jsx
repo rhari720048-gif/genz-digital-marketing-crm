@@ -17,6 +17,35 @@ import {
   MapPin
 } from 'lucide-react';
 
+const calculateDuration = (startTimeStr, endTimeStr) => {
+  if (!startTimeStr || !endTimeStr) return '-';
+  
+  const parseTime = (timeStr) => {
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return null;
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const ampm = match[3].toUpperCase();
+    
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+    
+    return hours * 60 + minutes; // in minutes
+  };
+
+  const startMin = parseTime(startTimeStr);
+  const endMin = parseTime(endTimeStr);
+  
+  if (startMin === null || endMin === null) return '-';
+  
+  let diffMin = endMin - startMin;
+  if (diffMin < 0) diffMin += 24 * 60; // handle cross-midnight shift
+  
+  const hrs = Math.floor(diffMin / 60);
+  const mins = diffMin % 60;
+  return `${hrs}h ${String(mins).padStart(2, '0')}m`;
+};
+
 export default function AdminAttendanceOversightView({ users = [], attendanceLogs = [], userAttendanceRecords = {} }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,14 +75,18 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
         };
       });
 
+      const totalHoursVal = (checkInLog && checkOutLog)
+        ? calculateDuration(checkInLog.time, checkOutLog.time)
+        : (index === 0 && !dateGroup.isClosed ? 'Calculating...' : '-');
+
       return {
         id: index + 1,
         date: dateGroup.dateLabel || dateGroup.dateKey,
         checkIn: checkInLog ? checkInLog.time : 'Not Checked In',
-        checkOut: checkOutLog ? checkOutLog.time : (user.isCheckedIn ? 'In Progress' : '-'),
+        checkOut: checkOutLog ? checkOutLog.time : (index === 0 && !dateGroup.isClosed ? 'In Progress' : '-'),
         clientVisits: clientVisits,
-        totalHours: user.isCheckedIn ? 'Calculating...' : (dateGroup.isClosed ? 'Shift Closed' : 'In Progress'),
-        status: dateGroup.isClosed ? 'Completed' : (user.isCheckedIn ? 'On Shift (Active)' : 'In Progress'),
+        totalHours: totalHoursVal,
+        status: dateGroup.isClosed ? 'Completed' : (index === 0 && !dateGroup.isClosed ? 'On Shift (Active)' : 'In Progress'),
         isToday: index === 0
       };
     });
