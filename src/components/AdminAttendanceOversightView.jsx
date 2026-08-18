@@ -96,23 +96,16 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
 
         {/* Employee Profile Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs text-slate-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <img 
-              src={selectedUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} 
-              alt={selectedUser.name}
-              className="w-16 h-16 rounded-2xl object-cover ring-2 ring-royal-500/20 shadow-md shrink-0" 
-            />
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">{selectedUser.name}</h1>
-                <BadgeCheck className="w-5 h-5 text-royal-600" />
-              </div>
-              <p className="text-xs text-slate-500 font-bold mt-0.5">{selectedUser.role} • {selectedUser.department}</p>
-              <div className="flex items-center space-x-3 text-[11px] text-slate-600 font-mono mt-1.5">
-                <span>Emp ID: <strong className="text-royal-700">{selectedUser.empId}</strong></span>
-                <span>•</span>
-                <span>Work: <strong className="text-slate-800">{selectedUser.location || 'Chennai Tech Park'}</strong></span>
-              </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl sm:text-2xl font-black font-heading text-slate-900 tracking-tight">{selectedUser.name}</h1>
+              <BadgeCheck className="w-5 h-5 text-royal-600" />
+            </div>
+            <p className="text-xs text-slate-500 font-bold mt-0.5">{selectedUser.role} • {selectedUser.department}</p>
+            <div className="flex items-center space-x-3 text-[11px] text-slate-600 font-mono mt-1.5">
+              <span>Emp ID: <strong className="text-royal-700">{selectedUser.empId}</strong></span>
+              <span>•</span>
+              <span>Work: <strong className="text-slate-800">{selectedUser.location || 'Chennai Tech Park'}</strong></span>
             </div>
           </div>
 
@@ -321,37 +314,34 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/75 border-b border-slate-200/80 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-4 w-16 text-center">S.No</th>
                 <th className="px-6 py-4">Employee Details</th>
                 <th className="px-6 py-4">Emp ID & Role</th>
                 <th className="px-6 py-4">Department</th>
-                <th className="px-6 py-4">Today Check In</th>
-                <th className="px-6 py-4">Shift Hours</th>
                 <th className="px-6 py-4 text-center">Inspect</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-              {filteredUsers.map((u) => (
+              {filteredUsers.map((u, index) => (
                 <tr 
                   key={u.id || u.empId} 
                   onClick={() => setSelectedUser(u)}
                   className="hover:bg-royal-50/60 transition-all cursor-pointer group"
                 >
                   
+                  {/* S.No */}
+                  <td className="px-4 py-4.5 text-center font-mono font-bold text-slate-400">
+                    {index + 1}
+                  </td>
+
                   {/* Employee Details */}
                   <td className="px-6 py-4.5">
-                    <div className="flex items-center space-x-3">
-                      <img 
-                        src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'} 
-                        alt={u.name} 
-                        className="w-10 h-10 rounded-xl object-cover ring-2 ring-emerald-500/20 shadow-2xs group-hover:scale-105 transition-transform" 
-                      />
-                      <div>
-                        <div className="flex items-center space-x-1.5">
-                          <span className="font-extrabold text-slate-900 group-hover:text-royal-600 transition-colors">{u.name}</span>
-                          <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        </div>
-                        <span className="text-xs text-slate-400 font-mono">{u.email}</span>
+                    <div>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="font-extrabold text-slate-900 group-hover:text-royal-600 transition-colors">{u.name}</span>
+                        <BadgeCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       </div>
+                      <span className="text-xs text-slate-400 font-mono block">{u.email}</span>
                     </div>
                   </td>
 
@@ -365,24 +355,21 @@ export default function AdminAttendanceOversightView({ users = [], attendanceLog
 
                   {/* Dept */}
                   <td className="px-6 py-4.5">
-                    <span className="text-xs font-bold text-slate-800">{u.department}</span>
+                    <span className="text-xs font-bold text-slate-800">{u.department || 'N/A'}</span>
                   </td>
 
-                  {/* Today Check In */}
-                  <td className="px-6 py-4.5 font-mono text-xs font-extrabold text-emerald-600">
-                    {u.checkInTime || '09:00 AM'}
-                  </td>
-
-                  {/* Shift Hours */}
-                  <td className="px-6 py-4.5 font-mono text-xs font-extrabold text-slate-800">
-                    {u.totalHoursToday || '8h 30m'}
-                  </td>
-
-                  {/* Click Row Arrow */}
+                  {/* Inspect Action */}
                   <td className="px-6 py-4.5 text-center">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-royal-600 group-hover:text-white text-slate-400 flex items-center justify-center mx-auto transition-all shadow-2xs">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedUser(u);
+                      }}
+                      className="p-2 rounded-xl bg-royal-600 group-hover:bg-royal-700 text-white transition-all shadow-2xs group-hover:scale-110 shrink-0 inline-flex items-center justify-center cursor-pointer"
+                      title="Inspect Full Attendance Logs"
+                    >
                       <ChevronRight className="w-4 h-4" />
-                    </div>
+                    </button>
                   </td>
 
                 </tr>

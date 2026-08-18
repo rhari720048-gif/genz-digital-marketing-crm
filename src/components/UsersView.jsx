@@ -230,6 +230,7 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/75 border-b border-slate-200/80 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+                <th className="px-3 py-3.5 text-center w-12">S.No</th>
                 <th className="px-4 py-3.5">Employee & Contact</th>
                 <th className="px-4 py-3.5">Emp ID & Role</th>
                 <th className="px-4 py-3.5">Department & Manager</th>
@@ -241,12 +242,17 @@ export default function UsersView({ users, onAddUser, onDeleteUser, onUpdateUser
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-              {filteredUsers.map((u) => {
+              {filteredUsers.map((u, index) => {
                 const isUserActive = (u.status || 'Active') === 'Active';
 
                 return (
                   <tr key={u.id || u.empId} className="hover:bg-slate-50/50 transition-colors">
                     
+                    {/* S.No */}
+                    <td className="px-3 py-3.5 text-center font-mono font-bold text-slate-400">
+                      {index + 1}
+                    </td>
+
                     {/* 1. Employee & Contact */}
                     <td className="px-4 py-3.5">
                       <div>
