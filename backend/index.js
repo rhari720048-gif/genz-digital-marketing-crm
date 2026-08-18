@@ -79,6 +79,14 @@ async function initDb() {
       )
     `);
 
+    // Create crm_modules_data table for generic module storage
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS crm_modules_data (
+        module_name VARCHAR(100) PRIMARY KEY,
+        data TEXT NOT NULL
+      )
+    `);
+
     // Create users table with all profile fields
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -159,6 +167,46 @@ let stats = {
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', database: 'connected', message: 'CRM Backend API Server Running' });
+});
+
+// GET generic module data dynamically from TiDB
+app.get('/api/module/:name', async (req, res) => {
+  try {
+    const { name } = req.params;
+    const [rows] = await pool.query('SELECT data FROM crm_modules_data WHERE module_name = ?', [name]);
+    if (rows.length > 0) {
+      try {
+        res.json(JSON.parse(rows[0].data));
+      } catch (e) {
+        res.json([]);
+      }
+    } else {
+      res.json([]);
+    }
+  } catch (error) {
+    console.error(`Error loading module ${req.params.name}:`, error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// POST generic module data dynamically to TiDB
+app.post('/api/module/:name', async (req, res) => {
+  try {
+    const { name } = req.params;
+    const { data } = req.body;
+    const dataStr = JSON.stringify(data || []);
+
+    await pool.query(
+      `INSERT INTO crm_modules_data (module_name, data) VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE data = ?`,
+      [name, dataStr, dataStr]
+    );
+
+    res.json({ success: true, module: name });
+  } catch (error) {
+    console.error(`Error saving module ${req.params.name}:`, error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // GET all user attendance records

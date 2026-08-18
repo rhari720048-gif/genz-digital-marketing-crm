@@ -14,6 +14,8 @@ import {
   Check
 } from 'lucide-react';
 
+import { getApiUrl } from '../apiConfig';
+
 const NOTES_STORAGE_KEY = 'crm_shared_notes_v3';
 
 const DEFAULT_NOTES = [];
@@ -27,11 +29,37 @@ export default function NotesView({ stats, user }) {
     return DEFAULT_NOTES;
   });
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Sync notes from TiDB database on mount
   useEffect(() => {
+    fetch(getApiUrl('/api/module/notes'))
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setNotes(data);
+        }
+        setIsInitialized(true);
+      })
+      .catch(err => {
+        console.error('Failed to sync notes from database:', err);
+        setIsInitialized(true);
+      });
+  }, []);
+
+  // Save notes to TiDB database when state changes
+  useEffect(() => {
+    if (!isInitialized) return;
     try {
       localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
     } catch (e) {}
-  }, [notes]);
+
+    fetch(getApiUrl('/api/module/notes'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: notes })
+    }).catch(err => console.error('Error saving notes to DB:', err));
+  }, [notes, isInitialized]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

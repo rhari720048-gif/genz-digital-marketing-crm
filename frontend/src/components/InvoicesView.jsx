@@ -20,6 +20,8 @@ import {
 
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
 
+import { getApiUrl } from '../apiConfig';
+
 export default function InvoicesView({ stats }) {
   const [invoices, setInvoices] = useState(() => {
     try {
@@ -33,11 +35,37 @@ export default function InvoicesView({ stats }) {
     return [];
   });
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Sync invoices from TiDB database on mount
   React.useEffect(() => {
+    fetch(getApiUrl('/api/module/invoices'))
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setInvoices(data);
+        }
+        setIsInitialized(true);
+      })
+      .catch(err => {
+        console.error('Failed to sync invoices from database:', err);
+        setIsInitialized(true);
+      });
+  }, []);
+
+  // Save invoices to TiDB database when state changes
+  React.useEffect(() => {
+    if (!isInitialized) return;
     try {
       localStorage.setItem('crm_invoices_v2', JSON.stringify(invoices));
     } catch (e) {}
-  }, [invoices]);
+
+    fetch(getApiUrl('/api/module/invoices'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: invoices })
+    }).catch(err => console.error('Error saving invoices to DB:', err));
+  }, [invoices, isInitialized]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

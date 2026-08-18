@@ -19,6 +19,8 @@ import {
   List
 } from 'lucide-react';
 
+import { getApiUrl } from '../apiConfig';
+
 const STORAGE_KEY = 'crm_user_documents_v2';
 
 export default function DocumentsView({ user }) {
@@ -32,6 +34,40 @@ export default function DocumentsView({ user }) {
     } catch (e) {}
     return [];
   });
+
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Sync documents from TiDB database on mount
+  useEffect(() => {
+    fetch(getApiUrl('/api/module/documents'))
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setDocuments(data);
+        }
+        setIsInitialized(true);
+      })
+      .catch(err => {
+        console.error('Failed to sync documents from database:', err);
+        setIsInitialized(true);
+      });
+  }, []);
+
+  // Save documents to TiDB database when state changes
+  useEffect(() => {
+    if (!isInitialized) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    } catch (e) {
+      console.error('Error saving documents to localStorage:', e);
+    }
+
+    fetch(getApiUrl('/api/module/documents'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: documents })
+    }).catch(err => console.error('Error saving documents to DB:', err));
+  }, [documents, isInitialized]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid');
@@ -47,14 +83,6 @@ export default function DocumentsView({ user }) {
   // Preview Modal State
   const [previewDoc, setPreviewDoc] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
-    } catch (e) {
-      console.error('Error saving documents to localStorage:', e);
-    }
-  }, [documents]);
 
   const showToast = (msg) => {
     setToastMessage(msg);

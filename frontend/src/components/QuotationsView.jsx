@@ -23,6 +23,8 @@ import {
 
 import { formatDateDDMMYYYY } from '../utils/dateFormatter';
 
+import { getApiUrl } from '../apiConfig';
+
 export default function QuotationsView({ stats, refetchStats }) {
   const [quotations, setQuotations] = useState(() => {
     try {
@@ -36,11 +38,37 @@ export default function QuotationsView({ stats, refetchStats }) {
     return [];
   });
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Sync quotations from TiDB database on mount
   useEffect(() => {
+    fetch(getApiUrl('/api/module/quotations'))
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setQuotations(data);
+        }
+        setIsInitialized(true);
+      })
+      .catch(err => {
+        console.error('Failed to sync quotations from database:', err);
+        setIsInitialized(true);
+      });
+  }, []);
+
+  // Save quotations to TiDB database when state changes
+  useEffect(() => {
+    if (!isInitialized) return;
     try {
       localStorage.setItem('crm_quotations_v2', JSON.stringify(quotations));
     } catch (e) {}
-  }, [quotations]);
+
+    fetch(getApiUrl('/api/module/quotations'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: quotations })
+    }).catch(err => console.error('Error saving quotations to DB:', err));
+  }, [quotations, isInitialized]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

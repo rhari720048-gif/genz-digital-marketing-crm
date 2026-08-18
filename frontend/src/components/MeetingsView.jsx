@@ -18,6 +18,8 @@ import {
   Trash2
 } from 'lucide-react';
 
+import { getApiUrl } from '../apiConfig';
+
 const MEETINGS_STORAGE_KEY = 'crm_shared_meetings_v3';
 
 const DEFAULT_MEETINGS = [];
@@ -31,11 +33,37 @@ export default function MeetingsView({ stats, user }) {
     return DEFAULT_MEETINGS;
   });
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Sync meetings from TiDB database on mount
   useEffect(() => {
+    fetch(getApiUrl('/api/module/meetings'))
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setMeetings(data);
+        }
+        setIsInitialized(true);
+      })
+      .catch(err => {
+        console.error('Failed to sync meetings from database:', err);
+        setIsInitialized(true);
+      });
+  }, []);
+
+  // Save meetings to TiDB database when state changes
+  useEffect(() => {
+    if (!isInitialized) return;
     try {
       localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(meetings));
     } catch (e) {}
-  }, [meetings]);
+
+    fetch(getApiUrl('/api/module/meetings'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: meetings })
+    }).catch(err => console.error('Error saving meetings to DB:', err));
+  }, [meetings, isInitialized]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
