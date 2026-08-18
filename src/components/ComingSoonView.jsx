@@ -8,6 +8,7 @@ import NotesView from './NotesView';
 import MeetingsView from './MeetingsView';
 import UsersView from './UsersView';
 import AdminAttendanceOversightView from './AdminAttendanceOversightView';
+import DocumentsView from './DocumentsView';
 
 export default function ComingSoonView({ 
   activeTab, 
@@ -75,6 +76,11 @@ export default function ComingSoonView({
   // 7. Meetings Page
   if (activeTab === 'meetings') {
     return <MeetingsView stats={stats} user={user} />;
+  }
+
+  // 8. Documents Page
+  if (activeTab === 'documents') {
+    return <DocumentsView user={user} />;
   }
 
   // 8. All Users Management Page

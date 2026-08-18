@@ -21,7 +21,8 @@ import {
   Plus,
   Minus,
   Activity,
-  ShieldCheck
+  ShieldCheck,
+  FolderKanban
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMobile, onCloseMobile }) {
@@ -82,6 +83,11 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       id: 'meetings',
       label: '7. Meetings',
       icon: Calendar
+    },
+    {
+      id: 'documents',
+      label: '8. Documents',
+      icon: FolderKanban
     }
   ];
 
@@ -128,6 +134,11 @@ export default function Sidebar({ activeTab, setActiveTab, stats, user, isOpenMo
       id: 'meetings',
       label: '7. Meetings',
       icon: Calendar
+    },
+    {
+      id: 'documents',
+      label: '8. Documents',
+      icon: FolderKanban
     }
   ];
 
