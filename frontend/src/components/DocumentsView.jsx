@@ -179,9 +179,23 @@ export default function DocumentsView({ user }) {
 
   const getFileIcon = (fileType) => {
     if (fileType?.includes('image')) {
-      return <ImageIcon className="w-5 h-5 text-emerald-600" />;
+      return <ImageIcon className="w-5 h-5" />;
     }
-    return <FileText className="w-5 h-5 text-royal-600" />;
+    return <FileText className="w-5 h-5" />;
+  };
+
+  const getFileIconContainerClass = (fileType) => {
+    if (fileType?.includes('image')) {
+      return "p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100/50 shrink-0 group-hover:scale-105 transition-transform shadow-2xs";
+    }
+    return "p-2.5 rounded-2xl bg-royal-50 text-royal-600 border border-royal-100/50 shrink-0 group-hover:scale-105 transition-transform shadow-2xs";
+  };
+
+  const getFileIconTableContainerClass = (fileType) => {
+    if (fileType?.includes('image')) {
+      return "p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100/30 shrink-0";
+    }
+    return "p-2 rounded-xl bg-royal-50 text-royal-600 border border-royal-100/30 shrink-0";
   };
 
   return (
@@ -317,7 +331,7 @@ export default function DocumentsView({ user }) {
             >
               <div className="space-y-2.5">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 shrink-0 group-hover:scale-105 transition-transform">
+                  <div className={getFileIconContainerClass(doc.fileType)}>
                     {getFileIcon(doc.fileType)}
                   </div>
                 </div>
@@ -390,7 +404,7 @@ export default function DocumentsView({ user }) {
                   <tr key={doc.id} className="hover:bg-royal-50/30 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-xl bg-slate-100 shrink-0">
+                        <div className={getFileIconTableContainerClass(doc.fileType)}>
                           {getFileIcon(doc.fileType)}
                         </div>
                         <div>
